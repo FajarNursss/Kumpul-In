@@ -127,24 +127,24 @@ export default function BookingForm({
           </div>
 
           {/* Room Details Card */}
-          <div className="p-4 rounded-2xl bg-blue-50/50 border border-blue-100 space-y-3">
+          <div className="p-4 rounded-2xl bg-brand-tealLight/50 border border-brand-teal/30 space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <Building className="w-4 h-4 text-blue-600" />
+                <Building className="w-4 h-4 text-brand-dark" />
                 {room.name}
               </h4>
-              <span className="text-xs font-semibold px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-800">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-brand-dark border border-brand-teal/30">
                 {room.category}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-blue-100/60">
+            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-brand-teal/20">
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-blue-500" />
+                <Calendar className="w-3.5 h-3.5 text-brand-teal" />
                 <span>{date}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-blue-500" />
+                <Clock className="w-3.5 h-3.5 text-brand-teal" />
                 <span>{isDaily ? '08:00 - 18:00 (Harian)' : slot?.time}</span>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function BookingForm({
             <button
               type="submit"
               disabled={loading || currentUser?.booking_quota <= 0 || (isDaily && isGuest)}
-              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
+              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-dark text-white hover:bg-brand-darkHover shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>

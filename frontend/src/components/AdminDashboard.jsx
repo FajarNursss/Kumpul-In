@@ -107,7 +107,7 @@ export default function AdminDashboard({ currentUser }) {
   if (loading && !stats) {
     return (
       <div className="py-24 flex flex-col items-center justify-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-purple-600 mb-2" />
+        <Loader2 className="w-8 h-8 animate-spin text-brand-dark mb-2" />
         <p className="text-sm font-medium">Memuat Dashboard Administrator...</p>
       </div>
     );
@@ -116,19 +116,19 @@ export default function AdminDashboard({ currentUser }) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="p-6 rounded-3xl bg-gradient-to-r from-purple-800 via-indigo-800 to-slate-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xl">
+      <div className="p-6 rounded-2xl bg-brand-dark text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-slate-700">
         <div className="flex items-center space-x-3">
-          <div className="w-12 h-12 rounded-2xl bg-white/10 backdrop-blur-md flex items-center justify-center text-purple-200">
+          <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white">
             <Shield className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-purple-500/30 text-purple-200 border border-purple-400/20">
+              <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-brand-teal border border-brand-teal/30">
                 Pusat Kendali Admin
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-black mt-1">Dashboard Pengelola Kumpul-In</h1>
-            <p className="text-xs text-purple-200/80">Pantau seluruh reservasi, kelola ketersediaan ruangan, dan kelola kuota pengguna.</p>
+            <h1 className="text-xl sm:text-2xl font-bold mt-1">Dashboard Pengelola Kumpul-In</h1>
+            <p className="text-xs text-slate-300">Pantau seluruh reservasi, kelola ketersediaan ruangan, dan kelola kuota pengguna.</p>
           </div>
         </div>
 
@@ -192,7 +192,7 @@ export default function AdminDashboard({ currentUser }) {
           onClick={() => setActiveTab('bookings')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-2 ${
             activeTab === 'bookings'
-              ? 'border-purple-600 text-purple-700'
+              ? 'border-brand-dark text-brand-dark'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -207,7 +207,7 @@ export default function AdminDashboard({ currentUser }) {
           onClick={() => setActiveTab('rooms')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-2 ${
             activeTab === 'rooms'
-              ? 'border-purple-600 text-purple-700'
+              ? 'border-brand-dark text-brand-dark'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -330,7 +330,7 @@ export default function AdminDashboard({ currentUser }) {
             <h3 className="text-base font-bold text-slate-800">Daftar Ruangan Komunitas</h3>
             <button
               onClick={() => setIsAddRoomOpen(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-md shadow-purple-500/20 transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-dark text-white hover:bg-brand-darkHover shadow-sm transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Ruangan Baru</span>
@@ -476,3 +476,4 @@ export default function AdminDashboard({ currentUser }) {
     </div>
   );
 }
+

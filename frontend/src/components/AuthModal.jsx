@@ -62,7 +62,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
         {/* Top Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
-            <img src="/logo.jpg" alt="Logo Kumpul-In" className="w-10 h-10 object-contain rounded-xl shadow-sm" />
+            <img src="/logo.png" alt="Logo Kumpul-In" className="h-10 w-auto object-contain" />
             <div>
               <h3 className="text-lg font-bold text-slate-900">
                 {mode === 'login' ? 'Masuk ke Kumpul-In' : 'Daftar Akun Baru'}
@@ -83,12 +83,12 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
           <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider block mb-2">
             Akses Cepat Demo Praktikum:
           </span>
-          <div className="grid grid-cols-3 gap-2 text-xs font-semibold">
+          <div className="grid grid-cols-3 gap-2 text-xs font-bold">
             <button
               type="button"
               disabled={loading}
               onClick={() => handleQuickLogin('admin')}
-              className="px-2.5 py-1.5 rounded-xl bg-purple-100 text-purple-800 hover:bg-purple-200 transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-xl bg-brand-dark text-white hover:bg-brand-darkHover transition-colors flex items-center justify-center gap-1 shadow-sm"
             >
               <Shield className="w-3.5 h-3.5" />
               <span>Admin</span>
@@ -97,7 +97,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               type="button"
               disabled={loading}
               onClick={() => handleQuickLogin('member')}
-              className="px-2.5 py-1.5 rounded-xl bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-xl bg-brand-teal text-white hover:bg-brand-teal/90 transition-colors flex items-center justify-center gap-1 shadow-sm"
             >
               <Award className="w-3.5 h-3.5" />
               <span>Member</span>
@@ -241,7 +241,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all flex items-center justify-center space-x-2 mt-2"
+              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-dark text-white hover:bg-brand-darkHover shadow-md transition-all flex items-center justify-center space-x-2 mt-2"
             >
               {loading ? (
                 <>
@@ -261,3 +261,4 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
     </div>
   );
 }
+

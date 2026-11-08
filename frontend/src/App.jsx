@@ -232,31 +232,26 @@ export default function App() {
           /* User Catalog & Reservation Tab (US-01 to US-04) */
           <>
             {/* User Welcome Banner */}
-            <div className="relative rounded-3xl bg-gradient-to-r from-blue-700 via-indigo-700 to-violet-800 text-white p-6 sm:p-8 shadow-xl overflow-hidden">
-              <div className="relative z-10 max-w-3xl space-y-3">
+            <div className="rounded-2xl bg-brand-dark text-white p-6 sm:p-7 shadow-sm border border-slate-700">
+              <div className="max-w-3xl space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md text-xs font-semibold text-blue-100 border border-white/20">
-                    <Sparkles className="w-3.5 h-3.5 text-blue-200" />
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-brand-teal border border-brand-teal/30">
                     <span>Dashboard Reservasi {currentUser?.role === 'member' ? 'Member' : 'Guest'}</span>
                   </span>
                   {currentUser && (
-                    <span className="text-xs bg-emerald-500/30 text-emerald-100 border border-emerald-400/30 px-2.5 py-0.5 rounded-full font-bold">
+                    <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-2.5 py-0.5 rounded-full font-bold">
                       Sisa Kuota: {currentUser.booking_quota} slot
                     </span>
                   )}
                 </div>
 
-                <h1 className="text-2xl sm:text-3xl font-black tracking-tight leading-tight">
+                <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
                   Halo, {currentUser?.name || 'Kawan Kumpul-In'}!
                 </h1>
-                <p className="text-xs sm:text-sm text-blue-100/90 leading-relaxed max-w-2xl">
-                  Pilih ruangan kerja atau ruang diskusi yang Anda butuhkan. Cek ketersediaan slot waktu secara real-time dan pesan tanpa risiko jadwal bentrok.
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                  Pilih ruangan kerja atau ruang diskusi yang Anda butuhkan. Cek ketersediaan slot waktu secara transparan dan pesan tanpa risiko jadwal bentrok.
                 </p>
               </div>
-
-              {/* Decorative Background Circles */}
-              <div className="absolute -right-12 -bottom-12 w-64 h-64 bg-white/5 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute right-32 -top-12 w-48 h-48 bg-indigo-500/20 rounded-full blur-xl pointer-events-none" />
             </div>
 
             {/* Catalog & Filter Section (US-01) */}
@@ -297,7 +292,7 @@ export default function App() {
                   {durationType === 'daily' && !availability?.has_daily_booking && (
                     <button
                       onClick={() => setIsBookingModalOpen(true)}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-blue-600 text-white hover:bg-blue-700 shadow-md shadow-blue-500/20 transition-all flex items-center space-x-1.5 self-start sm:self-auto"
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-coral text-white hover:bg-brand-coralHover shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto"
                     >
                       <span>Lanjut Booking Seharian</span>
                       <ArrowRight className="w-4 h-4" />

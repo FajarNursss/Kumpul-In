@@ -1,25 +1,25 @@
 import React from 'react';
-import { Users, Clock, CheckCircle2, ChevronRight, Sparkles, Building } from 'lucide-react';
+import { Users, ChevronRight } from 'lucide-react';
 
 const categoryColorMap = {
   'Open Desk': {
-    badge: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    accent: 'from-emerald-500 to-teal-600',
+    stripe: 'bg-brand-teal',
+    badge: 'bg-brand-tealLight text-brand-dark border-brand-teal/30',
   },
   'Meeting Pod': {
-    badge: 'bg-blue-50 text-blue-700 border-blue-200',
-    accent: 'from-blue-500 to-indigo-600',
+    stripe: 'bg-brand-dark',
+    badge: 'bg-slate-100 text-brand-dark border-slate-200',
   },
   'Event Space': {
-    badge: 'bg-purple-50 text-purple-700 border-purple-200',
-    accent: 'from-purple-500 to-pink-600',
+    stripe: 'bg-brand-coral',
+    badge: 'bg-brand-coralLight text-brand-coral border-brand-coral/30',
   },
 };
 
 export default function RoomCard({ room, isSelected, onSelect }) {
   const categoryStyle = categoryColorMap[room.category] || {
+    stripe: 'bg-slate-500',
     badge: 'bg-slate-100 text-slate-700 border-slate-200',
-    accent: 'from-slate-500 to-slate-700',
   };
 
   const formattedPrice = new Intl.NumberFormat('id-ID', {
@@ -33,19 +33,19 @@ export default function RoomCard({ room, isSelected, onSelect }) {
       onClick={onSelect}
       className={`group relative bg-white rounded-2xl border transition-all duration-200 overflow-hidden cursor-pointer flex flex-col justify-between ${
         isSelected
-          ? 'border-blue-600 ring-2 ring-blue-600/30 shadow-lg shadow-blue-500/10 -translate-y-1'
-          : 'border-slate-200/80 hover:border-slate-300 hover:shadow-md'
+          ? 'border-brand-dark ring-2 ring-brand-dark/20 shadow-lg -translate-y-0.5'
+          : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
       }`}
     >
       {/* Top Banner Stripe */}
-      <div className={`h-2 w-full bg-gradient-to-r ${categoryStyle.accent}`} />
+      <div className={`h-2 w-full ${categoryStyle.stripe}`} />
 
       <div className="p-5 flex-1 flex flex-col justify-between space-y-4">
         <div>
           {/* Header & Badges */}
           <div className="flex items-center justify-between gap-2 mb-2">
             <span
-              className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${categoryStyle.badge}`}
+              className={`text-xs font-bold px-2.5 py-0.5 rounded-full border ${categoryStyle.badge}`}
             >
               {room.category}
             </span>
@@ -56,15 +56,15 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           </div>
 
           {/* Room Name */}
-          <h3 className="text-lg font-bold text-slate-900 group-hover:text-blue-600 transition-colors">
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-dark transition-colors">
             {room.name}
           </h3>
 
           <p className="text-xs text-slate-500 mt-1 line-clamp-2">
             {room.category === 'Event Space'
-              ? 'Ruang serbaguna untuk seminar, workshop, dan gathering komunitas skala besar.'
+              ? 'Aula serbaguna untuk seminar, workshop, dan gathering komunitas skala besar.'
               : room.category === 'Meeting Pod'
-              ? 'Ruangan kedap suara ber-AC dilengkapi display screen dan white board.'
+              ? 'Ruangan kedap suara ber-AC dilengkapi display screen dan whiteboard.'
               : 'Meja kerja personal ergonomis dengan stopkontak dan Wi-Fi cepat.'}
           </p>
         </div>
@@ -80,10 +80,10 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           </div>
 
           <button
-            className={`flex items-center space-x-1 px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`flex items-center space-x-1 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               isSelected
-                ? 'bg-blue-600 text-white shadow-sm'
-                : 'bg-slate-100 text-slate-700 group-hover:bg-blue-50 group-hover:text-blue-700'
+                ? 'bg-brand-dark text-white shadow-sm'
+                : 'bg-slate-100 text-slate-700 group-hover:bg-brand-dark group-hover:text-white'
             }`}
           >
             <span>{isSelected ? 'Terpilih' : 'Cek Jadwal'}</span>
@@ -94,4 +94,3 @@ export default function RoomCard({ room, isSelected, onSelect }) {
     </div>
   );
 }
-
