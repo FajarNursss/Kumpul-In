@@ -9,10 +9,11 @@
 
 ## 📌 1. Ringkasan Proyek
 
-**Kumpul-In** adalah aplikasi reservasi ruang kerja komunal (*Community Hub*) berbasis *Decoupled Client-Server* (SPA Frontend + RESTful API Backend) yang memecahkan 3 kendala utama pengguna:
-1. **Jadwal Bentrok & Penumpukan:** Transparansi kalender slot waktu dengan deteksi tabrakan jadwal (*real-time collision detection*).
-2. **Kategori Ruangan Tidak Jelas:** Pengelompokan terstruktur antara *Open Desk*, *Meeting Pod*, dan *Event Space* beserta kapasitas dan tarif sewa.
-3. **Pemesanan Manual Lambat:** Sistem reservasi otomatis dengan penerbitan kode booking instan (`CHB-YYYYMMDD-XXXX`).
+**Kumpul-In** adalah aplikasi reservasi ruang kerja komunal (*Community Hub*) berbasis *Decoupled Client-Server* (SPA Frontend + RESTful API Backend) yang dilengkapi:
+1. **Landing Page Publik:** Memperkenalkan fasilitas ruang komunitas (Open Desk, Meeting Pod, Event Space) dan alur reservasi.
+2. **Sistem Autentikasi (Register & Login):** Berbasis Laravel Sanctum dengan dukungan akun **Member**, **Guest**, dan **Administrator**, dilengkapi tombol *1-Click Demo Login*.
+3. **Dashboard Pengguna (Member / Guest):** Katalog dinamis, transparansi slot kalender real-time, penerbitan kode booking instan, pencegahan *double booking*, dan riwayat reservasi.
+4. **Dashboard Administrator:** Ringkasan analitik statistik, kelola status seluruh reservasi (pembatalan/pemulihan kuota), serta manajemen ketersediaan ruangan hub.
 
 ---
 
