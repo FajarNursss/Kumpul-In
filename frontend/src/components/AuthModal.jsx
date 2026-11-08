@@ -88,7 +88,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               type="button"
               disabled={loading}
               onClick={() => handleQuickLogin('admin')}
-              className="px-2.5 py-1.5 rounded-xl bg-brand-dark text-white hover:bg-brand-darkHover transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-xl bg-[#326273] text-white hover:bg-[#264c5a] transition-colors flex items-center justify-center gap-1 shadow-sm font-bold"
             >
               <Shield className="w-3.5 h-3.5" />
               <span>Admin</span>
@@ -97,7 +97,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               type="button"
               disabled={loading}
               onClick={() => handleQuickLogin('member')}
-              className="px-2.5 py-1.5 rounded-xl bg-brand-teal text-white hover:bg-brand-teal/90 transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-xl bg-[#5c9ead] text-white hover:bg-[#4d8b99] transition-colors flex items-center justify-center gap-1 shadow-sm font-bold"
             >
               <Award className="w-3.5 h-3.5" />
               <span>Member</span>
@@ -106,7 +106,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               type="button"
               disabled={loading}
               onClick={() => handleQuickLogin('guest')}
-              className="px-2.5 py-1.5 rounded-xl bg-slate-200 text-slate-800 hover:bg-slate-300 transition-colors flex items-center justify-center gap-1 shadow-sm"
+              className="px-2.5 py-1.5 rounded-xl bg-slate-200 text-slate-800 hover:bg-slate-300 transition-colors flex items-center justify-center gap-1 shadow-sm font-bold"
             >
               <User className="w-3.5 h-3.5" />
               <span>Guest</span>
@@ -241,7 +241,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-dark text-white hover:bg-brand-darkHover shadow-md transition-all flex items-center justify-center space-x-2 mt-2"
+              className="w-full py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md transition-all flex items-center justify-center space-x-2 mt-2"
             >
               {loading ? (
                 <>

@@ -17,26 +17,20 @@ export default function Navbar({
     <header className="sticky top-0 z-40 bg-white border-b border-slate-200 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo & Brand Identity */}
-          <div className="flex items-center space-x-3 cursor-pointer" onClick={onGoHome}>
+          {/* Logo Brand: Single Clean Display (No Duplicate Text) */}
+          <div className="flex items-center cursor-pointer py-1" onClick={onGoHome}>
             <img
               src="/logo.png"
-              alt="Logo Kumpul-In"
-              className="h-10 sm:h-12 w-auto object-contain"
+              alt="Kumpul-In Community Hub"
+              className="h-9 sm:h-11 w-auto object-contain"
             />
-            <div className="border-l border-slate-200 pl-3">
-              <span className="text-xl sm:text-2xl font-extrabold text-brand-dark tracking-tight">
-                Kumpul-In
-              </span>
-              <p className="text-[10px] text-slate-500 font-medium hidden sm:block">Community Hub & Coworking</p>
-            </div>
           </div>
 
           {/* Navigation Links / Tabs */}
           <nav className="flex items-center space-x-1 sm:space-x-2">
             <button
               onClick={onGoHome}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-brand-dark hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center gap-1.5"
             >
               <Home className="w-4 h-4 text-slate-400" />
               <span className="hidden md:inline">Beranda</span>
@@ -47,8 +41,8 @@ export default function Navbar({
                 onClick={() => setActiveTab('admin')}
                 className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
                   activeTab === 'admin'
-                    ? 'bg-brand-dark text-white shadow-sm'
-                    : 'text-slate-600 hover:text-brand-dark hover:bg-slate-100'
+                    ? 'bg-[#326273] text-white shadow-sm'
+                    : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                 }`}
               >
                 <Shield className="w-4 h-4" />
@@ -60,8 +54,8 @@ export default function Navbar({
                   onClick={() => setActiveTab('catalog')}
                   className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all ${
                     activeTab === 'catalog'
-                      ? 'bg-brand-dark text-white shadow-sm'
-                      : 'text-slate-600 hover:text-brand-dark hover:bg-slate-100'
+                      ? 'bg-[#326273] text-white shadow-sm'
+                      : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                   }`}
                 >
                   Katalog Ruangan
@@ -72,8 +66,8 @@ export default function Navbar({
                     onClick={() => setActiveTab('my-bookings')}
                     className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 ${
                       activeTab === 'my-bookings'
-                        ? 'bg-brand-dark text-white shadow-sm'
-                        : 'text-slate-600 hover:text-brand-dark hover:bg-slate-100'
+                        ? 'bg-[#326273] text-white shadow-sm'
+                        : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                     }`}
                   >
                     <CalendarCheck className="w-4 h-4" />
@@ -109,7 +103,7 @@ export default function Navbar({
                     disabled={loadingUser}
                     className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all ${
                       currentUser.role === 'guest'
-                        ? 'bg-white text-brand-dark shadow-sm font-bold'
+                        ? 'bg-white text-[#326273] shadow-sm font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="Beralih ke akun Guest (Kuota 2, hanya per jam)"
@@ -123,7 +117,7 @@ export default function Navbar({
                     disabled={loadingUser}
                     className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all ${
                       currentUser.role === 'member'
-                        ? 'bg-brand-teal text-white shadow-sm font-bold'
+                        ? 'bg-[#5c9ead] text-white shadow-sm font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="Beralih ke akun Member (Kuota 5, bisa sewa harian)"
@@ -137,7 +131,7 @@ export default function Navbar({
                     disabled={loadingUser}
                     className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-lg transition-all ${
                       currentUser.role === 'admin'
-                        ? 'bg-brand-dark text-white shadow-sm font-bold'
+                        ? 'bg-[#326273] text-white shadow-sm font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="Beralih ke akun Admin (Kelola seluruh reservasi & ruangan)"
@@ -160,13 +154,13 @@ export default function Navbar({
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => onOpenAuth('login')}
-                  className="px-3.5 py-2 rounded-xl text-xs font-bold text-slate-700 hover:bg-slate-100"
+                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors"
                 >
                   Masuk
                 </button>
                 <button
                   onClick={() => onOpenAuth('register')}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-coral text-white hover:bg-brand-coralHover shadow-sm"
+                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all"
                 >
                   Daftar
                 </button>

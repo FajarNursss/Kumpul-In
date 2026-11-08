@@ -4,12 +4,94 @@
 
 @layer base {
   body {
-    @apply bg-[#f8fafc] text-slate-800 antialiased;
-    font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+    background-color: #f8fafc;
+    color: #1e293b;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
   ::selection {
     background-color: #326273;
     color: #ffffff;
   }
+}
+
+/* Explicit Brand Utilities - Guarantees 100% Solid Rendering Across Any HMR/Cache State */
+.bg-brand-dark {
+  background-color: #326273 !important;
+  color: #ffffff !important;
+}
+.bg-brand-darkHover:hover,
+.hover\:bg-brand-darkHover:hover {
+  background-color: #264c5a !important;
+}
+
+.text-brand-dark {
+  color: #326273 !important;
+}
+
+.border-brand-dark {
+  border-color: #326273 !important;
+}
+
+.bg-brand-teal {
+  background-color: #5c9ead !important;
+  color: #ffffff !important;
+}
+
+.text-brand-teal {
+  color: #326273 !important;
+}
+
+.border-brand-teal {
+  border-color: #5c9ead !important;
+}
+
+.bg-brand-tealLight {
+  background-color: #eef6f8 !important;
+}
+
+.bg-brand-coral {
+  background-color: #e39774 !important;
+  color: #ffffff !important;
+}
+.bg-brand-coralHover:hover,
+.hover\:bg-brand-coralHover:hover {
+  background-color: #d58560 !important;
+}
+
+.text-brand-coral {
+  color: #d58560 !important;
+}
+
+.border-brand-coral {
+  border-color: #e39774 !important;
+}
+
+.bg-brand-coralLight {
+  background-color: #fdf4f0 !important;
+}
+
+/* Common High-Reliability Button Classes */
+.btn-primary-dark {
+  background-color: #326273 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-primary-dark:hover {
+  background-color: #264c5a !important;
+}
+
+.btn-accent-coral {
+  background-color: #e39774 !important;
+  color: #ffffff !important;
+  font-weight: 700;
+  border-radius: 0.75rem;
+  transition: all 0.15s ease-in-out;
+}
+.btn-accent-coral:hover {
+  background-color: #d58560 !important;
 }

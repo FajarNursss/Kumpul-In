@@ -3,16 +3,16 @@ import { Users, ChevronRight } from 'lucide-react';
 
 const categoryColorMap = {
   'Open Desk': {
-    stripe: 'bg-brand-teal',
-    badge: 'bg-brand-tealLight text-brand-dark border-brand-teal/30',
+    stripe: 'bg-[#5c9ead]',
+    badge: 'bg-[#eef6f8] text-[#326273] border-[#5c9ead]/30',
   },
   'Meeting Pod': {
-    stripe: 'bg-brand-dark',
-    badge: 'bg-slate-100 text-brand-dark border-slate-200',
+    stripe: 'bg-[#326273]',
+    badge: 'bg-slate-100 text-[#326273] border-slate-200',
   },
   'Event Space': {
-    stripe: 'bg-brand-coral',
-    badge: 'bg-brand-coralLight text-brand-coral border-brand-coral/30',
+    stripe: 'bg-[#e39774]',
+    badge: 'bg-[#fdf4f0] text-[#d58560] border-[#e39774]/30',
   },
 };
 
@@ -33,7 +33,7 @@ export default function RoomCard({ room, isSelected, onSelect }) {
       onClick={onSelect}
       className={`group relative bg-white rounded-2xl border transition-all duration-200 overflow-hidden cursor-pointer flex flex-col justify-between ${
         isSelected
-          ? 'border-brand-dark ring-2 ring-brand-dark/20 shadow-lg -translate-y-0.5'
+          ? 'border-[#326273] ring-2 ring-[#326273]/20 shadow-md -translate-y-0.5'
           : 'border-slate-200 hover:border-slate-300 hover:shadow-md'
       }`}
     >
@@ -56,7 +56,7 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           </div>
 
           {/* Room Name */}
-          <h3 className="text-base font-bold text-slate-900 group-hover:text-brand-dark transition-colors">
+          <h3 className="text-base font-bold text-slate-900 group-hover:text-[#326273] transition-colors">
             {room.name}
           </h3>
 
@@ -82,8 +82,8 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           <button
             className={`flex items-center space-x-1 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
               isSelected
-                ? 'bg-brand-dark text-white shadow-sm'
-                : 'bg-slate-100 text-slate-700 group-hover:bg-brand-dark group-hover:text-white'
+                ? 'bg-[#326273] text-white shadow-sm'
+                : 'bg-slate-100 text-slate-700 group-hover:bg-[#326273] group-hover:text-white'
             }`}
           >
             <span>{isSelected ? 'Terpilih' : 'Cek Jadwal'}</span>

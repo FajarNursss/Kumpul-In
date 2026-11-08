@@ -117,3 +117,4 @@ Setiap User Story di bawah dapat langsung disalin menjadi **Issue / Card** di Gi
   * Pengujian responsivitas mobile perlu diperluas ke berbagai jenis perangkat tablet.
 * **Action item untuk Sprint berikutnya:**
   * Menambahkan integrasi payment gateway (Midtrans sandbox) dan notifikasi email/WhatsApp otomatis.
+

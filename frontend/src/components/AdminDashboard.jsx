@@ -330,7 +330,7 @@ export default function AdminDashboard({ currentUser }) {
             <h3 className="text-base font-bold text-slate-800">Daftar Ruangan Komunitas</h3>
             <button
               onClick={() => setIsAddRoomOpen(true)}
-              className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-dark text-white hover:bg-brand-darkHover shadow-sm transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Ruangan Baru</span>
@@ -464,7 +464,7 @@ export default function AdminDashboard({ currentUser }) {
                 <button
                   type="submit"
                   disabled={savingRoom}
-                  className="flex-1 py-2 rounded-xl font-bold bg-purple-600 text-white hover:bg-purple-700 shadow-md shadow-purple-500/20"
+                  className="flex-1 py-2 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm"
                 >
                   {savingRoom ? 'Menyimpan...' : 'Simpan Ruangan'}
                 </button>

@@ -232,10 +232,10 @@ export default function App() {
           /* User Catalog & Reservation Tab (US-01 to US-04) */
           <>
             {/* User Welcome Banner */}
-            <div className="rounded-2xl bg-brand-dark text-white p-6 sm:p-7 shadow-sm border border-slate-700">
+            <div className="rounded-2xl bg-[#326273] text-white p-6 sm:p-7 shadow-sm border border-slate-700">
               <div className="max-w-3xl space-y-2.5">
                 <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-brand-teal border border-brand-teal/30">
+                  <span className="inline-flex items-center space-x-1 px-2.5 py-0.5 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
                     <span>Dashboard Reservasi {currentUser?.role === 'member' ? 'Member' : 'Guest'}</span>
                   </span>
                   {currentUser && (
@@ -248,7 +248,7 @@ export default function App() {
                 <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
                   Halo, {currentUser?.name || 'Kawan Kumpul-In'}!
                 </h1>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
                   Pilih ruangan kerja atau ruang diskusi yang Anda butuhkan. Cek ketersediaan slot waktu secara transparan dan pesan tanpa risiko jadwal bentrok.
                 </p>
               </div>
@@ -292,7 +292,7 @@ export default function App() {
                   {durationType === 'daily' && !availability?.has_daily_booking && (
                     <button
                       onClick={() => setIsBookingModalOpen(true)}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-brand-coral text-white hover:bg-brand-coralHover shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto"
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto"
                     >
                       <span>Lanjut Booking Seharian</span>
                       <ArrowRight className="w-4 h-4" />

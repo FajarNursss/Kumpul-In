@@ -4,11 +4,11 @@ import { Clock, Lock, Check } from 'lucide-react';
 export default function SlotItem({ slot, isSelected, onSelect }) {
   const isBooked = slot.is_booked;
 
-  let stateClasses = 'bg-brand-tealLight/70 border-brand-teal/40 text-brand-dark hover:bg-brand-teal/20 hover:border-brand-teal';
+  let stateClasses = 'bg-[#eef6f8] border-[#5c9ead]/40 text-[#326273] hover:bg-[#5c9ead]/20 hover:border-[#5c9ead]';
   if (isBooked) {
-    stateClasses = 'bg-rose-50 border-rose-200 text-rose-500 cursor-not-allowed opacity-75';
+    stateClasses = 'bg-rose-50 border-rose-200 text-rose-600 cursor-not-allowed opacity-75';
   } else if (isSelected) {
-    stateClasses = 'bg-brand-dark border-brand-dark text-white shadow-md ring-2 ring-brand-dark/20';
+    stateClasses = 'bg-[#326273] border-[#326273] text-white shadow-md ring-2 ring-[#326273]/20';
   }
 
   return (
@@ -28,7 +28,7 @@ export default function SlotItem({ slot, isSelected, onSelect }) {
         ) : isSelected ? (
           <Check className="w-3.5 h-3.5 text-white" />
         ) : (
-          <span className="w-2 h-2 rounded-full bg-brand-teal" />
+          <span className="w-2 h-2 rounded-full bg-[#5c9ead]" />
         )}
       </div>
 
@@ -40,7 +40,7 @@ export default function SlotItem({ slot, isSelected, onSelect }) {
         ) : isSelected ? (
           <span className="font-bold text-white">Slot Terpilih</span>
         ) : (
-          <span className="text-brand-dark font-medium">Tersedia</span>
+          <span className="text-[#326273] font-medium">Tersedia</span>
         )}
       </div>
     </button>
