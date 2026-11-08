@@ -32,7 +32,7 @@ export default function SuccessModal({ bookingData, onClose }) {
             Kode Booking Resmi
           </span>
           <div className="flex items-center justify-center space-x-2">
-            <span className="text-lg sm:text-xl font-mono font-black text-brand-dark tracking-wide">
+            <span className="text-lg sm:text-xl font-mono font-black text-[#326273] tracking-wide">
               {bookingData.booking_code}
             </span>
             <button
@@ -76,7 +76,7 @@ export default function SuccessModal({ bookingData, onClose }) {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-brand-dark text-white hover:bg-brand-darkHover shadow-md transition-all flex items-center justify-center space-x-2"
+          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-md transition-all flex items-center justify-center space-x-2"
         >
           <span>Selesai & Tutup</span>
           <ArrowRight className="w-4 h-4" />

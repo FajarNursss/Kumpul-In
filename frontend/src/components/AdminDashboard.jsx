@@ -107,7 +107,7 @@ export default function AdminDashboard({ currentUser }) {
   if (loading && !stats) {
     return (
       <div className="py-24 flex flex-col items-center justify-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-brand-dark mb-2" />
+        <Loader2 className="w-8 h-8 animate-spin text-[#326273] mb-2" />
         <p className="text-sm font-medium">Memuat Dashboard Administrator...</p>
       </div>
     );
@@ -116,14 +116,14 @@ export default function AdminDashboard({ currentUser }) {
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
       {/* Header Banner */}
-      <div className="p-6 rounded-2xl bg-brand-dark text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-slate-700">
+      <div className="p-6 rounded-2xl bg-[#326273] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-slate-700">
         <div className="flex items-center space-x-3">
           <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center text-white">
             <Shield className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-brand-teal border border-brand-teal/30">
+              <span className="text-xs uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-[#5c9ead] border border-[#5c9ead]/40">
                 Pusat Kendali Admin
               </span>
             </div>
@@ -192,7 +192,7 @@ export default function AdminDashboard({ currentUser }) {
           onClick={() => setActiveTab('bookings')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-2 ${
             activeTab === 'bookings'
-              ? 'border-brand-dark text-brand-dark'
+              ? 'border-[#326273] text-[#326273]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -207,7 +207,7 @@ export default function AdminDashboard({ currentUser }) {
           onClick={() => setActiveTab('rooms')}
           className={`pb-3 transition-colors border-b-2 flex items-center gap-2 ${
             activeTab === 'rooms'
-              ? 'border-brand-dark text-brand-dark'
+              ? 'border-[#326273] text-[#326273]'
               : 'border-transparent text-slate-500 hover:text-slate-800'
           }`}
         >

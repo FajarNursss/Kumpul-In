@@ -67,7 +67,7 @@ export default function MyBookings({ currentUser }) {
           >
             <div className="flex items-start justify-between">
               <div>
-                <span className="text-[11px] font-mono font-bold text-brand-dark bg-brand-tealLight px-2 py-0.5 rounded border border-brand-teal/30">
+                <span className="text-[11px] font-mono font-bold text-[#326273] bg-[#eef6f8] px-2 py-0.5 rounded border border-[#5c9ead]/40">
                   {b.booking_code}
                 </span>
                 <h4 className="text-base font-bold text-slate-900 mt-1 flex items-center gap-1.5">

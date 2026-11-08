@@ -127,24 +127,24 @@ export default function BookingForm({
           </div>
 
           {/* Room Details Card */}
-          <div className="p-4 rounded-2xl bg-brand-tealLight/50 border border-brand-teal/30 space-y-3">
+          <div className="p-4 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 space-y-3">
             <div className="flex items-center justify-between">
               <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <Building className="w-4 h-4 text-brand-dark" />
+                <Building className="w-4 h-4 text-[#326273]" />
                 {room.name}
               </h4>
-              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-brand-dark border border-brand-teal/30">
+              <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-[#326273] border border-[#5c9ead]/40">
                 {room.category}
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-brand-teal/20">
+            <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-[#5c9ead]/20">
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-brand-teal" />
+                <Calendar className="w-3.5 h-3.5 text-[#5c9ead]" />
                 <span>{date}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-brand-teal" />
+                <Clock className="w-3.5 h-3.5 text-[#5c9ead]" />
                 <span>{isDaily ? '08:00 - 18:00 (Harian)' : slot?.time}</span>
               </div>
             </div>
@@ -183,7 +183,7 @@ export default function BookingForm({
             <button
               type="submit"
               disabled={loading || currentUser?.booking_quota <= 0 || (isDaily && isGuest)}
-              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-brand-dark text-white hover:bg-brand-darkHover shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
+              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
             >
               {loading ? (
                 <>
