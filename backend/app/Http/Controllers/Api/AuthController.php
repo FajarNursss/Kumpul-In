@@ -6,9 +6,45 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
+    /**
+     * Register a new user (Guest or Member).
+     */
+    public function register(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email|max:100',
+            'password' => 'required|string|min:6',
+            'role' => 'nullable|in:guest,member',
+        ]);
+
+        $role = $validated['role'] ?? 'guest';
+        $quota = $role === 'member' ? 5 : 2;
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $role,
+            'booking_quota' => $quota,
+        ]);
+
+        $token = $user->createToken('kumpulin_auth_token')->plainTextToken;
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Registrasi berhasil! Selamat datang di Kumpul-In.',
+            'data' => [
+                'user' => $user,
+                'token' => $token,
+            ],
+        ], 201);
+    }
+
     /**
      * Login with email and password, issuing a Sanctum token.
      */
@@ -24,7 +60,7 @@ class AuthController extends Controller
         if (!$user || !Hash::check($validated['password'], $user->password)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Email atau password salah.',
+                'message' => 'Email atau password yang Anda masukkan salah.',
             ], 401);
         }
 
@@ -41,12 +77,12 @@ class AuthController extends Controller
     }
 
     /**
-     * Quick login helper for demo purposes (Guest or Member).
+     * Quick login helper for demo purposes (Guest, Member, or Admin).
      */
     public function quickLogin(Request $request)
     {
         $role = $request->input('role', 'guest');
-        if (!in_array($role, ['guest', 'member'])) {
+        if (!in_array($role, ['guest', 'member', 'admin'])) {
             $role = 'guest';
         }
 
@@ -65,7 +101,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => "Login sebagai {$user->name} berhasil.",
+            'message' => "Login sebagai {$user->name} ({$user->role}) berhasil.",
             'data' => [
                 'user' => $user,
                 'token' => $token,
@@ -81,6 +117,19 @@ class AuthController extends Controller
         return response()->json([
             'success' => true,
             'data' => $request->user(),
+        ]);
+    }
+
+    /**
+     * Logout and revoke current token.
+     */
+    public function logout(Request $request)
+    {
+        $request->user()->currentAccessToken()->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Logout berhasil.',
         ]);
     }
 }

@@ -39,3 +39,4 @@ export default function RoomList({ rooms, selectedRoomId, onSelectRoom, loading 
     </div>
   );
 }
+

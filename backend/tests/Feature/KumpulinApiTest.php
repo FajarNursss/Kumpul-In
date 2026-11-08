@@ -153,4 +153,50 @@ class KumpulinApiTest extends TestCase
             $this->assertTrue($slot['is_booked']);
         }
     }
+
+    public function test_user_can_register_new_account()
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Ahmad Baru',
+            'email' => 'ahmad@kumpulin.test',
+            'password' => 'secret123',
+            'role' => 'member',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.user.role', 'member')
+            ->assertJsonPath('data.user.booking_quota', 5);
+
+        $this->assertDatabaseHas('users', ['email' => 'ahmad@kumpulin.test']);
+    }
+
+    public function test_admin_can_access_dashboard_stats_and_manage_bookings()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $this->assertNotNull($admin);
+
+        $response = $this->actingAs($admin, 'sanctum')->getJson('/api/admin/stats');
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonStructure([
+                'data' => [
+                    'total_users',
+                    'total_rooms',
+                    'active_rooms',
+                    'total_bookings',
+                    'confirmed_bookings',
+                    'today_bookings',
+                ]
+            ]);
+    }
+
+    public function test_non_admin_cannot_access_admin_stats()
+    {
+        $guest = User::where('role', 'guest')->first();
+
+        $response = $this->actingAs($guest, 'sanctum')->getJson('/api/admin/stats');
+        $response->assertStatus(403);
+    }
 }
+

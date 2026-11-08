@@ -22,6 +22,22 @@ api.interceptors.request.use(
 );
 
 export const authService = {
+  login: async (email, password) => {
+    const res = await api.post('/auth/login', { email, password });
+    if (res.data?.data?.token) {
+      localStorage.setItem('kumpulin_token', res.data.data.token);
+    }
+    return res.data;
+  },
+
+  register: async (userData) => {
+    const res = await api.post('/auth/register', userData);
+    if (res.data?.data?.token) {
+      localStorage.setItem('kumpulin_token', res.data.data.token);
+    }
+    return res.data;
+  },
+
   quickLogin: async (role = 'guest') => {
     const res = await api.post('/auth/quick-login', { role });
     if (res.data?.data?.token) {
@@ -35,7 +51,12 @@ export const authService = {
     return res.data;
   },
 
-  logout: () => {
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (e) {
+      // Ignore if token already revoked
+    }
     localStorage.removeItem('kumpulin_token');
   },
 };
@@ -68,6 +89,38 @@ export const bookingService = {
 
   getMyBookings: async () => {
     const res = await api.get('/bookings');
+    return res.data;
+  },
+};
+
+export const adminService = {
+  getStats: async () => {
+    const res = await api.get('/admin/stats');
+    return res.data;
+  },
+
+  getBookings: async (params = {}) => {
+    const res = await api.get('/admin/bookings', { params });
+    return res.data;
+  },
+
+  updateBookingStatus: async (id, status) => {
+    const res = await api.patch(`/admin/bookings/${id}/status`, { status });
+    return res.data;
+  },
+
+  createRoom: async (data) => {
+    const res = await api.post('/admin/rooms', data);
+    return res.data;
+  },
+
+  updateRoom: async (id, data) => {
+    const res = await api.patch(`/admin/rooms/${id}`, data);
+    return res.data;
+  },
+
+  deleteRoom: async (id) => {
+    const res = await api.delete(`/admin/rooms/${id}`);
     return res.data;
   },
 };

@@ -72,3 +72,4 @@ export default function ProposalUpload({ file, onSelectFile, error }) {
     </div>
   );
 }
+

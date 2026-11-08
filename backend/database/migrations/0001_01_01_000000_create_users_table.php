@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
-            $table->enum('role', ['guest', 'member'])->default('guest');
+            $table->enum('role', ['guest', 'member', 'admin'])->default('guest');
             $table->unsignedInteger('booking_quota')->default(3);
             $table->rememberToken();
             $table->timestamps();

@@ -46,3 +46,4 @@ export default function SlotItem({ slot, isSelected, onSelect }) {
     </button>
   );
 }
+

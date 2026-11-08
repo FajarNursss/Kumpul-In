@@ -85,3 +85,4 @@ export default function SuccessModal({ bookingData, onClose }) {
     </div>
   );
 }
+
