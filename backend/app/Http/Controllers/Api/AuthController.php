@@ -15,12 +15,25 @@ class AuthController extends Controller
      */
     public function register(Request $request)
     {
-        $validated = $request->validate([
-            'name' => 'required|string|max:100',
+        $rules = [
+            'name' => 'required|string|min:3|max:100',
             'email' => 'required|email|unique:users,email|max:100',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6' . ($request->has('password_confirmation') ? '|confirmed' : ''),
             'role' => 'nullable|in:mahasiswa,member,admin',
-        ]);
+        ];
+
+        $messages = [
+            'name.required' => 'Nama lengkap wajib diisi.',
+            'name.min' => 'Nama lengkap minimal 3 karakter.',
+            'email.required' => 'Alamat email kampus/pribadi wajib diisi.',
+            'email.email' => 'Format alamat email tidak valid.',
+            'email.unique' => 'Alamat email ini sudah terdaftar di sistem Kumpul-In.',
+            'password.required' => 'Kata sandi wajib diisi.',
+            'password.min' => 'Kata sandi minimal 6 karakter.',
+            'password.confirmed' => 'Konfirmasi kata sandi tidak cocok.',
+        ];
+
+        $validated = $request->validate($rules, $messages);
 
         $role = $validated['role'] ?? 'mahasiswa';
         $quota = $role === 'admin' ? 999 : 5;
@@ -53,6 +66,10 @@ class AuthController extends Controller
         $validated = $request->validate([
             'email' => 'required|email',
             'password' => 'required|string',
+        ], [
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'password.required' => 'Kata sandi wajib diisi.',
         ]);
 
         $user = User::where('email', $validated['email'])->first();

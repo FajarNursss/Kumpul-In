@@ -3,6 +3,7 @@ import Navbar from './components/Navbar';
 import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import AdminDashboard from './components/AdminDashboard';
+import NotFoundPage from './components/NotFoundPage';
 import CategoryFilter from './components/RoomCatalog/CategoryFilter';
 import RoomList from './components/RoomCatalog/RoomList';
 import DateSelector from './components/BookingCalendar/DateSelector';
@@ -12,10 +13,48 @@ import SuccessModal from './components/BookingModal/SuccessModal';
 import MyBookings from './components/MyBookings';
 import Toast from './components/Toast';
 import { authService, roomService } from './services/api';
-import { Sparkles, Calendar, ArrowRight, CheckCircle2, Shield, User, Award, Clock } from 'lucide-react';
+import { Sparkles, Calendar, ArrowRight, CheckCircle2, Shield, User, Award, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
+
+// Route parser & validator for URL link handling
+const resolveRoute = (pathname, hash) => {
+  const cleanPath = (pathname || '/').replace(/\/+$/, '') || '/';
+  const cleanHash = (hash || '').toLowerCase();
+
+  // Root or in-page anchors on landing
+  if (cleanPath === '/' || cleanPath === '') {
+    if (['', '#', '#hero', '#fasilitas', '#alur-booking', '#faq', '#cara-kerja', '#main-content'].includes(cleanHash)) {
+      return { view: 'landing', tab: 'catalog', isValid: true };
+    }
+    if (['#katalog', '#catalog', '#ruangan', '#fasilitas-kampus'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'catalog', isValid: true };
+    }
+    if (['#riwayat', '#peminjaman-saya', '#my-bookings', '#reservasi-saya'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'my-bookings', isValid: true };
+    }
+    if (['#admin'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'admin', isValid: true };
+    }
+    // Invalid hash link on root
+    return { view: 'not-found', tab: 'catalog', isValid: false, badPath: cleanHash };
+  }
+
+  // Path based routing
+  if (['/katalog', '/catalog', '/fasilitas', '/portal'].includes(cleanPath)) {
+    return { view: 'dashboard', tab: 'catalog', isValid: true };
+  }
+  if (['/riwayat', '/peminjaman-saya', '/my-bookings', '/reservasi'].includes(cleanPath)) {
+    return { view: 'dashboard', tab: 'my-bookings', isValid: true };
+  }
+  if (cleanPath === '/admin') {
+    return { view: 'dashboard', tab: 'admin', isValid: true };
+  }
+
+  // Any other URL pathname is an invalid link ("salah ketik link")
+  return { view: 'not-found', tab: 'catalog', isValid: false, badPath: cleanPath + (cleanHash || '') };
+};
 
 export default function App() {
-  // Navigation & View Mode: 'landing' | 'dashboard'
+  // Navigation & View Mode: 'landing' | 'dashboard' | 'not-found'
   const [viewMode, setViewMode] = useState('landing');
 
   // User & Auth State
@@ -48,9 +87,57 @@ export default function App() {
   const [isBookingModalOpen, setIsBookingModalOpen] = useState(false);
   const [successBookingData, setSuccessBookingData] = useState(null);
   const [toast, setToast] = useState({ message: '', type: 'info' });
+  const [serverError, setServerError] = useState(null);
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
+  };
+
+  // Sync route on mount and on popstate/hashchange
+  useEffect(() => {
+    const handleUrlChange = () => {
+      const route = resolveRoute(window.location.pathname, window.location.hash);
+      if (route.isValid) {
+        setViewMode(route.view);
+        if (route.view === 'dashboard') {
+          setActiveTab(route.tab);
+        }
+      } else {
+        setViewMode('not-found');
+      }
+    };
+
+    handleUrlChange();
+    window.addEventListener('popstate', handleUrlChange);
+    window.addEventListener('hashchange', handleUrlChange);
+    return () => {
+      window.removeEventListener('popstate', handleUrlChange);
+      window.removeEventListener('hashchange', handleUrlChange);
+    };
+  }, []);
+
+  // Programmatic smooth navigation that syncs URL history
+  const navigateTo = (target, category = null) => {
+    if (category) {
+      setSelectedCategory(category);
+    }
+
+    if (target === 'landing') {
+      window.history.pushState(null, '', '/');
+      setViewMode('landing');
+    } else if (target === 'catalog') {
+      window.history.pushState(null, '', '/katalog');
+      setViewMode('dashboard');
+      setActiveTab('catalog');
+    } else if (target === 'my-bookings') {
+      window.history.pushState(null, '', '/riwayat');
+      setViewMode('dashboard');
+      setActiveTab('my-bookings');
+    } else if (target === 'admin') {
+      window.history.pushState(null, '', '/admin');
+      setViewMode('dashboard');
+      setActiveTab('admin');
+    }
   };
 
   // Check existing session on mount
@@ -61,7 +148,7 @@ export default function App() {
         .then((res) => {
           if (res.success) {
             setCurrentUser(res.data);
-            if (res.data.role === 'admin') {
+            if (res.data.role === 'admin' && activeTab === 'admin') {
               setActiveTab('admin');
             }
           }
@@ -76,6 +163,7 @@ export default function App() {
   const fetchRooms = async () => {
     try {
       setLoadingRooms(true);
+      setServerError(null);
       const res = await roomService.getRooms(selectedCategory, minCapacity);
       if (res.success) {
         setRooms(res.data);
@@ -85,6 +173,7 @@ export default function App() {
       }
     } catch (err) {
       console.error('Failed to load rooms:', err);
+      setServerError(err.customMessage || 'Tidak dapat terhubung ke server backend Kumpul-In (Port 8000).');
     } finally {
       setLoadingRooms(false);
     }
@@ -150,12 +239,11 @@ export default function App() {
 
   const handleAuthSuccess = (user) => {
     setCurrentUser(user);
-    setViewMode('dashboard');
     showToast(`Selamat datang, ${user.name}! Masuk sebagai ${user.role}.`, 'success');
     if (user.role === 'admin') {
-      setActiveTab('admin');
+      navigateTo('admin');
     } else {
-      setActiveTab('catalog');
+      navigateTo('catalog');
     }
   };
 
@@ -171,15 +259,15 @@ export default function App() {
           'info'
         );
         if (role === 'admin') {
-          setActiveTab('admin');
+          navigateTo('admin');
         } else {
-          if (activeTab === 'admin') setActiveTab('catalog');
+          if (activeTab === 'admin') navigateTo('catalog');
           if (selectedRoom) fetchAvailability();
         }
       }
     } catch (err) {
       console.error('Failed to switch role:', err);
-      showToast('Gagal beralih role demo.', 'error');
+      showToast(err.customMessage || 'Gagal beralih role demo.', 'error');
     } finally {
       setLoadingUser(false);
     }
@@ -189,8 +277,7 @@ export default function App() {
   const handleLogout = async () => {
     await authService.logout();
     setCurrentUser(null);
-    setViewMode('landing');
-    setActiveTab('catalog');
+    navigateTo('landing');
     showToast('Berhasil keluar dari akun.', 'info');
   };
 
@@ -201,7 +288,7 @@ export default function App() {
       return;
     }
     if (!currentUser) {
-      showToast('Silakan masuk terlebih dahulu untuk memesan slot.', 'info');
+      showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
       handleOpenAuth('login');
       return;
     }
@@ -217,13 +304,42 @@ export default function App() {
     authService.getMe().then((res) => {
       if (res.success) setCurrentUser(res.data);
     });
-    showToast(`Reservasi sukses dikonfirmasi! Kode: ${bookingData.booking_code}`, 'success');
+    showToast(`Peminjaman sukses dikonfirmasi! Kode: ${bookingData.booking_code}`, 'success');
   };
 
-  // If on Landing Page view
+  // Render 404 Not Found Page for invalid URLs / typos
+  if (viewMode === 'not-found') {
+    return (
+      <NotFoundPage
+        onNavigate={navigateTo}
+        currentPath={window.location.pathname + window.location.hash}
+      />
+    );
+  }
+
+  // Render Landing Page View
   if (viewMode === 'landing') {
     return (
       <>
+        {/* Backend Connection Error Banner */}
+        {serverError && (
+          <div role="alert" className="bg-[#fdf4f0] border-b border-[#e39774]/40 px-4 py-2.5 text-xs text-[#d58560] flex items-center justify-between">
+            <div className="flex items-center gap-2 max-w-4xl mx-auto">
+              <AlertTriangle className="w-4 h-4 shrink-0 text-[#e39774]" aria-hidden="true" />
+              <span className="font-medium">{serverError}</span>
+            </div>
+            <button
+              onClick={() => {
+                setServerError(null);
+                fetchRooms();
+              }}
+              className="px-3 py-1 rounded-lg bg-white border border-[#e39774]/40 text-[#d58560] font-bold text-[11px] hover:bg-[#fae6dc] transition-colors"
+            >
+              Coba Lagi
+            </button>
+          </div>
+        )}
+
         <LandingPage
           onExploreCatalog={() => {
             if (!currentUser) {
@@ -231,7 +347,7 @@ export default function App() {
                 if (res.success) setCurrentUser(res.data.user);
               });
             }
-            setViewMode('dashboard');
+            navigateTo('catalog');
           }}
           onOpenAuth={handleOpenAuth}
         />
@@ -255,16 +371,40 @@ export default function App() {
   // Dashboard / App View
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-[#326273] selection:text-white">
+      {/* Backend Connection Error Banner */}
+      {serverError && (
+        <div role="alert" className="bg-[#fdf4f0] border-b border-[#e39774]/40 px-4 py-2.5 text-xs text-[#d58560] flex items-center justify-between">
+          <div className="flex items-center gap-2 max-w-4xl mx-auto">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#e39774]" aria-hidden="true" />
+            <span className="font-medium">{serverError}</span>
+          </div>
+          <button
+            onClick={() => {
+              setServerError(null);
+              fetchRooms();
+            }}
+            className="px-3 py-1 rounded-lg bg-white border border-[#e39774]/40 text-[#d58560] font-bold text-[11px] hover:bg-[#fae6dc] transition-colors"
+          >
+            Coba Sambungkan
+          </button>
+        </div>
+      )}
+
       {/* Top Navigation */}
       <Navbar
         currentUser={currentUser}
         onSwitchRole={handleSwitchRole}
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={(tab) => {
+          if (tab === 'catalog') navigateTo('catalog');
+          else if (tab === 'my-bookings') navigateTo('my-bookings');
+          else if (tab === 'admin') navigateTo('admin');
+          else setActiveTab(tab);
+        }}
         loadingUser={loadingUser}
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
-        onGoHome={() => setViewMode('landing')}
+        onGoHome={() => navigateTo('landing')}
       />
 
       {/* Main Container */}
@@ -273,8 +413,19 @@ export default function App() {
           /* Admin Dashboard */
           <AdminDashboard currentUser={currentUser} onShowToast={showToast} />
         ) : activeTab === 'my-bookings' ? (
-          /* My Bookings Tab */
-          <MyBookings currentUser={currentUser} onShowToast={showToast} />
+          /* My Bookings Tab with Realtime Quota Recovery */
+          <MyBookings
+            currentUser={currentUser}
+            onShowToast={showToast}
+            onQuotaRecovered={(newQuota) => {
+              if (currentUser && typeof newQuota === 'number') {
+                setCurrentUser((prev) => ({
+                  ...prev,
+                  booking_quota: newQuota,
+                }));
+              }
+            }}
+          />
         ) : (
           /* User Catalog & Reservation Tab (US-01 to US-04) */
           <>
@@ -481,7 +632,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Hak cipta dilindungi.</p>
+        <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Seluruh hak cipta dilindungi.</p>
       </footer>
     </div>
   );

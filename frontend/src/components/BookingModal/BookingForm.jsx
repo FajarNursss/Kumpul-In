@@ -74,7 +74,7 @@ export default function BookingForm({
         setErrorMessage(res.message || 'Gagal memproses peminjaman ruangan.');
       }
     } catch (err) {
-      const serverMsg = err.response?.data?.message || 'Terjadi kesalahan pada server saat memproses peminjaman.';
+      const serverMsg = err.customMessage || err.response?.data?.message || 'Terjadi kesalahan pada server saat memproses peminjaman.';
       setErrorMessage(serverMsg);
     } finally {
       setLoading(false);

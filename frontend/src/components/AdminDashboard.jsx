@@ -1,18 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { adminService, roomService } from '../services/api';
+import ConfirmModal from './ConfirmModal';
 import {
   Shield, Users, Building, CalendarCheck, Clock, CheckCircle2,
   XCircle, Plus, Trash2, ToggleLeft, ToggleRight, Loader2,
-  FileText, Download, AlertCircle, RefreshCw
+  FileText, Download, AlertCircle, RefreshCw, AlertTriangle
 } from 'lucide-react';
 
-export default function AdminDashboard({ currentUser }) {
+export default function AdminDashboard({ currentUser, onShowToast }) {
   const [activeTab, setActiveTab] = useState('bookings'); // 'bookings' | 'rooms'
   const [stats, setStats] = useState(null);
   const [bookings, setBookings] = useState([]);
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState('');
+
+  // Confirmation Modal State
+  const [confirmModalState, setConfirmModalState] = useState({
+    isOpen: false,
+    title: '',
+    description: '',
+    confirmText: '',
+    variant: 'primary',
+    isLoading: false,
+    onConfirm: null,
+  });
 
   // Add Room Modal State
   const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
@@ -45,39 +57,66 @@ export default function AdminDashboard({ currentUser }) {
     fetchAdminData();
   }, [statusFilter]);
 
-  const handleUpdateBookingStatus = async (bookingId, newStatus) => {
-    if (!window.confirm(`Yakin ingin mengubah status booking menjadi ${newStatus}?`)) return;
-    try {
-      const res = await adminService.updateBookingStatus(bookingId, newStatus);
-      if (res.success) {
-        fetchAdminData();
-      }
-    } catch (err) {
-      alert('Gagal mengubah status booking.');
-    }
+  const handleUpdateBookingStatus = (booking, newStatus) => {
+    setConfirmModalState({
+      isOpen: true,
+      title: newStatus === 'cancelled' ? 'Batalkan Peminjaman Mahasiswa' : 'Konfirmasi Ulang Peminjaman',
+      description: `Apakah Anda yakin ingin mengubah status peminjaman ${booking.booking_code} (${booking.room?.name}) menjadi "${newStatus}"?`,
+      confirmText: newStatus === 'cancelled' ? 'Ya, Batalkan Peminjaman' : 'Ya, Konfirmasi Ulang',
+      variant: newStatus === 'cancelled' ? 'danger' : 'primary',
+      isLoading: false,
+      onConfirm: async () => {
+        try {
+          setConfirmModalState((prev) => ({ ...prev, isLoading: true }));
+          const res = await adminService.updateBookingStatus(booking.id, newStatus);
+          if (res.success) {
+            if (onShowToast) onShowToast(`Status peminjaman ${booking.booking_code} diubah ke ${newStatus}.`, 'success');
+            setConfirmModalState({ isOpen: false });
+            fetchAdminData();
+          }
+        } catch (err) {
+          if (onShowToast) onShowToast(err.customMessage || 'Gagal mengubah status peminjaman.', 'error');
+          setConfirmModalState((prev) => ({ ...prev, isLoading: false }));
+        }
+      },
+    });
   };
 
   const handleToggleRoomActive = async (room) => {
     try {
       const res = await adminService.updateRoom(room.id, { is_active: !room.is_active });
       if (res.success) {
+        if (onShowToast) onShowToast(`Status ruangan ${room.name} diperbarui menjadi ${!room.is_active ? 'Aktif' : 'Non-Aktif'}.`, 'info');
         fetchAdminData();
       }
     } catch (err) {
-      alert('Gagal mengubah status ruangan.');
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal mengubah status ruangan.', 'error');
     }
   };
 
-  const handleDeleteRoom = async (roomId) => {
-    if (!window.confirm('Hapus ruangan ini? Semua booking terkait akan ikut terhapus.')) return;
-    try {
-      const res = await adminService.deleteRoom(roomId);
-      if (res.success) {
-        fetchAdminData();
-      }
-    } catch (err) {
-      alert('Gagal menghapus ruangan.');
-    }
+  const handleDeleteRoom = (room) => {
+    setConfirmModalState({
+      isOpen: true,
+      title: 'Hapus Fasilitas Ruangan Kampus',
+      description: `Hapus fasilitas "${room.name}"? Peringatan: Seluruh data riwayat peminjaman terkait fasilitas ini akan ikut terhapus dari sistem.`,
+      confirmText: 'Ya, Hapus Ruangan',
+      variant: 'danger',
+      isLoading: false,
+      onConfirm: async () => {
+        try {
+          setConfirmModalState((prev) => ({ ...prev, isLoading: true }));
+          const res = await adminService.deleteRoom(room.id);
+          if (res.success) {
+            if (onShowToast) onShowToast(`Fasilitas ${room.name} berhasil dihapus.`, 'success');
+            setConfirmModalState({ isOpen: false });
+            fetchAdminData();
+          }
+        } catch (err) {
+          if (onShowToast) onShowToast(err.customMessage || 'Gagal menghapus fasilitas ruangan.', 'error');
+          setConfirmModalState((prev) => ({ ...prev, isLoading: false }));
+        }
+      },
+    });
   };
 
   const handleAddRoomSubmit = async (e) => {
@@ -300,7 +339,7 @@ export default function AdminDashboard({ currentUser }) {
                     <td className="py-3 px-4 text-right">
                       {b.status === 'confirmed' ? (
                         <button
-                          onClick={() => handleUpdateBookingStatus(b.id, 'cancelled')}
+                          onClick={() => handleUpdateBookingStatus(b, 'cancelled')}
                           className="px-2.5 py-1 rounded-lg text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors font-medium text-[11px]"
                           title="Batalkan reservasi dan pulihkan kuota pengguna"
                         >
@@ -308,7 +347,7 @@ export default function AdminDashboard({ currentUser }) {
                         </button>
                       ) : (
                         <button
-                          onClick={() => handleUpdateBookingStatus(b.id, 'confirmed')}
+                          onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
                           className="px-2.5 py-1 rounded-lg text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-colors font-medium text-[11px]"
                         >
                           Konfirmasi Ulang
@@ -373,7 +412,7 @@ export default function AdminDashboard({ currentUser }) {
 
                 <div className="pt-3 border-t border-slate-100 flex items-center justify-end">
                   <button
-                    onClick={() => handleDeleteRoom(room.id)}
+                    onClick={() => handleDeleteRoom(room)}
                     className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
                     title="Hapus Ruangan"
                   >
@@ -470,6 +509,18 @@ export default function AdminDashboard({ currentUser }) {
           </div>
         </div>
       )}
+
+      {/* Reusable Admin Action Confirmation Modal */}
+      <ConfirmModal
+        isOpen={confirmModalState.isOpen}
+        title={confirmModalState.title}
+        description={confirmModalState.description}
+        confirmText={confirmModalState.confirmText}
+        variant={confirmModalState.variant}
+        isLoading={confirmModalState.isLoading}
+        onClose={() => setConfirmModalState({ isOpen: false })}
+        onConfirm={confirmModalState.onConfirm}
+      />
     </div>
   );
 }

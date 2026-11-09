@@ -192,6 +192,47 @@ class KumpulinApiTest extends TestCase
             ]);
     }
 
+    public function test_user_can_cancel_own_booking_and_recover_quota()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+        $initialQuota = $mahasiswa->booking_quota;
+
+        $booking = Booking::create([
+            'booking_code' => 'KMP-CANCEL-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(3)->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'confirmed',
+        ]);
+
+        $response = $this->actingAs($mahasiswa, 'sanctum')->patchJson("/api/bookings/{$booking->id}/cancel");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.booking.status', 'cancelled')
+            ->assertJsonPath('data.remaining_quota', $initialQuota + 1);
+
+        $this->assertEquals('cancelled', $booking->fresh()->status);
+        $this->assertEquals($initialQuota + 1, $mahasiswa->fresh()->booking_quota);
+    }
+
+    public function test_registration_fails_if_password_confirmation_mismatches()
+    {
+        $response = $this->postJson('/api/auth/register', [
+            'name' => 'Budi Santoso',
+            'email' => 'budi.mismatch@kampus.test',
+            'password' => 'secret123',
+            'password_confirmation' => 'different456',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['password']);
+    }
+
     public function test_non_admin_cannot_access_admin_stats()
     {
         $mahasiswa = User::where('role', 'mahasiswa')->first();

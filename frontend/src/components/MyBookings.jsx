@@ -1,15 +1,19 @@
 import React, { useEffect, useState } from 'react';
 import { bookingService } from '../services/api';
 import ReceiptModal from './ReceiptModal';
+import ConfirmModal from './ConfirmModal';
 import {
   CalendarCheck, Clock, Download, Building, Loader2, FileText,
-  CheckCircle2, Printer, Copy, Check, Filter, Search, QrCode
+  CheckCircle2, Printer, Copy, Check, Filter, Search, QrCode,
+  CalendarX, XCircle
 } from 'lucide-react';
 
-export default function MyBookings({ currentUser, onShowToast }) {
+export default function MyBookings({ currentUser, onShowToast, onQuotaRecovered }) {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedReceiptBooking, setSelectedReceiptBooking] = useState(null);
+  const [bookingToCancel, setBookingToCancel] = useState(null);
+  const [cancelling, setCancelling] = useState(false);
   const [copiedCode, setCopiedCode] = useState(null);
   const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'today' | 'proposal'
 
@@ -24,6 +28,30 @@ export default function MyBookings({ currentUser, onShowToast }) {
       console.error('Failed to fetch bookings:', err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleConfirmCancel = async () => {
+    if (!bookingToCancel) return;
+    try {
+      setCancelling(true);
+      const res = await bookingService.cancelBooking(bookingToCancel.id);
+      if (res.success) {
+        if (onShowToast) {
+          onShowToast(`Peminjaman ${bookingToCancel.room?.name || 'ruangan'} berhasil dibatalkan. Kuota 1 slot dipulihkan.`, 'success');
+        }
+        if (onQuotaRecovered) {
+          onQuotaRecovered(res.data?.remaining_quota);
+        }
+        setBookingToCancel(null);
+        fetchBookings();
+      }
+    } catch (err) {
+      if (onShowToast) {
+        onShowToast(err.customMessage || 'Gagal membatalkan peminjaman.', 'error');
+      }
+    } finally {
+      setCancelling(false);
     }
   };
 
@@ -162,16 +190,24 @@ export default function MyBookings({ currentUser, onShowToast }) {
                   </div>
 
                   <h4 className="text-base font-bold text-slate-900 flex items-center gap-1.5 pt-1">
-                    <Building className="w-4 h-4 text-slate-400" />
-                    {b.room?.name || 'Ruangan Hub'}
+                    <Building className="w-4 h-4 text-[#326273]" />
+                    {b.room?.name || 'Fasilitas Kampus'}
                   </h4>
                   <span className="text-xs text-slate-500 block">
                     Kategori: {b.room?.category || 'Fasilitas Kampus'} • Kapasitas: {b.room?.capacity || '-'} Orang
                   </span>
                 </div>
 
-                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200 flex items-center gap-1 shrink-0">
-                  <CheckCircle2 className="w-3.5 h-3.5" />
+                <span className={`text-xs font-bold px-2.5 py-1 rounded-full border flex items-center gap-1 shrink-0 ${
+                  b.status === 'confirmed'
+                    ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                    : 'bg-rose-50 text-rose-700 border-rose-200'
+                }`}>
+                  {b.status === 'confirmed' ? (
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                  ) : (
+                    <XCircle className="w-3.5 h-3.5" />
+                  )}
                   {b.status}
                 </span>
               </div>
@@ -195,17 +231,31 @@ export default function MyBookings({ currentUser, onShowToast }) {
               </div>
             </div>
 
-            {/* Bottom Actions: Voucher Modal & PDF Download */}
-            <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => setSelectedReceiptBooking(b)}
-                aria-label={`Lihat voucher bukti reservasi ${b.booking_code}`}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-[#326273] hover:text-white transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
-              >
-                <Printer className="w-3.5 h-3.5" />
-                <span>Lihat Voucher</span>
-              </button>
+            {/* Bottom Actions: Voucher Modal, Cancel Validation, & PDF Download */}
+            <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setSelectedReceiptBooking(b)}
+                  aria-label={`Lihat voucher bukti reservasi ${b.booking_code}`}
+                  className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-[#326273] hover:text-white transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Lihat Voucher</span>
+                </button>
+
+                {b.status === 'confirmed' && (
+                  <button
+                    type="button"
+                    onClick={() => setBookingToCancel(b)}
+                    aria-label={`Batalkan peminjaman ${b.booking_code}`}
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold text-[#d58560] bg-[#fdf4f0] hover:bg-[#fae6dc] border border-[#e39774]/30 transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#e39774]"
+                  >
+                    <CalendarX className="w-3.5 h-3.5" />
+                    <span>Batalkan</span>
+                  </button>
+                )}
+              </div>
 
               {b.proposal_path ? (
                 <a
@@ -225,6 +275,20 @@ export default function MyBookings({ currentUser, onShowToast }) {
           </div>
         ))}
       </div>
+
+      {/* Cancel Booking Validation Modal */}
+      <ConfirmModal
+        isOpen={!!bookingToCancel}
+        title="Batalkan Peminjaman Fasilitas"
+        description={`Apakah Anda yakin ingin membatalkan peminjaman ${bookingToCancel?.room?.name || 'ruangan'} pada tanggal ${bookingToCancel?.booking_date || ''} (${bookingToCancel?.start_time} - ${bookingToCancel?.end_time} WIB)? Slot waktu ini akan dibuka kembali dan 1 kuota peminjaman Anda akan dipulihkan.`}
+        confirmText="Ya, Batalkan Peminjaman"
+        cancelText="Kembali"
+        variant="danger"
+        icon={CalendarX}
+        isLoading={cancelling}
+        onClose={() => setBookingToCancel(null)}
+        onConfirm={handleConfirmCancel}
+      />
 
       {/* Printable Voucher Receipt Modal */}
       {selectedReceiptBooking && (

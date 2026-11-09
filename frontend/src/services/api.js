@@ -21,6 +21,37 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Interceptor for normalizing errors
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (!error.response) {
+      // Network error or server offline
+      error.customMessage = 'Tidak dapat terhubung ke server backend Kumpul-In (Port 8000). Pastikan server backend sedang aktif.';
+    } else if (error.response.status === 401) {
+      // Token expired or invalid
+      localStorage.removeItem('kumpulin_token');
+      error.customMessage = error.response.data?.message || 'Sesi Anda telah berakhir. Silakan masuk kembali.';
+    } else if (error.response.status === 422) {
+      // Validation error
+      const serverErrors = error.response.data?.errors;
+      if (serverErrors) {
+        const firstErrorKey = Object.keys(serverErrors)[0];
+        error.customMessage = serverErrors[firstErrorKey]?.[0] || error.response.data?.message || 'Data yang Anda masukkan tidak valid.';
+      } else {
+        error.customMessage = error.response.data?.message || 'Data yang Anda masukkan tidak valid.';
+      }
+    } else if (error.response.status === 403) {
+      error.customMessage = 'Akses ditolak. Anda tidak memiliki izin untuk tindakan ini.';
+    } else if (error.response.status === 404) {
+      error.customMessage = error.response.data?.message || 'Data atau fasilitas tidak ditemukan.';
+    } else {
+      error.customMessage = error.response.data?.message || 'Terjadi kesalahan pada sistem.';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export const authService = {
   login: async (email, password) => {
     const res = await api.post('/auth/login', { email, password });
@@ -31,10 +62,8 @@ export const authService = {
   },
 
   register: async (userData) => {
+    // User newly registered will NOT automatically save token to force realistic login flow
     const res = await api.post('/auth/register', userData);
-    if (res.data?.data?.token) {
-      localStorage.setItem('kumpulin_token', res.data.data.token);
-    }
     return res.data;
   },
 
@@ -89,6 +118,11 @@ export const bookingService = {
 
   getMyBookings: async () => {
     const res = await api.get('/bookings');
+    return res.data;
+  },
+
+  cancelBooking: async (id) => {
+    const res = await api.patch(`/bookings/${id}/cancel`);
     return res.data;
   },
 };

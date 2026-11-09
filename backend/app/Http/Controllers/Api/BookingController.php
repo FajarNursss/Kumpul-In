@@ -176,6 +176,39 @@ class BookingController extends Controller
     }
 
     /**
+     * Cancel an active booking by the owning user and refund their quota.
+     */
+    public function cancel(Request $request, $id)
+    {
+        $user = $request->user();
+        $booking = Booking::with('room')
+            ->where('id', $id)
+            ->where('user_id', $user->id)
+            ->firstOrFail();
+
+        if ($booking->status === 'cancelled') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Peminjaman ruangan ini sudah dibatalkan sebelumnya.',
+            ], 422);
+        }
+
+        DB::transaction(function () use ($booking, $user) {
+            $booking->update(['status' => 'cancelled']);
+            $user->increment('booking_quota');
+        });
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Peminjaman ruangan berhasil dibatalkan. Kuota 1 slot Anda telah dipulihkan.',
+            'data' => [
+                'booking' => $booking->fresh()->load('room'),
+                'remaining_quota' => $user->fresh()->booking_quota,
+            ],
+        ]);
+    }
+
+    /**
      * Download proposal PDF.
      */
     public function downloadProposal($code)

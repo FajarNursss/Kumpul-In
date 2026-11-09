@@ -22,6 +22,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [AuthController::class, 'logout']);
     Route::get('/bookings', [BookingController::class, 'index']);
     Route::post('/bookings', [BookingController::class, 'store']);
+    Route::patch('/bookings/{id}/cancel', [BookingController::class, 'cancel']);
 
     // Admin Specific endpoints
     Route::prefix('admin')->group(function () {

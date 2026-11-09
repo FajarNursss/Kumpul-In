@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { User, Award, Shield, CalendarCheck, LogOut, Home, Menu, X, LayoutGrid } from 'lucide-react';
+import ConfirmModal from './ConfirmModal';
 
 export default function Navbar({
   currentUser,
@@ -12,6 +13,7 @@ export default function Navbar({
   onGoHome,
 }) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const isAdmin = currentUser?.role === 'admin';
 
   return (
@@ -169,12 +171,12 @@ export default function Navbar({
                   </button>
                 </div>
 
-                {/* Logout Button */}
+                {/* Logout Button with Validation Modal */}
                 <button
                   type="button"
-                  onClick={onLogout}
+                  onClick={() => setIsLogoutConfirmOpen(true)}
                   aria-label="Keluar dari akun"
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500"
+                  className="p-2 rounded-xl text-slate-400 hover:text-[#d58560] hover:bg-[#fdf4f0] transition-colors focus-visible:ring-2 focus-visible:ring-[#e39774]"
                   title="Keluar / Logout"
                 >
                   <LogOut className="w-4 h-4" aria-hidden="true" />
@@ -273,6 +275,22 @@ export default function Navbar({
           </div>
         </div>
       )}
+
+      {/* Logout Validation Modal */}
+      <ConfirmModal
+        isOpen={isLogoutConfirmOpen}
+        title="Konfirmasi Keluar Akun"
+        description={`Apakah Anda yakin ingin keluar dari akun civitas ${currentUser?.name || ''}? Anda perlu masuk kembali untuk melakukan peminjaman fasilitas kampus.`}
+        confirmText="Ya, Keluar Akun"
+        cancelText="Batal"
+        variant="danger"
+        icon={LogOut}
+        onClose={() => setIsLogoutConfirmOpen(false)}
+        onConfirm={() => {
+          setIsLogoutConfirmOpen(false);
+          onLogout();
+        }}
+      />
     </header>
   );
 }

@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { X, Mail, Lock, User, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Mail, Lock, User, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap, Check } from 'lucide-react';
 import { authService } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode = 'login' }) {
@@ -7,55 +7,109 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
+
+  const passwordInputRef = useRef(null);
 
   useEffect(() => {
     setMode(defaultMode);
     setErrorMessage('');
+    setSuccessMessage('');
   }, [defaultMode, isOpen]);
 
   // Close on Escape key
   useEffect(() => {
     if (!isOpen) return;
     const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !loading) onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, loading, onClose]);
 
   if (!isOpen) return null;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
-    setLoading(true);
+    setSuccessMessage('');
 
-    try {
-      let res;
-      if (mode === 'login') {
-        res = await authService.login(email, password);
-      } else {
-        res = await authService.register({ name, email, password, role: 'mahasiswa' });
+    if (mode === 'register') {
+      if (name.trim().length < 3) {
+        setErrorMessage('Nama lengkap mahasiswa minimal 3 karakter.');
+        return;
+      }
+      if (!email.includes('@') || !email.includes('.')) {
+        setErrorMessage('Format email tidak valid.');
+        return;
+      }
+      if (password.length < 6) {
+        setErrorMessage('Kata sandi minimal 6 karakter.');
+        return;
+      }
+      if (password !== passwordConfirmation) {
+        setErrorMessage('Konfirmasi kata sandi tidak cocok.');
+        return;
       }
 
-      if (res.success) {
-        onAuthSuccess(res.data.user);
-        onClose();
-      } else {
-        setErrorMessage(res.message || 'Gagal memproses autentikasi.');
+      setLoading(true);
+      try {
+        const res = await authService.register({
+          name: name.trim(),
+          email: email.trim(),
+          password,
+          password_confirmation: passwordConfirmation,
+          role: 'mahasiswa',
+        });
+
+        if (res.success) {
+          // Direct newly registered user to Login modal as requested
+          setSuccessMessage('Pendaftaran Berhasil! Akun mahasiswa Anda telah terdaftar. Silakan masukkan kata sandi untuk masuk.');
+          setMode('login');
+          setPassword('');
+          setPasswordConfirmation('');
+          // Focus password field after switching to login
+          setTimeout(() => {
+            passwordInputRef.current?.focus();
+          }, 150);
+        } else {
+          setErrorMessage(res.message || 'Gagal mendaftar akun.');
+        }
+      } catch (err) {
+        setErrorMessage(err.customMessage || err.response?.data?.message || 'Gagal mendaftar akun.');
+      } finally {
+        setLoading(false);
       }
-    } catch (err) {
-      const msg = err.response?.data?.message || 'Terjadi kesalahan pada sistem. Periksa kembali data Anda.';
-      setErrorMessage(msg);
-    } finally {
-      setLoading(false);
+    } else {
+      // Login Mode
+      if (!email || !password) {
+        setErrorMessage('Harap isi alamat email dan kata sandi.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const res = await authService.login(email.trim(), password);
+        if (res.success) {
+          onAuthSuccess(res.data.user);
+          onClose();
+        } else {
+          setErrorMessage(res.message || 'Gagal masuk ke portal.');
+        }
+      } catch (err) {
+        setErrorMessage(err.customMessage || err.response?.data?.message || 'Email atau kata sandi tidak sesuai.');
+      } finally {
+        setLoading(false);
+      }
     }
   };
 
   const handleQuickLogin = async (targetRole) => {
     setErrorMessage('');
+    setSuccessMessage('');
     setLoading(true);
     try {
       const res = await authService.quickLogin(targetRole);
@@ -64,7 +118,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
         onClose();
       }
     } catch (err) {
-      setErrorMessage('Gagal masuk cepat sebagai ' + targetRole);
+      setErrorMessage(err.customMessage || 'Gagal masuk cepat sebagai ' + targetRole);
     } finally {
       setLoading(false);
     }
@@ -77,10 +131,10 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
       aria-labelledby="auth-modal-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
       onClick={(e) => {
-        if (e.target === e.currentTarget) onClose();
+        if (e.target === e.currentTarget && !loading) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all transform scale-100">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all">
         {/* Sleek Top Header */}
         <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -98,7 +152,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   Kampus
                 </span>
               </div>
-              <span className="text-[11px] font-medium text-slate-500 mt-0.5">
+              <span className="text-[11px] font-semibold text-[#5c9ead] mt-0.5">
                 Sistem Peminjaman Fasilitas Kampus
               </span>
             </div>
@@ -106,6 +160,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
           <button
             type="button"
             onClick={onClose}
+            disabled={loading}
             aria-label="Tutup jendela autentikasi"
             className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
           >
@@ -122,6 +177,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               onClick={() => {
                 setMode('login');
                 setErrorMessage('');
+                setSuccessMessage('');
               }}
               className={`py-2.5 rounded-xl transition-all duration-200 text-center ${
                 mode === 'login'
@@ -136,6 +192,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               onClick={() => {
                 setMode('register');
                 setErrorMessage('');
+                setSuccessMessage('');
               }}
               className={`py-2.5 rounded-xl transition-all duration-200 text-center ${
                 mode === 'register'
@@ -146,6 +203,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               Daftar Mahasiswa
             </button>
           </div>
+
+          {/* Success Message Banner (When user just registered, directed to login) */}
+          {successMessage && (
+            <div
+              role="status"
+              className="p-3.5 rounded-2xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-xs flex items-start gap-2.5 animate-fade-in"
+            >
+              <CheckCircle2 className="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" aria-hidden="true" />
+              <div className="leading-relaxed font-semibold">{successMessage}</div>
+            </div>
+          )}
 
           {/* Error Message Alert */}
           {errorMessage && (
@@ -166,7 +234,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   htmlFor="auth-name"
                   className="block text-xs font-semibold text-slate-700 mb-1.5"
                 >
-                  Nama Lengkap Mahasiswa / Dosen
+                  Nama Lengkap Mahasiswa / Civitas <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
@@ -188,7 +256,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                 htmlFor="auth-email"
                 className="block text-xs font-semibold text-slate-700 mb-1.5"
               >
-                Email Kampus / Pribadi
+                Email Kampus / Pribadi <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
@@ -210,12 +278,16 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   htmlFor="auth-password"
                   className="block text-xs font-semibold text-slate-700"
                 >
-                  Kata Sandi
+                  Kata Sandi <span className="text-rose-500">*</span>
                 </label>
+                {mode === 'login' && (
+                  <span className="text-[11px] text-slate-400">Min. 6 karakter</span>
+                )}
               </div>
               <div className="relative">
                 <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
                 <input
+                  ref={passwordInputRef}
                   id="auth-password"
                   type="password"
                   required
@@ -228,10 +300,42 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
             </div>
 
             {mode === 'register' && (
+              <div>
+                <label
+                  htmlFor="auth-password-confirmation"
+                  className="block text-xs font-semibold text-slate-700 mb-1.5"
+                >
+                  Ulangi Kata Sandi <span className="text-rose-500">*</span>
+                </label>
+                <div className="relative">
+                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
+                  <input
+                    id="auth-password-confirmation"
+                    type="password"
+                    required
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                    placeholder="Ketik ulang kata sandi yang sama"
+                    className="w-full text-xs rounded-xl border border-slate-200 pl-10 pr-8 py-2.5 bg-slate-50/70 focus:bg-white focus:border-[#326273] focus:ring-2 focus:ring-[#326273]/20 transition-all outline-none text-slate-900"
+                  />
+                  {passwordConfirmation && (
+                    <div className="absolute right-3 top-3">
+                      {password === passwordConfirmation ? (
+                        <Check className="w-4 h-4 text-emerald-600" aria-label="Cocok" />
+                      ) : (
+                        <X className="w-4 h-4 text-rose-500" aria-label="Tidak cocok" />
+                      )}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {mode === 'register' && (
               <div className="p-3.5 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 flex items-start gap-2.5 text-xs text-[#326273]">
                 <GraduationCap className="w-4 h-4 shrink-0 mt-0.5 text-[#326273]" aria-hidden="true" />
                 <p className="leading-relaxed">
-                  Pendaftaran terbuka untuk seluruh <strong>Civitas Akademika Kampus</strong>. Dapatkan kuota 5 peminjaman aktif untuk Aula, Perpustakaan, Meeting Room, dan Ruang Belajar.
+                  Pendaftaran terbuka untuk seluruh <strong>Civitas Akademika Kampus</strong>. Setelah mendaftar, Anda akan diarahkan ke form masuk untuk memulai peminjaman ruangan.
                 </p>
               </div>
             )}
@@ -261,7 +365,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               <span className="text-[11px] font-semibold text-slate-400">
                 Akses Cepat Pengujian:
               </span>
-              <span className="text-[10px] text-slate-400">1-Klik Langsung Masuk</span>
+              <span className="text-[10px] text-slate-400">1-Klik Masuk</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
