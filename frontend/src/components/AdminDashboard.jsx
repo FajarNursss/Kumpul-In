@@ -164,7 +164,7 @@ export default function AdminDashboard({ currentUser }) {
         </div>
 
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
-          <div className="p-3 rounded-xl bg-purple-50 text-purple-600">
+          <div className="p-3 rounded-xl bg-[#5c9ead]/15 text-[#326273]">
             <Building className="w-6 h-6" />
           </div>
           <div>
@@ -229,7 +229,7 @@ export default function AdminDashboard({ currentUser }) {
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs rounded-xl border-slate-200 bg-slate-50 py-1.5 px-3 focus:border-purple-500"
+                className="text-xs rounded-xl border-slate-200 bg-slate-50 py-1.5 px-3 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
               >
                 <option value="">Semua Status</option>
                 <option value="confirmed">Confirmed</option>

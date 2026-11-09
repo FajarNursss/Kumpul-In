@@ -85,7 +85,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
       {/* System Status Topbar */}
       <div className="bg-[#326273] text-white py-2 px-4 text-center text-xs font-semibold tracking-wide flex items-center justify-center space-x-2">
         <span className="w-2 h-2 rounded-full bg-emerald-400 inline-block" aria-hidden="true" />
-        <span>Sistem Reservasi Kumpul-In • Praktikum Rekayasa Perangkat Lunak (Bab 4: Agile & Scrum)</span>
+        <span>Sistem Reservasi Community Hub & Coworking Space Terpadu</span>
       </div>
 
       {/* Navigation Bar */}
@@ -95,16 +95,27 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
             {/* Brand Logo */}
             <a
               href="#main-content"
-              className="flex items-center cursor-pointer py-1 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none rounded-lg"
+              className="flex items-center space-x-3 cursor-pointer py-1 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none rounded-xl"
               aria-label="Kumpul-In Community Hub Beranda"
             >
               <img
-                src="/logo.png"
-                alt="Kumpul-In Community Hub Logo"
-                className="h-9 sm:h-11 w-auto object-contain"
-                width="160"
-                height="44"
+                src="/logo-icon.png"
+                alt="Logo Kumpul-In"
+                className="h-9 sm:h-10 w-auto object-contain hover:opacity-90 transition-opacity"
               />
+              <div className="flex flex-col select-none">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg sm:text-xl font-black text-[#326273] tracking-tight leading-none">
+                    Kumpul-In
+                  </span>
+                  <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#e39774]/20 text-[#d58560] uppercase tracking-wider">
+                    Hub
+                  </span>
+                </div>
+                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-normal leading-tight mt-0.5">
+                  Community Hub & Coworking
+                </span>
+              </div>
             </a>
 
             {/* Desktop Menu Links */}
@@ -252,7 +263,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
                     className="w-full sm:w-auto px-6 py-3.5 rounded-xl text-sm font-bold bg-slate-50 text-slate-700 border border-slate-200 hover:bg-slate-100 transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
                   >
                     <Sparkles className="w-4 h-4 text-[#e39774]" aria-hidden="true" />
-                    <span>Akses Cepat Demo Praktikum</span>
+                    <span>Masuk ke Akun Anda</span>
                   </button>
                 </div>
 
@@ -516,11 +527,14 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
       {/* Footer */}
       <footer className="bg-white border-t border-slate-200 py-8 text-xs text-slate-500">
         <div className="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center space-x-2.5">
-            <img src="/logo-icon.png" alt="" className="h-6 w-auto object-contain" aria-hidden="true" />
-            <span className="font-bold text-slate-800">Kumpul-In Community Hub</span>
+          <div className="flex items-center space-x-3">
+            <img src="/logo-icon.png" alt="Logo Kumpul-In" className="h-7 w-auto object-contain" aria-hidden="true" />
+            <div className="flex flex-col text-left">
+              <span className="font-extrabold text-[#326273] text-sm leading-tight">Kumpul-In Hub</span>
+              <span className="text-[10px] text-slate-400 font-medium">Sistem Reservasi Komunitas Terpadu</span>
+            </div>
           </div>
-          <p>© 2026 Kumpul-In • Praktikum Rekayasa Perangkat Lunak (Bab 4: Agile & Scrum)</p>
+          <p>© 2026 Kumpul-In Community Hub. Hak cipta dilindungi undang-undang.</p>
         </div>
       </footer>
     </div>

@@ -23,19 +23,30 @@ export default function Navbar({
             tabIndex={0}
             role="button"
             aria-label="Kembali ke Beranda Kumpul-In"
-            className="flex items-center cursor-pointer py-1 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none rounded-lg"
+            className="flex items-center space-x-3 cursor-pointer py-1 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none rounded-xl"
             onClick={onGoHome}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') onGoHome();
             }}
           >
             <img
-              src="/logo.png"
-              alt="Kumpul-In Community Hub"
-              className="h-9 sm:h-11 w-auto object-contain hover:opacity-95 transition-opacity"
-              width="160"
-              height="44"
+              src="/logo-icon.png"
+              alt="Logo Kumpul-In"
+              className="h-9 sm:h-10 w-auto object-contain hover:opacity-90 transition-opacity"
             />
+            <div className="flex flex-col select-none">
+              <div className="flex items-center gap-1.5">
+                <span className="text-lg sm:text-xl font-black text-[#326273] tracking-tight leading-none">
+                  Kumpul-In
+                </span>
+                <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#e39774]/20 text-[#d58560] uppercase tracking-wider">
+                  Hub
+                </span>
+              </div>
+              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-normal leading-tight mt-0.5">
+                Community Hub & Coworking
+              </span>
+            </div>
           </div>
 
           {/* Desktop Navigation Links / Tabs */}

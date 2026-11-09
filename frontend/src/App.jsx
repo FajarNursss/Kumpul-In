@@ -395,11 +395,11 @@ export default function App() {
       {/* Floating Demo Role Switcher Toolbar (Bottom Center) */}
       <div
         role="region"
-        aria-label="Toolbar beralih akun demonstrasi praktikum"
+        aria-label="Toolbar beralih akun pengujian cepat"
         className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-xl border border-slate-200 hidden sm:flex items-center space-x-2 text-xs print:hidden"
       >
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-[#e39774]" aria-hidden="true" /> Demo Praktikum:
+          <Sparkles className="w-3.5 h-3.5 text-[#e39774]" aria-hidden="true" /> Mode Pengujian:
         </span>
         <button
           type="button"
@@ -495,7 +495,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 Kumpul-In • Praktikum Rekayasa Perangkat Lunak (Bab 4: Agile & Scrum)</p>
+        <p>© 2026 Kumpul-In Community Hub. Hak cipta dilindungi undang-undang.</p>
       </footer>
     </div>
   );

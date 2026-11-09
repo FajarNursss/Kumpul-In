@@ -131,7 +131,7 @@ export default function ReceiptModal({ booking, onClose }) {
               <ShieldCheck className="w-4 h-4 text-[#326273]" aria-hidden="true" />
               <span>Divalidasi Real-Time via Kumpul-In API</span>
             </div>
-            <span>Bab 4 Agile • RPL 2026</span>
+            <span>Kumpul-In Official System</span>
           </div>
         </div>
 
