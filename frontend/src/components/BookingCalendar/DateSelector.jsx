@@ -1,13 +1,23 @@
 import React from 'react';
-import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 
 export default function DateSelector({ selectedDate, onSelectDate }) {
-  const todayStr = new Date().toISOString().split('T')[0];
+  const today = new Date();
+  const todayStr = today.toISOString().split('T')[0];
 
   const handleQuickAddDays = (days) => {
     const d = new Date();
     d.setDate(d.getDate() + days);
     onSelectDate(d.toISOString().split('T')[0]);
+  };
+
+  const handleStepDay = (step) => {
+    const cur = new Date(selectedDate + 'T00:00:00');
+    cur.setDate(cur.getDate() + step);
+    const resultStr = cur.toISOString().split('T')[0];
+    if (resultStr >= todayStr) {
+      onSelectDate(resultStr);
+    }
   };
 
   const formatDateDisplay = (dateString) => {
@@ -21,51 +31,102 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
     }).format(dateObj);
   };
 
+  // Calculate if date is today, tomorrow, etc.
+  const isToday = selectedDate === todayStr;
+
   return (
-    <div className="bg-white p-4 rounded-2xl border border-slate-200 shadow-sm flex flex-col sm:flex-row items-center justify-between gap-4">
-      {/* Date display & picker */}
-      <div className="flex items-center space-x-3 w-full sm:w-auto">
-        <div className="p-2.5 rounded-xl bg-blue-50 text-blue-600">
+    <div className="bg-white p-4 sm:p-5 rounded-3xl border border-slate-200 shadow-sm flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      {/* Date display & day navigator */}
+      <div className="flex items-center space-x-3">
+        <div className="p-3 rounded-2xl bg-[#eef6f8] text-[#326273] border border-[#5c9ead]/30 shrink-0">
           <Calendar className="w-5 h-5" />
         </div>
         <div>
-          <div className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Tanggal Reservasi</div>
-          <div className="text-sm sm:text-base font-bold text-slate-900">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+              Tanggal Reservasi
+            </span>
+            {isToday && (
+              <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                Hari Ini
+              </span>
+            )}
+          </div>
+          <div className="text-sm sm:text-base font-extrabold text-slate-900">
             {formatDateDisplay(selectedDate)}
           </div>
         </div>
       </div>
 
-      {/* Date controls */}
-      <div className="flex items-center space-x-2 w-full sm:w-auto justify-end">
+      {/* Date controls: Quick pills + Day Step + Native Picker */}
+      <div className="flex flex-wrap items-center gap-2 justify-end">
+        {/* Step Prev Day */}
         <button
           type="button"
-          onClick={() => handleQuickAddDays(0)}
-          className={`px-3 py-1.5 rounded-xl text-xs font-medium border transition-colors ${
-            selectedDate === todayStr
-              ? 'bg-blue-600 text-white border-blue-600'
-              : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
-          }`}
+          onClick={() => handleStepDay(-1)}
+          disabled={isToday}
+          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          title="Hari Sebelumnya"
         >
-          Hari Ini
-        </button>
-        <button
-          type="button"
-          onClick={() => handleQuickAddDays(1)}
-          className="px-3 py-1.5 rounded-xl text-xs font-medium bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100 transition-colors"
-        >
-          Besok
+          <ChevronLeft className="w-4 h-4" />
         </button>
 
+        {/* Quick Date Pills */}
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+          <button
+            type="button"
+            onClick={() => handleQuickAddDays(0)}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              isToday
+                ? 'bg-[#326273] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Hari Ini
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickAddDays(1)}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]
+                ? 'bg-[#326273] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Besok
+          </button>
+          <button
+            type="button"
+            onClick={() => handleQuickAddDays(2)}
+            className={`px-3 py-1.5 rounded-lg transition-all ${
+              selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]
+                ? 'bg-[#326273] text-white shadow-xs'
+                : 'text-slate-600 hover:text-slate-900'
+            }`}
+          >
+            Lusa
+          </button>
+        </div>
+
+        {/* Step Next Day */}
+        <button
+          type="button"
+          onClick={() => handleStepDay(1)}
+          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors"
+          title="Hari Berikutnya"
+        >
+          <ChevronRight className="w-4 h-4" />
+        </button>
+
+        {/* Date Input */}
         <input
           type="date"
           min={todayStr}
           value={selectedDate}
           onChange={(e) => onSelectDate(e.target.value)}
-          className="text-xs sm:text-sm rounded-xl border-slate-200 bg-slate-50 py-1.5 px-3 focus:border-blue-500 focus:ring-blue-500 font-medium text-slate-700"
+          className="text-xs sm:text-sm rounded-xl border-slate-200 bg-slate-50 py-1.5 px-3 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] font-semibold text-slate-700 cursor-pointer"
         />
       </div>
     </div>
   );
 }
-
