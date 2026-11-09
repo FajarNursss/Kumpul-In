@@ -18,61 +18,76 @@ export default function Navbar({
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo Brand: Single Clean Display */}
-          <div className="flex items-center cursor-pointer py-1" onClick={onGoHome}>
+          {/* Logo Brand */}
+          <div
+            tabIndex={0}
+            role="button"
+            aria-label="Kembali ke Beranda Kumpul-In"
+            className="flex items-center cursor-pointer py-1 focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none rounded-lg"
+            onClick={onGoHome}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') onGoHome();
+            }}
+          >
             <img
               src="/logo.png"
               alt="Kumpul-In Community Hub"
               className="h-9 sm:h-11 w-auto object-contain hover:opacity-95 transition-opacity"
+              width="160"
+              height="44"
             />
           </div>
 
           {/* Desktop Navigation Links / Tabs */}
-          <nav className="hidden md:flex items-center space-x-1 sm:space-x-2">
+          <nav className="hidden md:flex items-center space-x-1 sm:space-x-2" aria-label="Navigasi Menu Utama">
             <button
+              type="button"
               onClick={onGoHome}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center gap-1.5"
+              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
             >
-              <Home className="w-4 h-4 text-slate-400" />
+              <Home className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <span>Beranda</span>
             </button>
 
             {isAdmin ? (
               <button
+                type="button"
                 onClick={() => setActiveTab('admin')}
-                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
                   activeTab === 'admin'
                     ? 'bg-[#326273] text-white shadow-xs'
                     : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                 }`}
               >
-                <Shield className="w-4 h-4" />
+                <Shield className="w-4 h-4" aria-hidden="true" />
                 <span>Dashboard Admin</span>
               </button>
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={() => setActiveTab('catalog')}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 ${
+                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
                     activeTab === 'catalog'
                       ? 'bg-[#326273] text-white shadow-xs'
                       : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                   }`}
                 >
-                  <LayoutGrid className="w-4 h-4" />
+                  <LayoutGrid className="w-4 h-4" aria-hidden="true" />
                   <span>Katalog Ruangan</span>
                 </button>
 
                 {currentUser && (
                   <button
+                    type="button"
                     onClick={() => setActiveTab('my-bookings')}
-                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 ${
+                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
                       activeTab === 'my-bookings'
                         ? 'bg-[#326273] text-white shadow-xs'
                         : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
                     }`}
                   >
-                    <CalendarCheck className="w-4 h-4" />
+                    <CalendarCheck className="w-4 h-4" aria-hidden="true" />
                     <span>Reservasi Saya</span>
                   </button>
                 )}
@@ -86,7 +101,10 @@ export default function Navbar({
               <>
                 {/* Quota Badge (For Non-Admin) */}
                 {!isAdmin && (
-                  <div className="hidden lg:flex items-center space-x-2 text-xs bg-slate-100 border border-slate-200 rounded-full px-3 py-1">
+                  <div
+                    className="hidden lg:flex items-center space-x-2 text-xs bg-slate-100 border border-slate-200 rounded-full px-3 py-1"
+                    aria-label={`Sisa kuota reservasi aktif ${currentUser.booking_quota} slot`}
+                  >
                     <span className="text-slate-400">Kuota:</span>
                     <span
                       className={`font-bold px-2 py-0.5 rounded-full ${
@@ -101,70 +119,84 @@ export default function Navbar({
                 )}
 
                 {/* Role Switcher Pill */}
-                <div className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold">
+                <div
+                  role="group"
+                  aria-label="Pilih Role Pengguna Demo"
+                  className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold"
+                >
                   <button
+                    type="button"
                     onClick={() => onSwitchRole('guest')}
                     disabled={loadingUser}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all ${
+                    aria-pressed={currentUser.role === 'guest'}
+                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
                       currentUser.role === 'guest'
                         ? 'bg-white text-[#326273] shadow-xs font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
-                    title="Beralih ke akun Guest (Kuota 2, hanya per jam)"
+                    title="Beralih ke akun Guest (Kuota 2 slot, sewa per jam)"
                   >
-                    <User className="w-3.5 h-3.5" />
+                    <User className="w-3.5 h-3.5" aria-hidden="true" />
                     <span className="hidden sm:inline">Guest</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => onSwitchRole('member')}
                     disabled={loadingUser}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all ${
+                    aria-pressed={currentUser.role === 'member'}
+                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
                       currentUser.role === 'member'
                         ? 'bg-[#5c9ead] text-white shadow-xs font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
-                    title="Beralih ke akun Member (Kuota 10, bisa sewa harian)"
+                    title="Beralih ke akun Member (Kuota 10 slot & sewa harian)"
                   >
-                    <Award className="w-3.5 h-3.5" />
+                    <Award className="w-3.5 h-3.5" aria-hidden="true" />
                     <span className="hidden sm:inline">Member</span>
                   </button>
 
                   <button
+                    type="button"
                     onClick={() => onSwitchRole('admin')}
                     disabled={loadingUser}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all ${
+                    aria-pressed={currentUser.role === 'admin'}
+                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
                       currentUser.role === 'admin'
                         ? 'bg-[#326273] text-white shadow-xs font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
                     title="Beralih ke akun Admin (Kelola seluruh reservasi & ruangan)"
                   >
-                    <Shield className="w-3.5 h-3.5" />
+                    <Shield className="w-3.5 h-3.5" aria-hidden="true" />
                     <span className="hidden sm:inline">Admin</span>
                   </button>
                 </div>
 
                 {/* Logout Button */}
                 <button
+                  type="button"
                   onClick={onLogout}
-                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors"
+                  aria-label="Keluar dari akun"
+                  className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors focus-visible:ring-2 focus-visible:ring-rose-500"
                   title="Keluar / Logout"
                 >
-                  <LogOut className="w-4 h-4" />
+                  <LogOut className="w-4 h-4" aria-hidden="true" />
                 </button>
               </>
             ) : (
               <div className="flex items-center space-x-2">
                 <button
+                  type="button"
                   onClick={() => onOpenAuth('login')}
-                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors"
+                  className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
                 >
                   Masuk
                 </button>
                 <button
+                  type="button"
                   onClick={() => onOpenAuth('register')}
-                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-xs transition-all"
+                  className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-xs transition-all focus-visible:ring-2 focus-visible:ring-[#326273]"
                 >
                   Daftar
                 </button>
@@ -173,10 +205,13 @@ export default function Navbar({
 
             {/* Mobile Navigation Menu Toggle */}
             <button
+              type="button"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 md:hidden"
+              className="p-2 rounded-xl text-slate-600 hover:bg-slate-100 md:hidden focus-visible:ring-2 focus-visible:ring-[#326273]"
+              aria-label={mobileMenuOpen ? 'Tutup navigasi mobile' : 'Buka navigasi mobile'}
+              aria-expanded={mobileMenuOpen}
             >
-              {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {mobileMenuOpen ? <X className="w-5 h-5" aria-hidden="true" /> : <Menu className="w-5 h-5" aria-hidden="true" />}
             </button>
           </div>
         </div>
@@ -187,49 +222,53 @@ export default function Navbar({
         <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2 shadow-lg">
           <div className="grid grid-cols-2 gap-2 text-xs font-bold">
             <button
+              type="button"
               onClick={() => {
                 setMobileMenuOpen(false);
                 onGoHome();
               }}
               className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
             >
-              <Home className="w-4 h-4 text-slate-400" />
+              <Home className="w-4 h-4 text-slate-400" aria-hidden="true" />
               <span>Beranda</span>
             </button>
 
             {isAdmin ? (
               <button
+                type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setActiveTab('admin');
                 }}
                 className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
               >
-                <Shield className="w-4 h-4 text-[#326273]" />
+                <Shield className="w-4 h-4 text-[#326273]" aria-hidden="true" />
                 <span>Dashboard Admin</span>
               </button>
             ) : (
               <>
                 <button
+                  type="button"
                   onClick={() => {
                     setMobileMenuOpen(false);
                     setActiveTab('catalog');
                   }}
                   className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
                 >
-                  <LayoutGrid className="w-4 h-4 text-[#326273]" />
+                  <LayoutGrid className="w-4 h-4 text-[#326273]" aria-hidden="true" />
                   <span>Katalog Ruangan</span>
                 </button>
 
                 {currentUser && (
                   <button
+                    type="button"
                     onClick={() => {
                       setMobileMenuOpen(false);
                       setActiveTab('my-bookings');
                     }}
                     className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
                   >
-                    <CalendarCheck className="w-4 h-4 text-[#326273]" />
+                    <CalendarCheck className="w-4 h-4 text-[#326273]" aria-hidden="true" />
                     <span>Reservasi Saya</span>
                   </button>
                 )}

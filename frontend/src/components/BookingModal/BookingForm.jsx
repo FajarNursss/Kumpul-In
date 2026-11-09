@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import ProposalUpload from './ProposalUpload';
 import { X, Calendar, Clock, Building, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
 import { bookingService } from '../../services/api';
@@ -15,6 +15,15 @@ export default function BookingForm({
   const [proposalFile, setProposalFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+
+  // Close on Escape key
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [onClose]);
 
   if (!room) return null;
 
@@ -88,19 +97,26 @@ export default function BookingForm({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="booking-form-title"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+    >
       <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col max-h-[90vh]">
         {/* Modal Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Konfirmasi Reservasi</span>
-            <h3 className="text-lg font-bold text-slate-900">Detail Pemesanan Ruangan</h3>
+            <span className="text-xs font-bold text-[#5c9ead] uppercase tracking-wider">Konfirmasi Reservasi</span>
+            <h2 id="booking-form-title" className="text-lg font-bold text-slate-900">Detail Pemesanan Ruangan</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors"
+            aria-label="Tutup form reservasi"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
           >
-            <X className="w-5 h-5" />
+            <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
@@ -108,31 +124,31 @@ export default function BookingForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
           {/* Error Alert */}
           {errorMessage && (
-            <div className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-start gap-2.5">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" />
+            <div role="alert" className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-start gap-2.5">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" aria-hidden="true" />
               <div>{errorMessage}</div>
             </div>
           )}
 
           {/* User info banner */}
-          <div className="p-3 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
+          <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
             <div>
-              <span className="text-slate-400 block">Pemesan:</span>
-              <strong className="text-slate-800">{currentUser?.name}</strong>
+              <span className="text-slate-400 block">Pemesan Terdaftar:</span>
+              <strong className="text-slate-800 text-sm">{currentUser?.name}</strong>
             </div>
             <div className="text-right">
               <span className="text-slate-400 block">Sisa Kuota:</span>
-              <span className="font-bold text-emerald-700">{currentUser?.booking_quota} slot</span>
+              <span className="font-bold text-emerald-700 text-sm">{currentUser?.booking_quota} slot</span>
             </div>
           </div>
 
           {/* Room Details Card */}
           <div className="p-4 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 space-y-3">
             <div className="flex items-center justify-between">
-              <h4 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                <Building className="w-4 h-4 text-[#326273]" />
+              <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
+                <Building className="w-4 h-4 text-[#326273]" aria-hidden="true" />
                 {room.name}
-              </h4>
+              </h3>
               <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-white text-[#326273] border border-[#5c9ead]/40">
                 {room.category}
               </span>
@@ -140,11 +156,11 @@ export default function BookingForm({
 
             <div className="grid grid-cols-2 gap-2 text-xs text-slate-600 pt-1 border-t border-[#5c9ead]/20">
               <div className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5 text-[#5c9ead]" />
+                <Calendar className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
                 <span>{date}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <Clock className="w-3.5 h-3.5 text-[#5c9ead]" />
+                <Clock className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
                 <span>{isDaily ? '08:00 - 18:00 (Harian)' : slot?.time}</span>
               </div>
             </div>
@@ -160,13 +176,13 @@ export default function BookingForm({
           )}
 
           {/* Price Summary */}
-          <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 flex items-center justify-between">
+          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
             <div>
-              <span className="text-xs text-slate-500">Estimasi Biaya ({isDaily ? '10 Jam' : '1 Jam'})</span>
+              <span className="text-xs text-slate-500">Estimasi Biaya ({isDaily ? '10 Jam Penuh' : '1 Jam Sesi'})</span>
               <div className="text-lg font-black text-slate-900">{formattedCost}</div>
             </div>
-            <span className="text-[11px] font-medium text-slate-400 bg-white px-2.5 py-1 rounded-lg border border-slate-200">
-              {isDaily ? 'Paket Full Day' : 'Tarif Normal'}
+            <span className="text-[11px] font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-xl border border-slate-200">
+              {isDaily ? 'Paket Full Day (08:00 - 18:00)' : 'Tarif Sesi Per Jam'}
             </span>
           </div>
 
@@ -176,23 +192,23 @@ export default function BookingForm({
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 py-2.5 px-4 rounded-xl font-semibold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors"
+              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
             >
               Batal
             </button>
             <button
               type="submit"
               disabled={loading || currentUser?.booking_quota <= 0 || (isDaily && isGuest)}
-              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2"
+              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273]"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span>Memproses...</span>
+                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                  <span>Memvalidasi...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" />
+                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
                   <span>Konfirmasi Reservasi</span>
                 </>
               )}
@@ -203,4 +219,3 @@ export default function BookingForm({
     </div>
   );
 }
-

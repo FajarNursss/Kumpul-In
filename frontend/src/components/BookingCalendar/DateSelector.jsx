@@ -1,5 +1,5 @@
 import React from 'react';
-import { Calendar, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
+import { Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
 
 export default function DateSelector({ selectedDate, onSelectDate }) {
   const today = new Date();
@@ -31,7 +31,6 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
     }).format(dateObj);
   };
 
-  // Calculate if date is today, tomorrow, etc.
   const isToday = selectedDate === todayStr;
 
   return (
@@ -39,7 +38,7 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
       {/* Date display & day navigator */}
       <div className="flex items-center space-x-3">
         <div className="p-3 rounded-2xl bg-[#eef6f8] text-[#326273] border border-[#5c9ead]/30 shrink-0">
-          <Calendar className="w-5 h-5" />
+          <Calendar className="w-5 h-5" aria-hidden="true" />
         </div>
         <div>
           <div className="flex items-center gap-2">
@@ -47,7 +46,7 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
               Tanggal Reservasi
             </span>
             {isToday && (
-              <span className="text-[10px] font-bold px-2 py-0.2 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                 Hari Ini
               </span>
             )}
@@ -65,18 +64,20 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
           type="button"
           onClick={() => handleStepDay(-1)}
           disabled={isToday}
-          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+          aria-label="Pilih hari sebelumnya"
+          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
           title="Hari Sebelumnya"
         >
-          <ChevronLeft className="w-4 h-4" />
+          <ChevronLeft className="w-4 h-4" aria-hidden="true" />
         </button>
 
         {/* Quick Date Pills */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold">
+        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold" role="group" aria-label="Pilihan Cepat Tanggal">
           <button
             type="button"
             onClick={() => handleQuickAddDays(0)}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            aria-pressed={isToday}
+            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               isToday
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -87,7 +88,8 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
           <button
             type="button"
             onClick={() => handleQuickAddDays(1)}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            aria-pressed={selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -98,7 +100,8 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
           <button
             type="button"
             onClick={() => handleQuickAddDays(2)}
-            className={`px-3 py-1.5 rounded-lg transition-all ${
+            aria-pressed={selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]}
+            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -112,14 +115,19 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
         <button
           type="button"
           onClick={() => handleStepDay(1)}
-          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors"
+          aria-label="Pilih hari berikutnya"
+          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
           title="Hari Berikutnya"
         >
-          <ChevronRight className="w-4 h-4" />
+          <ChevronRight className="w-4 h-4" aria-hidden="true" />
         </button>
 
-        {/* Date Input */}
+        {/* Date Input with Accessible Label */}
+        <label htmlFor="calendar-date-input" className="sr-only">
+          Pilih Tanggal Kalender
+        </label>
         <input
+          id="calendar-date-input"
           type="date"
           min={todayStr}
           value={selectedDate}

@@ -1,12 +1,64 @@
 <!doctype html>
-<html lang="id">
+<html lang="id" class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/png" href="/logo-icon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Primary SEO Meta Tags -->
     <title>Kumpul-In • Sistem Reservasi Community Hub Real-Time</title>
+    <meta name="title" content="Kumpul-In • Sistem Reservasi Community Hub Real-Time" />
+    <meta name="description" content="Sistem reservasi ruang komunitas dan coworking space terpadu. Pemesanan meja kerja, meeting pod akustik, dan aula serbaguna dengan validasi collision detection anti bentrok real-time." />
+    <meta name="keywords" content="kumpul-in, reservasi ruangan, coworking space bandung, meeting pod kedap suara, event space, booking ruangan komunitas, jadwal real time, agile scrum" />
+    <meta name="author" content="Tim Praktikum Rekayasa Perangkat Lunak" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#326273" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="http://localhost:5173/" />
+    <meta property="og:title" content="Kumpul-In • Sistem Reservasi Community Hub Real-Time" />
+    <meta property="og:description" content="Pesan meja kerja dan ruang diskusi komunitas secara transparan. Validasi ketersediaan instan dengan kode booking resmi." />
+    <meta property="og:image" content="/logo.png" />
+    <meta property="og:locale" content="id_ID" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:url" content="http://localhost:5173/" />
+    <meta property="twitter:title" content="Kumpul-In • Sistem Reservasi Community Hub Real-Time" />
+    <meta property="twitter:description" content="Pesan meja kerja dan ruang diskusi komunitas secara transparan dengan kode booking instan." />
+    <meta property="twitter:image" content="/logo.png" />
+
+    <!-- Favicon & Touch Icon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/logo-icon.png" />
+    <link rel="apple-touch-icon" href="/logo-icon.png" />
+
+    <!-- Structured Data (JSON-LD) for SEO & Rich Snippets -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "SoftwareApplication",
+        "name": "Kumpul-In",
+        "applicationCategory": "BusinessApplication",
+        "operatingSystem": "Web",
+        "description": "Sistem reservasi ruang komunitas dan coworking terpadu dengan pencegahan jadwal bentrok real-time.",
+        "offers": {
+          "@type": "AggregateOffer",
+          "priceCurrency": "IDR",
+          "lowPrice": "15000",
+          "highPrice": "350000",
+          "offerCount": "5"
+        }
+      }
+    </script>
   </head>
-  <body>
+  <body class="bg-[#f8fafc] text-slate-800 antialiased selection:bg-[#326273] selection:text-white">
+    <!-- Skip Link for Keyboard Accessibility (WCAG 2.4.1) -->
+    <a
+      href="#main-content"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#326273] focus:text-white focus:font-bold focus:rounded-xl focus:shadow-xl focus:ring-2 focus:ring-white"
+    >
+      Lewati ke konten utama
+    </a>
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

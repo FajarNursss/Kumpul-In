@@ -88,10 +88,13 @@ export default function MyBookings({ currentUser, onShowToast }) {
         </div>
 
         {/* Quick Filter Pills */}
-        <div className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl text-xs font-bold self-start sm:self-auto">
+        <div role="tablist" aria-label="Filter status reservasi" className="flex items-center gap-1.5 p-1 bg-slate-100 rounded-2xl text-xs font-bold self-start sm:self-auto">
           <button
+            type="button"
+            role="tab"
+            aria-selected={filterStatus === 'all'}
             onClick={() => setFilterStatus('all')}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               filterStatus === 'all'
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -100,8 +103,11 @@ export default function MyBookings({ currentUser, onShowToast }) {
             Semua ({bookings.length})
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={filterStatus === 'today'}
             onClick={() => setFilterStatus('today')}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               filterStatus === 'today'
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -110,8 +116,11 @@ export default function MyBookings({ currentUser, onShowToast }) {
             Hari Ini
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={filterStatus === 'proposal'}
             onClick={() => setFilterStatus('proposal')}
-            className={`px-3 py-1.5 rounded-xl transition-all ${
+            className={`px-3 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
               filterStatus === 'proposal'
                 ? 'bg-[#326273] text-white shadow-xs'
                 : 'text-slate-600 hover:text-slate-900'
@@ -138,14 +147,16 @@ export default function MyBookings({ currentUser, onShowToast }) {
                       {b.booking_code}
                     </span>
                     <button
+                      type="button"
                       onClick={() => handleCopyCode(b.booking_code)}
-                      className="p-1 rounded text-slate-400 hover:text-slate-700 transition-colors"
+                      className="p-1 rounded text-slate-400 hover:text-slate-700 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
                       title="Salin Kode Booking"
+                      aria-label={`Salin kode booking ${b.booking_code}`}
                     >
                       {copiedCode === b.booking_code ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
+                        <Check className="w-3.5 h-3.5 text-emerald-600" aria-hidden="true" />
                       ) : (
-                        <Copy className="w-3.5 h-3.5" />
+                        <Copy className="w-3.5 h-3.5" aria-hidden="true" />
                       )}
                     </button>
                   </div>
@@ -189,7 +200,8 @@ export default function MyBookings({ currentUser, onShowToast }) {
               <button
                 type="button"
                 onClick={() => setSelectedReceiptBooking(b)}
-                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-[#326273] hover:text-white transition-all flex items-center gap-1.5"
+                aria-label={`Lihat voucher bukti reservasi ${b.booking_code}`}
+                className="px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 text-slate-700 hover:bg-[#326273] hover:text-white transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
               >
                 <Printer className="w-3.5 h-3.5" />
                 <span>Lihat Voucher</span>

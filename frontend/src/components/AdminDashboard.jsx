@@ -244,13 +244,13 @@ export default function AdminDashboard({ currentUser }) {
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
-                  <th className="py-3 px-4">Kode Booking</th>
-                  <th className="py-3 px-4">Pemesan</th>
-                  <th className="py-3 px-4">Ruangan</th>
-                  <th className="py-3 px-4">Jadwal Reservasi</th>
-                  <th className="py-3 px-4">Tipe & Proposal</th>
-                  <th className="py-3 px-4">Status</th>
-                  <th className="py-3 px-4 text-right">Aksi</th>
+                  <th scope="col" className="py-3 px-4">Kode Booking</th>
+                  <th scope="col" className="py-3 px-4">Pemesan</th>
+                  <th scope="col" className="py-3 px-4">Ruangan</th>
+                  <th scope="col" className="py-3 px-4">Jadwal Reservasi</th>
+                  <th scope="col" className="py-3 px-4">Tipe & Proposal</th>
+                  <th scope="col" className="py-3 px-4">Status</th>
+                  <th scope="col" className="py-3 px-4 text-right">Aksi</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -389,13 +389,20 @@ export default function AdminDashboard({ currentUser }) {
 
       {/* Add Room Modal */}
       {isAddRoomOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in">
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="add-room-title"
+          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+        >
           <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl p-6 space-y-4 border border-slate-100">
             <div className="flex items-center justify-between pb-3 border-b border-slate-100">
-              <h3 className="text-base font-bold text-slate-900">Tambah Ruangan Baru</h3>
+              <h3 id="add-room-title" className="text-base font-bold text-slate-900">Tambah Ruangan Baru</h3>
               <button
+                type="button"
                 onClick={() => setIsAddRoomOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700"
+                aria-label="Tutup modal tambah ruangan"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-[#326273]"
               >
                 ✕
               </button>
@@ -403,23 +410,25 @@ export default function AdminDashboard({ currentUser }) {
 
             <form onSubmit={handleAddRoomSubmit} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Nama Ruangan</label>
+                <label htmlFor="add-room-name" className="block font-semibold text-slate-700 mb-1">Nama Ruangan</label>
                 <input
+                  id="add-room-name"
                   type="text"
                   required
                   value={newRoomName}
                   onChange={(e) => setNewRoomName(e.target.value)}
                   placeholder="Contoh: Meeting Pod Beta"
-                  className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50"
+                  className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-slate-700 mb-1">Kategori</label>
+                <label htmlFor="add-room-category" className="block font-semibold text-slate-700 mb-1">Kategori</label>
                 <select
+                  id="add-room-category"
                   value={newRoomCategory}
                   onChange={(e) => setNewRoomCategory(e.target.value)}
-                  className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50"
+                  className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                 >
                   <option value="Open Desk">Open Desk</option>
                   <option value="Meeting Pod">Meeting Pod</option>
@@ -429,26 +438,28 @@ export default function AdminDashboard({ currentUser }) {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Kapasitas (Orang)</label>
+                  <label htmlFor="add-room-capacity" className="block font-semibold text-slate-700 mb-1">Kapasitas (Orang)</label>
                   <input
+                    id="add-room-capacity"
                     type="number"
                     min="1"
                     required
                     value={newRoomCapacity}
                     onChange={(e) => setNewRoomCapacity(e.target.value)}
-                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50"
+                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-slate-700 mb-1">Tarif Sewa (Rp/Jam)</label>
+                  <label htmlFor="add-room-price" className="block font-semibold text-slate-700 mb-1">Tarif Sewa (Rp/Jam)</label>
                   <input
+                    id="add-room-price"
                     type="number"
                     min="0"
                     step="5000"
                     required
                     value={newRoomPrice}
                     onChange={(e) => setNewRoomPrice(e.target.value)}
-                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50"
+                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                   />
                 </div>
               </div>
@@ -457,14 +468,14 @@ export default function AdminDashboard({ currentUser }) {
                 <button
                   type="button"
                   onClick={() => setIsAddRoomOpen(false)}
-                  className="flex-1 py-2 rounded-xl font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  className="flex-1 py-2 rounded-xl font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 focus-visible:ring-2 focus-visible:ring-[#326273]"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingRoom}
-                  className="flex-1 py-2 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm"
+                  className="flex-1 py-2 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm focus-visible:ring-2 focus-visible:ring-[#326273]"
                 >
                   {savingRoom ? 'Menyimpan...' : 'Simpan Ruangan'}
                 </button>

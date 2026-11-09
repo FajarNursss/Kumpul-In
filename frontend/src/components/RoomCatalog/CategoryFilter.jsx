@@ -20,8 +20,12 @@ export default function CategoryFilter({
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
         {/* Search Input */}
         <div className="relative flex-1">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <label htmlFor="room-search-input" className="sr-only">
+            Cari nama ruangan atau fasilitas
+          </label>
+          <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" aria-hidden="true" />
           <input
+            id="room-search-input"
             type="text"
             value={searchQuery || ''}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -30,10 +34,12 @@ export default function CategoryFilter({
           />
           {searchQuery && (
             <button
+              type="button"
               onClick={() => onSearchChange('')}
-              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5"
+              aria-label="Hapus kata kunci pencarian"
+              className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 p-0.5 focus-visible:ring-2 focus-visible:ring-[#326273] rounded"
             >
-              <X className="w-3.5 h-3.5" />
+              <X className="w-3.5 h-3.5" aria-hidden="true" />
             </button>
           )}
         </div>
@@ -42,8 +48,12 @@ export default function CategoryFilter({
         <div className="flex items-center space-x-2">
           {/* Capacity */}
           <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
-            <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
+            <label htmlFor="min-capacity-select" className="sr-only">
+              Filter Kapasitas Minimum
+            </label>
             <select
+              id="min-capacity-select"
               value={minCapacity}
               onChange={(e) => onChangeMinCapacity(e.target.value)}
               className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer"
@@ -59,8 +69,12 @@ export default function CategoryFilter({
 
           {/* Sort By */}
           <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
-            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" />
+            <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
+            <label htmlFor="sort-by-select" className="sr-only">
+              Urutkan Daftar Ruangan
+            </label>
             <select
+              id="sort-by-select"
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value)}
               className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer"
@@ -76,15 +90,18 @@ export default function CategoryFilter({
 
       {/* Bottom Row: Category Tabs & Result Counter */}
       <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2" role="tablist" aria-label="Filter Kategori Ruangan">
           <span className="text-xs font-semibold text-slate-400 mr-1 flex items-center gap-1">
-            <Filter className="w-3.5 h-3.5" /> Kategori:
+            <Filter className="w-3.5 h-3.5" aria-hidden="true" /> Kategori:
           </span>
           {CATEGORIES.map((cat) => (
             <button
               key={cat}
+              type="button"
+              role="tab"
+              aria-selected={selectedCategory === cat}
               onClick={() => onSelectCategory(cat)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
                 selectedCategory === cat
                   ? 'bg-[#326273] text-white shadow-xs'
                   : 'bg-slate-100 text-slate-600 hover:bg-slate-200 hover:text-slate-900'

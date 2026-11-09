@@ -268,7 +268,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
         {activeTab === 'admin' && currentUser?.role === 'admin' ? (
           /* Admin Dashboard */
           <AdminDashboard currentUser={currentUser} onShowToast={showToast} />
@@ -393,13 +393,19 @@ export default function App() {
       </main>
 
       {/* Floating Demo Role Switcher Toolbar (Bottom Center) */}
-      <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-xl border border-slate-200 hidden sm:flex items-center space-x-2 text-xs">
+      <div
+        role="region"
+        aria-label="Toolbar beralih akun demonstrasi praktikum"
+        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-xl border border-slate-200 hidden sm:flex items-center space-x-2 text-xs print:hidden"
+      >
         <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-[#e39774]" /> Demo Praktikum:
+          <Sparkles className="w-3.5 h-3.5 text-[#e39774]" aria-hidden="true" /> Demo Praktikum:
         </span>
         <button
+          type="button"
           onClick={() => handleSwitchRole('guest')}
-          className={`px-3 py-1 rounded-xl font-bold transition-all ${
+          aria-pressed={currentUser?.role === 'guest'}
+          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
             currentUser?.role === 'guest'
               ? 'bg-[#326273] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
@@ -408,8 +414,10 @@ export default function App() {
           Guest (2 Kuota)
         </button>
         <button
+          type="button"
           onClick={() => handleSwitchRole('member')}
-          className={`px-3 py-1 rounded-xl font-bold transition-all ${
+          aria-pressed={currentUser?.role === 'member'}
+          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
             currentUser?.role === 'member'
               ? 'bg-[#5c9ead] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
@@ -418,8 +426,10 @@ export default function App() {
           Member (10 Kuota + Daily)
         </button>
         <button
+          type="button"
           onClick={() => handleSwitchRole('admin')}
-          className={`px-3 py-1 rounded-xl font-bold transition-all ${
+          aria-pressed={currentUser?.role === 'admin'}
+          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
             currentUser?.role === 'admin'
               ? 'bg-slate-900 text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
