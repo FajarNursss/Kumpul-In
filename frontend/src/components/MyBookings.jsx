@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { bookingService } from '../services/api';
 import ReceiptModal from './ReceiptModal';
 import ConfirmModal from './ConfirmModal';
+import { formatDateIndo, formatTimeClean } from '../utils/formatters';
 import {
   CalendarCheck, Clock, Download, Building, Loader2, FileText,
   CheckCircle2, Printer, Copy, Check, Filter, Search, QrCode,
@@ -216,11 +217,11 @@ export default function MyBookings({ currentUser, onShowToast, onQuotaRecovered 
               <div className="text-xs text-slate-600 space-y-1.5 bg-slate-50 p-3.5 rounded-2xl mt-3 border border-slate-200/80">
                 <div className="flex justify-between">
                   <span className="text-slate-400">Tanggal Booking:</span>
-                  <span className="font-bold text-slate-800">{b.booking_date}</span>
+                  <span className="font-bold text-slate-800">{formatDateIndo(b.booking_date)}</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Jadwal Sesi:</span>
-                  <span className="font-bold text-slate-800">{b.start_time} - {b.end_time} WIB</span>
+                  <span className="font-bold text-slate-800">{formatTimeClean(b.start_time)} - {formatTimeClean(b.end_time)} WIB</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-slate-400">Tipe Durasi:</span>

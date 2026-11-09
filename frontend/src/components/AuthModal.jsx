@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Mail, Lock, User, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap, Check } from 'lucide-react';
 import { authService } from '../services/api';
 
@@ -20,14 +21,22 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
     setSuccessMessage('');
   }, [defaultMode, isOpen]);
 
-  // Close on Escape key
+  // Close on Escape key & prevent body scrolling
   useEffect(() => {
     if (!isOpen) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && !loading) onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, loading, onClose]);
 
   if (!isOpen) return null;
@@ -124,17 +133,17 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
     }
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="auth-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget && !loading) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all my-auto relative animate-scale-in">
         {/* Sleek Top Header */}
         <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center space-x-3">
@@ -390,6 +399,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

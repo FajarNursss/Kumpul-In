@@ -1,17 +1,27 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { CheckCircle2, Copy, Check, Calendar, Clock, Building, ArrowRight } from 'lucide-react';
 
 export default function SuccessModal({ bookingData, onClose }) {
   const [copied, setCopied] = useState(false);
 
-  // Close on Escape
+  // Close on Escape & prevent background scrolling
   useEffect(() => {
+    if (!bookingData) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [bookingData, onClose]);
 
   if (!bookingData) return null;
 
@@ -21,29 +31,32 @@ export default function SuccessModal({ bookingData, onClose }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="success-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 transform transition-all p-6 sm:p-8 space-y-6">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 p-6 sm:p-8 space-y-6 my-auto relative animate-scale-in">
         {/* Top Celebration Icon */}
         <div className="text-center space-y-2">
           <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
             <CheckCircle2 className="w-10 h-10" aria-hidden="true" />
           </div>
-          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">Reservasi Berhasil!</h2>
+          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">Peminjaman Berhasil!</h2>
           <p className="text-xs text-slate-500">
-            Pemesanan Anda telah dikonfirmasi secara instan oleh sistem Kumpul-In.
+            Permohonan peminjaman Anda telah dikonfirmasi secara instan oleh sistem Kumpul-In Kampus.
           </p>
         </div>
 
         {/* Booking Code Box */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4 text-center space-y-1.5">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Kode Booking Resmi
+            Kode Peminjaman Sah
           </span>
           <div className="flex items-center justify-center space-x-2">
             <span className="text-lg sm:text-xl font-mono font-black text-[#326273] tracking-wide">
@@ -66,25 +79,27 @@ export default function SuccessModal({ bookingData, onClose }) {
         <div className="space-y-2.5 text-xs">
           <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
             <span className="text-slate-400 flex items-center gap-1.5">
-              <Building className="w-3.5 h-3.5" aria-hidden="true" /> Ruangan
+              <Building className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" /> Fasilitas
             </span>
             <span className="font-bold text-slate-800">{bookingData.room_name} ({bookingData.category})</span>
           </div>
 
           <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
             <span className="text-slate-400 flex items-center gap-1.5">
-              <Clock className="w-3.5 h-3.5" aria-hidden="true" /> Jadwal Waktu
+              <Clock className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" /> Jadwal Waktu
             </span>
             <span className="font-bold text-slate-800">{bookingData.schedule}</span>
           </div>
 
           <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-            <span className="text-slate-400">Tipe Sewa</span>
-            <span className="font-semibold text-slate-700 capitalize">{bookingData.duration_type}</span>
+            <span className="text-slate-400">Tipe Peminjaman</span>
+            <span className="font-semibold text-slate-700 capitalize">
+              {bookingData.duration_type === 'daily' ? 'Harian Penuh (Daily)' : 'Per Jam (Hourly)'}
+            </span>
           </div>
 
           <div className="flex items-center justify-between py-1.5">
-            <span className="text-slate-400">Sisa Kuota Reservasi</span>
+            <span className="text-slate-400">Sisa Kuota Peminjaman</span>
             <span className="font-bold text-emerald-700">{bookingData.remaining_quota} slot</span>
           </div>
         </div>
@@ -99,6 +114,7 @@ export default function SuccessModal({ bookingData, onClose }) {
           <ArrowRight className="w-4 h-4" aria-hidden="true" />
         </button>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

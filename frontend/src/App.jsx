@@ -408,7 +408,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 space-y-8">
         {activeTab === 'admin' && currentUser?.role === 'admin' ? (
           /* Admin Dashboard */
           <AdminDashboard currentUser={currentUser} onShowToast={showToast} />
@@ -631,7 +631,7 @@ export default function App() {
       />
 
       {/* Footer */}
-      <footer className="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
+      <footer className="mt-auto bg-white border-t border-slate-200 py-6 pb-20 sm:pb-16 text-center text-xs text-slate-500">
         <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Seluruh hak cipta dilindungi.</p>
       </footer>
     </div>

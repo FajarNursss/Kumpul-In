@@ -1,15 +1,26 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { X, Printer, CheckCircle2, Building, Calendar, Clock, User, ShieldCheck } from 'lucide-react';
+import { formatDateIndo, formatTimeClean } from '../utils/formatters';
 
 export default function ReceiptModal({ booking, onClose }) {
-  // Close on Escape
+  // Close on Escape & prevent body scrolling
   useEffect(() => {
+    if (!booking) return;
+
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape') onClose();
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [onClose]);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [booking, onClose]);
 
   if (!booking) return null;
 
@@ -17,14 +28,17 @@ export default function ReceiptModal({ booking, onClose }) {
     window.print();
   };
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="receipt-modal-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in print:p-0 print:bg-white"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto print:p-0 print:bg-white"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden print:border-none print:shadow-none print:w-full">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-auto relative animate-scale-in print:border-none print:shadow-none print:w-full">
         {/* Modal Top Action (hidden on print) */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden">
           <span id="receipt-modal-title" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
@@ -96,7 +110,7 @@ export default function ReceiptModal({ booking, onClose }) {
               <span className="text-slate-400 flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" /> Tanggal
               </span>
-              <span className="font-bold text-slate-800">{booking.booking_date}</span>
+              <span className="font-bold text-slate-800">{formatDateIndo(booking.booking_date)}</span>
             </div>
 
             <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
@@ -104,7 +118,7 @@ export default function ReceiptModal({ booking, onClose }) {
                 <Clock className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" /> Jam Sesi
               </span>
               <span className="font-bold text-slate-800">
-                {booking.start_time} - {booking.end_time} WIB
+                {formatTimeClean(booking.start_time)} - {formatTimeClean(booking.end_time)} WIB
               </span>
             </div>
 
@@ -146,6 +160,7 @@ export default function ReceiptModal({ booking, onClose }) {
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }

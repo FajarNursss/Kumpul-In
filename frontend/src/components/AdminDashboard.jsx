@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { adminService, roomService } from '../services/api';
 import ConfirmModal from './ConfirmModal';
+import { formatDateIndo, formatTimeClean } from '../utils/formatters';
 import {
   Shield, Users, Building, CalendarCheck, Clock, CheckCircle2,
   XCircle, Plus, Trash2, ToggleLeft, ToggleRight, Loader2,
@@ -307,8 +308,8 @@ export default function AdminDashboard({ currentUser, onShowToast }) {
                       <span className="block text-[11px] text-slate-400">{b.room?.category}</span>
                     </td>
                     <td className="py-3 px-4">
-                      <div className="font-semibold text-slate-800">{b.booking_date}</div>
-                      <div className="text-[11px] text-slate-500">{b.start_time} - {b.end_time}</div>
+                      <div className="font-semibold text-slate-800">{formatDateIndo(b.booking_date)}</div>
+                      <div className="text-[11px] text-slate-500 font-mono">{formatTimeClean(b.start_time)} - {formatTimeClean(b.end_time)} WIB</div>
                     </td>
                     <td className="py-3 px-4">
                       <span className="capitalize font-semibold text-slate-700 block">{b.duration_type}</span>

@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { AlertTriangle, AlertCircle, LogOut, CheckCircle2, Loader2, X } from 'lucide-react';
 
 export default function ConfirmModal({
@@ -15,13 +16,22 @@ export default function ConfirmModal({
 }) {
   useEffect(() => {
     if (!isOpen) return;
+
+    // Prevent background scrolling while modal is open
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+
     const handleKeyDown = (e) => {
       if (e.key === 'Escape' && !isLoading) {
         onClose();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      window.removeEventListener('keydown', handleKeyDown);
+    };
   }, [isOpen, isLoading, onClose]);
 
   if (!isOpen) return null;
@@ -48,18 +58,18 @@ export default function ConfirmModal({
   const currentTheme = variantStyles[variant] || variantStyles.primary;
   const DisplayIcon = CustomIcon || currentTheme.defaultIcon;
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
       aria-describedby="confirm-modal-desc"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col p-6 space-y-5 animate-scale-in">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col p-6 space-y-5 animate-scale-in my-auto relative">
         {/* Header with Icon */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start space-x-3.5">
@@ -113,6 +123,7 @@ export default function ConfirmModal({
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
