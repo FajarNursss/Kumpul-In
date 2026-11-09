@@ -77,7 +77,7 @@ export default function ReceiptModal({ booking, onClose }) {
               {booking.booking_code}
             </div>
             <p className="text-[10px] text-slate-400">
-              Tunjukkan kode ini kepada resepsionis / pengelola saat check-in di lokasi
+              Tunjukkan bukti ini kepada Biro Sarana / Petugas Fasilitas saat memasuki ruangan
             </p>
           </div>
 
@@ -120,7 +120,7 @@ export default function ReceiptModal({ booking, onClose }) {
                 <User className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" /> Pemesan
               </span>
               <span className="font-semibold text-slate-800">
-                {booking.user?.name || 'Member Terverifikasi'}
+                {booking.user?.name || 'Civitas Akademika'}
               </span>
             </div>
           </div>
@@ -131,7 +131,7 @@ export default function ReceiptModal({ booking, onClose }) {
               <ShieldCheck className="w-4 h-4 text-[#326273]" aria-hidden="true" />
               <span>Divalidasi Real-Time via Kumpul-In API</span>
             </div>
-            <span>Kumpul-In Official System</span>
+            <span>Kumpul-In Kampus Official</span>
           </div>
         </div>
 

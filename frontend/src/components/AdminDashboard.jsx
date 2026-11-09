@@ -127,8 +127,8 @@ export default function AdminDashboard({ currentUser }) {
                 Pusat Kendali Admin
               </span>
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold mt-1">Dashboard Pengelola Kumpul-In</h1>
-            <p className="text-xs text-slate-300">Pantau seluruh reservasi, kelola ketersediaan ruangan, dan kelola kuota pengguna.</p>
+            <h1 className="text-xl sm:text-2xl font-bold mt-1">Dashboard Biro Sarana & Fasilitas Kampus</h1>
+            <p className="text-xs text-slate-300">Pantau seluruh permohonan peminjaman, kelola ketersediaan fasilitas kampus, dan kuota civitas.</p>
           </div>
         </div>
 
@@ -144,7 +144,7 @@ export default function AdminDashboard({ currentUser }) {
       {/* Stats Cards Grid */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-sm flex items-center space-x-4">
-          <div className="p-3 rounded-xl bg-blue-50 text-blue-600">
+          <div className="p-3 rounded-xl bg-[#5c9ead]/15 text-[#326273]">
             <CalendarCheck className="w-6 h-6" />
           </div>
           <div>
@@ -180,7 +180,7 @@ export default function AdminDashboard({ currentUser }) {
             <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-xs font-medium text-slate-400">Pengguna Komunitas</div>
+            <div className="text-xs font-medium text-slate-400">Civitas Terdaftar</div>
             <div className="text-xl font-black text-slate-900">{stats?.total_users || 0}</div>
           </div>
         </div>
@@ -197,7 +197,7 @@ export default function AdminDashboard({ currentUser }) {
           }`}
         >
           <CalendarCheck className="w-4 h-4" />
-          <span>Daftar Seluruh Reservasi</span>
+          <span>Daftar Seluruh Peminjaman</span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
             {bookings.length}
           </span>
@@ -212,7 +212,7 @@ export default function AdminDashboard({ currentUser }) {
           }`}
         >
           <Building className="w-4 h-4" />
-          <span>Kelola Ruangan Hub</span>
+          <span>Kelola Fasilitas Kampus</span>
           <span className="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
             {rooms.length}
           </span>
@@ -256,7 +256,7 @@ export default function AdminDashboard({ currentUser }) {
               <tbody className="divide-y divide-slate-100">
                 {bookings.map((b) => (
                   <tr key={b.id} className="hover:bg-slate-50/60 transition-colors">
-                    <td className="py-3 px-4 font-mono font-bold text-blue-600">
+                    <td className="py-3 px-4 font-mono font-bold text-[#326273]">
                       {b.booking_code}
                     </td>
                     <td className="py-3 px-4">
@@ -278,7 +278,7 @@ export default function AdminDashboard({ currentUser }) {
                           href={`http://localhost:8000/api/bookings/proposal/${b.booking_code}`}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex items-center gap-1 text-[11px] text-blue-600 hover:text-blue-800 font-medium mt-0.5"
+                          className="inline-flex items-center gap-1 text-[11px] text-[#326273] hover:text-[#264c5a] font-medium mt-0.5"
                         >
                           <FileText className="w-3 h-3" />
                           <span>Unduh PDF</span>
@@ -327,13 +327,13 @@ export default function AdminDashboard({ currentUser }) {
       {activeTab === 'rooms' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-base font-bold text-slate-800">Daftar Ruangan Komunitas</h3>
+            <h3 className="text-base font-bold text-slate-800">Daftar Fasilitas Ruangan Kampus</h3>
             <button
               onClick={() => setIsAddRoomOpen(true)}
               className="px-4 py-2 rounded-xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm transition-all flex items-center gap-1.5"
             >
               <Plus className="w-4 h-4" />
-              <span>Tambah Ruangan Baru</span>
+              <span>Tambah Fasilitas Baru</span>
             </button>
           </div>
 

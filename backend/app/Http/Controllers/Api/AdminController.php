@@ -114,7 +114,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'category' => 'required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar,Meeting Pod,Open Desk,Event Space',
+            'category' => 'required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar',
             'capacity' => 'required|integer|min:1',
             'price_per_hour' => 'nullable|numeric|min:0',
             'is_active' => 'nullable|boolean',
@@ -146,7 +146,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:100',
-            'category' => 'sometimes|required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar,Meeting Pod,Open Desk,Event Space',
+            'category' => 'sometimes|required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar',
             'capacity' => 'sometimes|required|integer|min:1',
             'price_per_hour' => 'sometimes|nullable|numeric|min:0',
             'is_active' => 'sometimes|required|boolean',

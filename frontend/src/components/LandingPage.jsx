@@ -113,7 +113,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
               <img
                 src="/logo-icon.png"
                 alt="Logo Kumpul-In"
-                className="h-9 sm:h-10 w-auto object-contain hover:opacity-90 transition-opacity"
+                className="h-10 sm:h-11 w-auto object-contain hover:opacity-95 transition-opacity"
               />
               <div className="flex flex-col select-none">
                 <div className="flex items-center gap-1.5">
@@ -124,47 +124,65 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
                     Kampus
                   </span>
                 </div>
-                <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-normal leading-tight mt-0.5">
+                <span className="text-[10px] sm:text-[11px] font-semibold text-[#5c9ead] tracking-normal leading-tight mt-0.5">
                   Sistem Peminjaman Fasilitas Kampus
                 </span>
               </div>
             </a>
 
-            {/* Desktop Menu Links */}
-            <nav className="hidden md:flex items-center space-x-8 text-sm font-semibold text-slate-600" aria-label="Menu Utama">
-              <a href="#fasilitas" className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5">
+            {/* Desktop Menu Links - Strictly Smooth Scroll-Down Anchors */}
+            <nav className="hidden md:flex items-center space-x-7 text-sm font-semibold text-slate-600" aria-label="Menu Navigasi Halaman">
+              <a
+                href="#hero"
+                className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5"
+              >
+                Beranda
+              </a>
+              <a
+                href="#fasilitas"
+                className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5"
+              >
                 Pilihan Fasilitas
               </a>
-              <a href="#alur-booking" className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5">
+              <a
+                href="#alur-booking"
+                className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5"
+              >
                 Alur Peminjaman
               </a>
-              <a href="#faq" className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5">
+              <a
+                href="#faq"
+                className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5"
+              >
                 Tanya Jawab (FAQ)
               </a>
+            </nav>
+
+            {/* Action Buttons: Portal Peminjaman & Auth (Page Transitions) */}
+            <div className="hidden sm:flex items-center space-x-2.5">
               <button
                 type="button"
                 onClick={onExploreCatalog}
-                className="hover:text-[#326273] transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] rounded-md px-1 py-0.5 font-bold text-[#326273]"
+                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm transition-all flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
               >
-                Katalog Fasilitas
+                <span>Portal Peminjaman</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
-            </nav>
 
-            {/* Auth Actions */}
-            <div className="hidden sm:flex items-center space-x-3">
               <button
                 type="button"
                 onClick={() => onOpenAuth('login')}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
+                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-700 hover:text-[#326273] hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
               >
                 Masuk
               </button>
+
               <button
                 type="button"
                 onClick={() => onOpenAuth('register')}
-                className="px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#326273]"
+                className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all focus-visible:ring-2 focus-visible:ring-[#e39774]"
               >
-                Daftar Mahasiswa
+                Daftar
               </button>
             </div>
 
@@ -187,6 +205,13 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
           <div className="sm:hidden border-t border-slate-200 bg-white px-4 py-4 space-y-3">
             <nav className="flex flex-col space-y-2 text-sm font-semibold text-slate-700">
               <a
+                href="#hero"
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-slate-100"
+              >
+                Beranda
+              </a>
+              <a
                 href="#fasilitas"
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-lg hover:bg-slate-100"
@@ -207,38 +232,41 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
               >
                 Tanya Jawab (FAQ)
               </a>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onExploreCatalog();
-                }}
-                className="text-left p-2 rounded-lg font-bold text-[#326273] hover:bg-slate-100"
-              >
-                Katalog Fasilitas Lengkap
-              </button>
             </nav>
             <div className="pt-2 border-t border-slate-200 flex flex-col gap-2">
               <button
                 type="button"
                 onClick={() => {
                   setIsMobileMenuOpen(false);
-                  onOpenAuth('login');
+                  onExploreCatalog();
                 }}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-bold text-slate-700 bg-slate-100"
+                className="w-full py-2.5 rounded-xl text-center text-xs font-bold bg-[#326273] text-white shadow-sm flex items-center justify-center gap-1.5"
               >
-                Masuk ke Portal
+                <span>Buka Portal Peminjaman</span>
+                <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
               </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  onOpenAuth('register');
-                }}
-                className="w-full py-2.5 rounded-xl text-center text-xs font-bold bg-[#326273] text-white shadow-sm"
-              >
-                Daftar Akun Mahasiswa
-              </button>
+              <div className="grid grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenAuth('login');
+                  }}
+                  className="w-full py-2 rounded-xl text-center text-xs font-bold text-slate-700 bg-slate-100 hover:bg-slate-200"
+                >
+                  Masuk Portal
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    onOpenAuth('register');
+                  }}
+                  className="w-full py-2 rounded-xl text-center text-xs font-bold bg-[#e39774] text-white shadow-sm hover:bg-[#d58560]"
+                >
+                  Daftar Akun
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -247,7 +275,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
       {/* Main Content Body */}
       <main id="main-content" className="flex-1 focus:outline-none" tabIndex={-1}>
         {/* Hero Section */}
-        <section aria-labelledby="hero-heading" className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-slate-200 bg-white">
+        <section id="hero" aria-labelledby="hero-heading" className="relative pt-12 pb-16 lg:pt-16 lg:pb-24 border-b border-slate-200 bg-white">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
               {/* Left Column */}
@@ -298,7 +326,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
                   </div>
                   <div>
                     <div className="text-xl sm:text-2xl font-black text-[#e39774]">Format Bukti</div>
-                    <div className="text-[11px] text-slate-500 font-medium">CHB-YYYYMMDD-***</div>
+                    <div className="text-[11px] text-slate-500 font-medium">KMP-YYYYMMDD-***</div>
                   </div>
                 </div>
               </div>
@@ -353,7 +381,7 @@ export default function LandingPage({ onExploreCatalog, onOpenAuth }) {
                         Surat Bukti Peminjaman Kampus
                       </span>
                       <div className="text-sm font-mono font-black text-[#326273]">
-                        CHB-20261109-8421
+                        KMP-20261109-8421
                       </div>
                     </div>
                     <span className="text-[11px] font-bold px-2.5 py-1 rounded-xl bg-white text-[#d58560] border border-[#e39774]/30 shadow-xs">

@@ -22,7 +22,7 @@ export default function ProposalUpload({ file, onSelectFile, error }) {
   return (
     <div className="space-y-2">
       <label className="block text-xs font-bold text-slate-700">
-        Upload Proposal Kegiatan (Wajib untuk Event Space) <span className="text-rose-500">*</span>
+        Upload Proposal Kegiatan (Wajib untuk Aula Kampus) <span className="text-rose-500">*</span>
       </label>
 
       {!file ? (
@@ -41,7 +41,7 @@ export default function ProposalUpload({ file, onSelectFile, error }) {
             onChange={handleFileChange}
             className="hidden"
           />
-          <UploadCloud className="w-8 h-8 text-blue-600 mx-auto mb-2" />
+          <UploadCloud className="w-8 h-8 text-[#326273] mx-auto mb-2" />
           <p className="text-xs font-semibold text-slate-700">
             Klik untuk pilih file proposal (PDF)
           </p>
@@ -50,9 +50,9 @@ export default function ProposalUpload({ file, onSelectFile, error }) {
           </p>
         </div>
       ) : (
-        <div className="flex items-center justify-between p-3 rounded-xl border border-blue-200 bg-blue-50/60">
+        <div className="flex items-center justify-between p-3 rounded-xl border border-[#5c9ead]/40 bg-[#eef6f8]">
           <div className="flex items-center space-x-3 truncate">
-            <FileText className="w-6 h-6 text-blue-600 shrink-0" />
+            <FileText className="w-6 h-6 text-[#326273] shrink-0" />
             <div className="truncate">
               <p className="text-xs font-bold text-slate-800 truncate">{file.name}</p>
               <p className="text-[10px] text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>

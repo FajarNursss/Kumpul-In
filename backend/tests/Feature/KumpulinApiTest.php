@@ -86,7 +86,7 @@ class KumpulinApiTest extends TestCase
 
         // First booking: 14:00 - 16:00
         Booking::create([
-            'booking_code' => 'CHB-TEST-001',
+            'booking_code' => 'KMP-TEST-001',
             'user_id' => $mahasiswa->id,
             'room_id' => $room->id,
             'booking_date' => $date,

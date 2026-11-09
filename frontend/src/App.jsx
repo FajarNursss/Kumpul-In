@@ -159,7 +159,7 @@ export default function App() {
     }
   };
 
-  // Switch role handler (Demo Switcher: Guest, Member, Admin)
+  // Switch role handler (Mahasiswa, Biro Sarana)
   const handleSwitchRole = async (role) => {
     try {
       setLoadingUser(true);
@@ -308,8 +308,8 @@ export default function App() {
             <section className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold text-slate-900">Katalog Ruangan Hub</h2>
-                  <p className="text-xs text-slate-500">Pilih kategori ruangan sesuai kebutuhan kegiatan Anda</p>
+                  <h2 className="text-xl font-bold text-slate-900">Katalog Fasilitas Kampus</h2>
+                  <p className="text-xs text-slate-500">Pilih kategori fasilitas kampus sesuai kebutuhan kegiatan akademik Anda</p>
                 </div>
               </div>
 
@@ -377,8 +377,8 @@ export default function App() {
                     setDurationType(type);
                     showToast(
                       type === 'daily'
-                        ? 'Mode sewa harian (08:00 - 18:00 WIB) dipilih.'
-                        : 'Mode sewa per jam dipilih.',
+                        ? 'Mode peminjaman harian (08:00 - 18:00 WIB) dipilih.'
+                        : 'Mode peminjaman per jam dipilih.',
                       'info'
                     );
                   }}
@@ -481,7 +481,7 @@ export default function App() {
 
       {/* Footer */}
       <footer className="mt-auto bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-500">
-        <p>© 2026 Kumpul-In Community Hub. Hak cipta dilindungi undang-undang.</p>
+        <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Hak cipta dilindungi.</p>
       </footer>
     </div>
   );

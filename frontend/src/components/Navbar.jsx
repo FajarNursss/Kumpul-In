@@ -32,7 +32,7 @@ export default function Navbar({
             <img
               src="/logo-icon.png"
               alt="Logo Kumpul-In"
-              className="h-9 sm:h-10 w-auto object-contain hover:opacity-90 transition-opacity"
+              className="h-10 sm:h-11 w-auto object-contain hover:opacity-95 transition-opacity"
             />
             <div className="flex flex-col select-none">
               <div className="flex items-center gap-1.5">
@@ -43,7 +43,7 @@ export default function Navbar({
                   Kampus
                 </span>
               </div>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-normal leading-tight mt-0.5">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-[#5c9ead] tracking-normal leading-tight mt-0.5">
                 Sistem Peminjaman Fasilitas Kampus
               </span>
             </div>
@@ -54,10 +54,11 @@ export default function Navbar({
             <button
               type="button"
               onClick={onGoHome}
-              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
+              className="px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273]"
+              title="Kembali ke Beranda Informasi Kampus"
             >
-              <Home className="w-4 h-4 text-slate-400" aria-hidden="true" />
-              <span>Beranda</span>
+              <Home className="w-4 h-4 text-[#5c9ead]" aria-hidden="true" />
+              <span>← Beranda Depan</span>
             </button>
 
             {isAdmin ? (
@@ -85,7 +86,7 @@ export default function Navbar({
                   }`}
                 >
                   <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-                  <span>Katalog Ruangan</span>
+                  <span>Katalog Fasilitas</span>
                 </button>
 
                 {currentUser && (
@@ -99,7 +100,7 @@ export default function Navbar({
                     }`}
                   >
                     <CalendarCheck className="w-4 h-4" aria-hidden="true" />
-                    <span>Reservasi Saya</span>
+                    <span>Peminjaman Saya</span>
                   </button>
                 )}
               </>

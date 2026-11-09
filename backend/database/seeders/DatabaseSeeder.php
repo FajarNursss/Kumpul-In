@@ -119,7 +119,7 @@ class DatabaseSeeder extends Seeder
         $targetRoom = Room::where('name', 'Meeting Room Senat & Dosen Lt. 2')->first();
         if ($targetRoom && $mahasiswa) {
             Booking::updateOrCreate(
-                ['booking_code' => 'CHB-INIT-001'],
+                ['booking_code' => 'KMP-INIT-001'],
                 [
                     'user_id' => $mahasiswa->id,
                     'room_id' => $targetRoom->id,

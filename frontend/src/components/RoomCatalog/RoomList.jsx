@@ -6,8 +6,8 @@ export default function RoomList({ rooms, selectedRoomId, onSelectRoom, loading 
   if (loading) {
     return (
       <div className="py-16 flex flex-col items-center justify-center text-slate-400">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-600 mb-2" />
-        <p className="text-sm">Memuat katalog ruangan...</p>
+        <Loader2 className="w-8 h-8 animate-spin text-[#326273] mb-2" />
+        <p className="text-sm">Memuat katalog fasilitas kampus...</p>
       </div>
     );
   }

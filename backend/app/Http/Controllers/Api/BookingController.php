@@ -126,7 +126,7 @@ class BookingController extends Controller
             $proposalPath = $request->file('proposal_file')->store('proposals', 'public');
         }
 
-        $bookingCode = 'CHB-' . date('Ymd', strtotime($validated['booking_date'])) . '-' . strtoupper(Str::random(4));
+        $bookingCode = 'KMP-' . date('Ymd', strtotime($validated['booking_date'])) . '-' . strtoupper(Str::random(4));
 
         try {
             $booking = DB::transaction(function () use ($user, $room, $validated, $bookingCode, $startTime, $endTime, $durationType, $proposalPath) {
