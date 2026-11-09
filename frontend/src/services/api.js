@@ -38,7 +38,7 @@ export const authService = {
     return res.data;
   },
 
-  quickLogin: async (role = 'guest') => {
+  quickLogin: async (role = 'mahasiswa') => {
     const res = await api.post('/auth/quick-login', { role });
     if (res.data?.data?.token) {
       localStorage.setItem('kumpulin_token', res.data.data.token);

@@ -60,15 +60,7 @@ class BookingController extends Controller
         $durationType = $validated['duration_type'];
 
         if ($durationType === 'daily') {
-            // Role restriction: Guest cannot book daily
-            if ($user->role !== 'member') {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Hanya pengguna dengan peran Member yang dapat melakukan reservasi harian (Daily). Silakan beralih ke akun Member atau pilih sewa per jam.',
-                ], 403);
-            }
-
-            // Daily booking covers full operational hours
+            // Daily booking covers full operational campus hours (08:00 - 18:00 WIB)
             $startTime = '08:00:00';
             $endTime = '18:00:00';
         } else {
@@ -91,12 +83,12 @@ class BookingController extends Controller
             }
         }
 
-        // 4. Validate Event Space proposal file requirement
-        if ($room->category === 'Event Space') {
+        // 4. Validate Aula proposal file requirement
+        if ($room->category === 'Aula') {
             if (!$request->hasFile('proposal_file')) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Pemesanan Event Space mewajibkan upload dokumen proposal dalam format PDF.',
+                    'message' => 'Peminjaman Aula kampus mewajibkan upload dokumen proposal atau surat izin kegiatan dalam format PDF.',
                 ], 422);
             }
         }

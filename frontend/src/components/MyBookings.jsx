@@ -166,7 +166,7 @@ export default function MyBookings({ currentUser, onShowToast }) {
                     {b.room?.name || 'Ruangan Hub'}
                   </h4>
                   <span className="text-xs text-slate-500 block">
-                    Kategori: {b.room?.category || 'Ruang'} • Tarif: Rp {Number(b.room?.price_per_hour || 0).toLocaleString('id-ID')}/jam
+                    Kategori: {b.room?.category || 'Fasilitas Kampus'} • Kapasitas: {b.room?.capacity || '-'} Orang
                   </span>
                 </div>
 

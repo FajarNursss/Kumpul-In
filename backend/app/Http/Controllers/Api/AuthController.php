@@ -19,11 +19,11 @@ class AuthController extends Controller
             'name' => 'required|string|max:100',
             'email' => 'required|email|unique:users,email|max:100',
             'password' => 'required|string|min:6',
-            'role' => 'nullable|in:guest,member',
+            'role' => 'nullable|in:mahasiswa,member,admin',
         ]);
 
-        $role = $validated['role'] ?? 'guest';
-        $quota = $role === 'member' ? 5 : 2;
+        $role = $validated['role'] ?? 'mahasiswa';
+        $quota = $role === 'admin' ? 999 : 5;
 
         $user = User::create([
             'name' => $validated['name'],
@@ -37,7 +37,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Registrasi berhasil! Selamat datang di Kumpul-In.',
+            'message' => 'Registrasi akun civitas kampus berhasil! Selamat datang di Kumpul-In.',
             'data' => [
                 'user' => $user,
                 'token' => $token,
@@ -81,12 +81,14 @@ class AuthController extends Controller
      */
     public function quickLogin(Request $request)
     {
-        $role = $request->input('role', 'guest');
-        if (!in_array($role, ['guest', 'member', 'admin'])) {
-            $role = 'guest';
+        $role = $request->input('role', 'mahasiswa');
+        if ($role === 'admin') {
+            $user = User::where('role', 'admin')->first();
+        } else {
+            $user = User::where('role', 'mahasiswa')->first() 
+                ?? User::where('role', 'member')->first()
+                ?? User::where('role', '!=', 'admin')->first();
         }
-
-        $user = User::where('role', $role)->first();
 
         if (!$user) {
             return response()->json([

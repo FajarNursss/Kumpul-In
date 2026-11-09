@@ -17,9 +17,9 @@ export default function AdminDashboard({ currentUser }) {
   // Add Room Modal State
   const [isAddRoomOpen, setIsAddRoomOpen] = useState(false);
   const [newRoomName, setNewRoomName] = useState('');
-  const [newRoomCategory, setNewRoomCategory] = useState('Meeting Pod');
-  const [newRoomCapacity, setNewRoomCapacity] = useState('4');
-  const [newRoomPrice, setNewRoomPrice] = useState('50000');
+  const [newRoomCategory, setNewRoomCategory] = useState('Ruang Belajar');
+  const [newRoomCapacity, setNewRoomCapacity] = useState('10');
+  const [newRoomPrice, setNewRoomPrice] = useState('0');
   const [savingRoom, setSavingRoom] = useState(false);
 
   const fetchAdminData = async () => {
@@ -88,7 +88,7 @@ export default function AdminDashboard({ currentUser }) {
         name: newRoomName,
         category: newRoomCategory,
         capacity: parseInt(newRoomCapacity),
-        price_per_hour: parseFloat(newRoomPrice),
+        price_per_hour: 0,
         is_active: true,
       });
 
@@ -367,8 +367,7 @@ export default function AdminDashboard({ currentUser }) {
 
                   <h4 className="text-base font-bold text-slate-900">{room.name}</h4>
                   <p className="text-xs text-slate-500 mt-1">
-                    Kapasitas: <strong className="text-slate-800">{room.capacity} Orang</strong> • Tarif:{' '}
-                    <strong className="text-slate-800">Rp {parseInt(room.price_per_hour).toLocaleString('id-ID')} /jam</strong>
+                    Kapasitas: <strong className="text-slate-800">{room.capacity} Orang</strong> • <span className="text-emerald-700 font-semibold">Fasilitas Kampus Bebas Biaya</span>
                   </p>
                 </div>
 
@@ -417,51 +416,38 @@ export default function AdminDashboard({ currentUser }) {
                   required
                   value={newRoomName}
                   onChange={(e) => setNewRoomName(e.target.value)}
-                  placeholder="Contoh: Meeting Pod Beta"
+                  placeholder="Contoh: Aula Rektorat / Ruang Belajar Mandiri"
                   className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                 />
               </div>
 
               <div>
-                <label htmlFor="add-room-category" className="block font-semibold text-slate-700 mb-1">Kategori</label>
+                <label htmlFor="add-room-category" className="block font-semibold text-slate-700 mb-1">Kategori Fasilitas</label>
                 <select
                   id="add-room-category"
                   value={newRoomCategory}
                   onChange={(e) => setNewRoomCategory(e.target.value)}
                   className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
                 >
-                  <option value="Open Desk">Open Desk</option>
-                  <option value="Meeting Pod">Meeting Pod</option>
-                  <option value="Event Space">Event Space</option>
+                  <option value="Aula">Aula</option>
+                  <option value="Perpustakaan">Perpustakaan</option>
+                  <option value="Meeting Room">Meeting Room</option>
+                  <option value="Ruang Belajar">Ruang Belajar</option>
                 </select>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label htmlFor="add-room-capacity" className="block font-semibold text-slate-700 mb-1">Kapasitas (Orang)</label>
-                  <input
-                    id="add-room-capacity"
-                    type="number"
-                    min="1"
-                    required
-                    value={newRoomCapacity}
-                    onChange={(e) => setNewRoomCapacity(e.target.value)}
-                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
-                  />
-                </div>
-                <div>
-                  <label htmlFor="add-room-price" className="block font-semibold text-slate-700 mb-1">Tarif Sewa (Rp/Jam)</label>
-                  <input
-                    id="add-room-price"
-                    type="number"
-                    min="0"
-                    step="5000"
-                    required
-                    value={newRoomPrice}
-                    onChange={(e) => setNewRoomPrice(e.target.value)}
-                    className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
-                  />
-                </div>
+              <div>
+                <label htmlFor="add-room-capacity" className="block font-semibold text-slate-700 mb-1">Kapasitas Maksimal (Orang)</label>
+                <input
+                  id="add-room-capacity"
+                  type="number"
+                  min="1"
+                  required
+                  value={newRoomCapacity}
+                  onChange={(e) => setNewRoomCapacity(e.target.value)}
+                  placeholder="Contoh: 30"
+                  className="w-full rounded-xl border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273]"
+                />
               </div>
 
               <div className="flex gap-2 pt-3">

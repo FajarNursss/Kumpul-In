@@ -11,76 +11,102 @@ use Illuminate\Support\Facades\Hash;
 class DatabaseSeeder extends Seeder
 {
     /**
-     * Seed the application's database.
+     * Seed the application's database for campus facilities booking.
      */
     public function run(): void
     {
-        // 1. Seed Users
+        // 1. Seed Users (Civitas Kampus: Admin & Mahasiswa)
         $admin = User::updateOrCreate(
             ['email' => 'admin@kumpulin.test'],
             [
-                'name' => 'Administrator Hub',
+                'name' => 'Biro Sarana Kampus (Admin)',
                 'password' => Hash::make('password'),
                 'role' => 'admin',
                 'booking_quota' => 999,
             ]
         );
 
+        $mahasiswa = User::updateOrCreate(
+            ['email' => 'mahasiswa@kumpulin.test'],
+            [
+                'name' => 'Budi Santoso (Mahasiswa)',
+                'password' => Hash::make('password'),
+                'role' => 'mahasiswa',
+                'booking_quota' => 5,
+            ]
+        );
+
+        // Keep member user as alias so any legacy test passes
         $member = User::updateOrCreate(
             ['email' => 'member@kumpulin.test'],
             [
-                'name' => 'Budi Santoso (Member)',
+                'name' => 'Siti Rahma (Mahasiswa/Member)',
                 'password' => Hash::make('password'),
                 'role' => 'member',
                 'booking_quota' => 5,
             ]
         );
 
-        $guest = User::updateOrCreate(
-            ['email' => 'guest@kumpulin.test'],
-            [
-                'name' => 'Siti Rahma (Guest)',
-                'password' => Hash::make('password'),
-                'role' => 'guest',
-                'booking_quota' => 2,
-            ]
-        );
-
-        // 2. Seed Rooms
+        // 2. Seed Campus Rooms (Aula, Perpustakaan, Meeting Room, Ruang Belajar)
         $rooms = [
+            // Kategori: Ruang Belajar
             [
-                'name' => 'Open Desk Focus A',
-                'category' => 'Open Desk',
+                'name' => 'Ruang Belajar Mandiri Gedung A',
+                'category' => 'Ruang Belajar',
                 'capacity' => 1,
-                'price_per_hour' => 15000,
+                'price_per_hour' => 0,
                 'is_active' => true,
             ],
             [
-                'name' => 'Open Desk Collab B',
-                'category' => 'Open Desk',
-                'capacity' => 2,
-                'price_per_hour' => 25000,
+                'name' => 'Smart Classroom Kolaborasi Gedung B',
+                'category' => 'Ruang Belajar',
+                'capacity' => 30,
+                'price_per_hour' => 0,
                 'is_active' => true,
             ],
+            // Kategori: Perpustakaan
             [
-                'name' => 'Meeting Pod Alpha',
-                'category' => 'Meeting Pod',
-                'capacity' => 4,
-                'price_per_hour' => 50000,
-                'is_active' => true,
-            ],
-            [
-                'name' => 'Meeting Pod Executive',
-                'category' => 'Meeting Pod',
+                'name' => 'Ruang Diskusi Perpustakaan Lt. 2',
+                'category' => 'Perpustakaan',
                 'capacity' => 8,
-                'price_per_hour' => 90000,
+                'price_per_hour' => 0,
                 'is_active' => true,
             ],
             [
-                'name' => 'Grand Hall Event Space',
-                'category' => 'Event Space',
-                'capacity' => 50,
-                'price_per_hour' => 350000,
+                'name' => 'Bilik Riset & Multimedia Perpustakaan',
+                'category' => 'Perpustakaan',
+                'capacity' => 4,
+                'price_per_hour' => 0,
+                'is_active' => true,
+            ],
+            // Kategori: Meeting Room
+            [
+                'name' => 'Meeting Room Senat & Dosen Lt. 2',
+                'category' => 'Meeting Room',
+                'capacity' => 16,
+                'price_per_hour' => 0,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Ruang Rapat Ormawa & BEM Kampus',
+                'category' => 'Meeting Room',
+                'capacity' => 12,
+                'price_per_hour' => 0,
+                'is_active' => true,
+            ],
+            // Kategori: Aula
+            [
+                'name' => 'Aula Utama Graha Nusantara Kampus',
+                'category' => 'Aula',
+                'capacity' => 300,
+                'price_per_hour' => 0,
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Aula Gedung Rektorat Lt. 3',
+                'category' => 'Aula',
+                'capacity' => 80,
+                'price_per_hour' => 0,
                 'is_active' => true,
             ],
         ];
@@ -90,13 +116,13 @@ class DatabaseSeeder extends Seeder
         }
 
         // 3. Seed an initial sample booking for testing conflict visualization
-        $meetingPod = Room::where('name', 'Meeting Pod Alpha')->first();
-        if ($meetingPod && $member) {
+        $targetRoom = Room::where('name', 'Meeting Room Senat & Dosen Lt. 2')->first();
+        if ($targetRoom && $mahasiswa) {
             Booking::updateOrCreate(
                 ['booking_code' => 'CHB-INIT-001'],
                 [
-                    'user_id' => $member->id,
-                    'room_id' => $meetingPod->id,
+                    'user_id' => $mahasiswa->id,
+                    'room_id' => $targetRoom->id,
                     'booking_date' => now()->format('Y-m-d'),
                     'start_time' => '10:00:00',
                     'end_time' => '11:00:00',

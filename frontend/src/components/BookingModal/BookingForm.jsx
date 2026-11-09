@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ProposalUpload from './ProposalUpload';
-import { X, Calendar, Clock, Building, AlertCircle, Loader2, CheckCircle2 } from 'lucide-react';
+import { X, Calendar, Clock, Building, AlertCircle, Loader2, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
 import { bookingService } from '../../services/api';
 
 export default function BookingForm({
@@ -27,35 +27,20 @@ export default function BookingForm({
 
   if (!room) return null;
 
-  const isEventSpace = room.category === 'Event Space';
+  const isAula = room.category === 'Aula';
   const isDaily = durationType === 'daily';
-  const isGuest = currentUser?.role === 'guest';
-
-  // Cost calculation
-  const hoursCount = isDaily ? 10 : 1;
-  const estimatedCost = room.price_per_hour * hoursCount;
-  const formattedCost = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(estimatedCost);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setErrorMessage('');
 
     if (currentUser?.booking_quota <= 0) {
-      setErrorMessage('Sisa kuota reservasi Anda telah habis.');
+      setErrorMessage('Sisa kuota peminjaman Anda telah habis. Harap hubungi Biro Sarana Kampus.');
       return;
     }
 
-    if (isDaily && isGuest) {
-      setErrorMessage('Pengguna dengan peran Guest tidak diizinkan menyewa harian (Daily).');
-      return;
-    }
-
-    if (isEventSpace && !proposalFile) {
-      setErrorMessage('Dokumen proposal (PDF) wajib diunggah untuk pemesanan Event Space.');
+    if (isAula && !proposalFile) {
+      setErrorMessage('Peminjaman Aula kampus mewajibkan unggah dokumen proposal atau surat izin kegiatan (PDF).');
       return;
     }
 
@@ -86,10 +71,10 @@ export default function BookingForm({
       if (res.success) {
         onSuccess(res.data);
       } else {
-        setErrorMessage(res.message || 'Gagal membuat reservasi.');
+        setErrorMessage(res.message || 'Gagal memproses peminjaman ruangan.');
       }
     } catch (err) {
-      const serverMsg = err.response?.data?.message || 'Terjadi kesalahan pada server saat membuat booking.';
+      const serverMsg = err.response?.data?.message || 'Terjadi kesalahan pada server saat memproses peminjaman.';
       setErrorMessage(serverMsg);
     } finally {
       setLoading(false);
@@ -107,13 +92,13 @@ export default function BookingForm({
         {/* Modal Header */}
         <div className="p-6 border-b border-slate-100 flex items-center justify-between">
           <div>
-            <span className="text-xs font-bold text-[#5c9ead] uppercase tracking-wider">Konfirmasi Reservasi</span>
-            <h2 id="booking-form-title" className="text-lg font-bold text-slate-900">Detail Pemesanan Ruangan</h2>
+            <span className="text-xs font-bold text-[#5c9ead] uppercase tracking-wider">Formulir Peminjaman Kampus</span>
+            <h2 id="booking-form-title" className="text-lg font-bold text-slate-900">Konfirmasi Peminjaman Ruang</h2>
           </div>
           <button
             type="button"
             onClick={onClose}
-            aria-label="Tutup form reservasi"
+            aria-label="Tutup form peminjaman"
             className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
           >
             <X className="w-5 h-5" aria-hidden="true" />
@@ -124,21 +109,21 @@ export default function BookingForm({
         <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
           {/* Error Alert */}
           {errorMessage && (
-            <div role="alert" className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-start gap-2.5">
+            <div role="alert" className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-start gap-2.5 animate-shake">
               <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-rose-600" aria-hidden="true" />
-              <div>{errorMessage}</div>
+              <div className="leading-relaxed font-medium">{errorMessage}</div>
             </div>
           )}
 
           {/* User info banner */}
           <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between text-xs">
             <div>
-              <span className="text-slate-400 block">Pemesan Terdaftar:</span>
+              <span className="text-slate-400 block text-[11px]">Civitas Peminjam:</span>
               <strong className="text-slate-800 text-sm">{currentUser?.name}</strong>
             </div>
             <div className="text-right">
-              <span className="text-slate-400 block">Sisa Kuota:</span>
-              <span className="font-bold text-emerald-700 text-sm">{currentUser?.booking_quota} slot</span>
+              <span className="text-slate-400 block text-[11px]">Sisa Kuota:</span>
+              <span className="font-extrabold text-emerald-700 text-sm">{currentUser?.booking_quota} slot</span>
             </div>
           </div>
 
@@ -161,29 +146,37 @@ export default function BookingForm({
               </div>
               <div className="flex items-center gap-1.5">
                 <Clock className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
-                <span>{isDaily ? '08:00 - 18:00 (Harian)' : slot?.time}</span>
+                <span>{isDaily ? '08:00 - 18:00 (Seharian)' : slot?.time}</span>
               </div>
             </div>
           </div>
 
-          {/* Proposal Upload (Mandatory for Event Space) */}
-          {isEventSpace && (
-            <ProposalUpload
-              file={proposalFile}
-              onSelectFile={setProposalFile}
-              error={!proposalFile && errorMessage ? 'File proposal diperlukan' : ''}
-            />
+          {/* Proposal Upload (Mandatory for Aula Kampus) */}
+          {isAula && (
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700">Proposal / Izin Kegiatan Ormawa</span>
+                <span className="text-[10px] text-rose-500 font-semibold">*Wajib format PDF</span>
+              </div>
+              <ProposalUpload
+                file={proposalFile}
+                onSelectFile={setProposalFile}
+                error={!proposalFile && errorMessage ? 'File proposal / surat izin diperlukan' : ''}
+              />
+            </div>
           )}
 
-          {/* Price Summary */}
-          <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between">
-            <div>
-              <span className="text-xs text-slate-500">Estimasi Biaya ({isDaily ? '10 Jam Penuh' : '1 Jam Sesi'})</span>
-              <div className="text-lg font-black text-slate-900">{formattedCost}</div>
+          {/* Campus Facility Policy Card (Non-Commercial / Free) */}
+          <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-start space-x-3">
+            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+            <div className="text-xs space-y-1">
+              <div className="font-bold text-emerald-900">
+                Peminjaman Fasilitas Kampus — Tanpa Biaya (Gratis)
+              </div>
+              <p className="text-emerald-700 leading-relaxed text-[11px]">
+                Fasilitas ini disediakan untuk menunjang kegiatan akademik, riset, diskusi kelompok, dan kegiatan organisasi mahasiswa. Mohon menjaga kebersihan dan ketertiban ruangan.
+              </p>
             </div>
-            <span className="text-[11px] font-semibold text-slate-600 bg-white px-2.5 py-1 rounded-xl border border-slate-200">
-              {isDaily ? 'Paket Full Day (08:00 - 18:00)' : 'Tarif Sesi Per Jam'}
-            </span>
           </div>
 
           {/* Action Buttons */}
@@ -198,7 +191,7 @@ export default function BookingForm({
             </button>
             <button
               type="submit"
-              disabled={loading || currentUser?.booking_quota <= 0 || (isDaily && isGuest)}
+              disabled={loading || currentUser?.booking_quota <= 0}
               className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273]"
             >
               {loading ? (
@@ -209,7 +202,7 @@ export default function BookingForm({
               ) : (
                 <>
                   <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-                  <span>Konfirmasi Reservasi</span>
+                  <span>Konfirmasi Peminjaman</span>
                 </>
               )}
             </button>

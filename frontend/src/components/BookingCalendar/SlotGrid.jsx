@@ -55,7 +55,7 @@ export default function SlotGrid({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            Sewa Per Jam
+            Pinjam Per Jam
           </button>
           <button
             type="button"
@@ -66,7 +66,7 @@ export default function SlotGrid({
                 : 'text-slate-600 hover:text-slate-900'
             }`}
           >
-            <span>Sewa Harian (Daily)</span>
+            <span>Pinjam Seharian (Daily)</span>
           </button>
         </div>
       </div>
@@ -98,25 +98,13 @@ export default function SlotGrid({
 
       {/* Daily Mode Notification */}
       {durationType === 'daily' && (
-        <div
-          className={`p-4 rounded-2xl border text-xs leading-relaxed flex items-start gap-3 ${
-            isMember
-              ? 'bg-[#eef6f8] border-[#5c9ead]/40 text-[#326273]'
-              : 'bg-amber-50 border-amber-200 text-amber-800'
-          }`}
-        >
+        <div className="p-4 rounded-2xl border text-xs leading-relaxed flex items-start gap-3 bg-[#eef6f8] border-[#5c9ead]/40 text-[#326273]">
           <AlertCircle className="w-4 h-4 shrink-0 mt-0.5 text-[#326273]" />
           <div>
-            <span className="font-bold block mb-0.5">Mode Reservasi Harian Penuh (08:00 - 18:00 WIB)</span>
-            {isMember ? (
-              <p>
-                Sebagai akun <strong>Member</strong>, Anda dapat memesan ruangan seharian penuh sekaligus. Seluruh 10 slot waktu akan otomatis terkunci untuk Anda tanpa perlu klik per jam.
-              </p>
-            ) : (
-              <p>
-                <strong>Perhatian:</strong> Akun Guest tidak diizinkan menyewa harian. Beralihlah ke akun <strong>Member</strong> di panel navigasi atas untuk menggunakan fitur ini.
-              </p>
-            )}
+            <span className="font-bold block mb-0.5">Mode Peminjaman Seharian Penuh (08:00 - 18:00 WIB)</span>
+            <p>
+              Peminjaman harian otomatis mengunci seluruh 10 slot waktu untuk kegiatan seminar, workshop, atau acara ormawa. Khusus untuk kategori <strong>Aula</strong>, wajib melampirkan file proposal atau surat permohonan izin kegiatan (format PDF).
+            </p>
           </div>
         </div>
       )}

@@ -114,9 +114,9 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'required|string|max:100',
-            'category' => 'required|in:Meeting Pod,Open Desk,Event Space',
+            'category' => 'required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar,Meeting Pod,Open Desk,Event Space',
             'capacity' => 'required|integer|min:1',
-            'price_per_hour' => 'required|numeric|min:0',
+            'price_per_hour' => 'nullable|numeric|min:0',
             'is_active' => 'nullable|boolean',
         ]);
 
@@ -124,7 +124,7 @@ class AdminController extends Controller
             'name' => $validated['name'],
             'category' => $validated['category'],
             'capacity' => $validated['capacity'],
-            'price_per_hour' => $validated['price_per_hour'],
+            'price_per_hour' => $validated['price_per_hour'] ?? 0.00,
             'is_active' => $validated['is_active'] ?? true,
         ]);
 
@@ -146,9 +146,9 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'name' => 'sometimes|required|string|max:100',
-            'category' => 'sometimes|required|in:Meeting Pod,Open Desk,Event Space',
+            'category' => 'sometimes|required|in:Aula,Perpustakaan,Meeting Room,Ruang Belajar,Meeting Pod,Open Desk,Event Space',
             'capacity' => 'sometimes|required|integer|min:1',
-            'price_per_hour' => 'sometimes|required|numeric|min:0',
+            'price_per_hour' => 'sometimes|nullable|numeric|min:0',
             'is_active' => 'sometimes|required|boolean',
         ]);
 

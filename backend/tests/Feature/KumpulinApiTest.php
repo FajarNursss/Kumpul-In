@@ -22,7 +22,7 @@ class KumpulinApiTest extends TestCase
 
     public function test_can_list_rooms_with_filters()
     {
-        $response = $this->getJson('/api/rooms?category=Meeting Pod');
+        $response = $this->getJson('/api/rooms?category=Meeting Room');
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
             ->assertJsonCount(2, 'data');
@@ -30,10 +30,10 @@ class KumpulinApiTest extends TestCase
 
     public function test_can_check_room_availability_including_seeded_booking()
     {
-        $meetingPod = Room::where('name', 'Meeting Pod Alpha')->first();
+        $room = Room::where('name', 'Meeting Room Senat & Dosen Lt. 2')->first();
         $today = now()->format('Y-m-d');
 
-        $response = $this->getJson("/api/rooms/{$meetingPod->id}/availability?date={$today}");
+        $response = $this->getJson("/api/rooms/{$room->id}/availability?date={$today}");
         $response->assertStatus(200)
             ->assertJsonPath('success', true);
 
@@ -46,7 +46,7 @@ class KumpulinApiTest extends TestCase
 
     public function test_quick_login_returns_token()
     {
-        $response = $this->postJson('/api/auth/quick-login', ['role' => 'member']);
+        $response = $this->postJson('/api/auth/quick-login', ['role' => 'mahasiswa']);
         $response->assertStatus(200)
             ->assertJsonPath('success', true)
             ->assertJsonStructure([
@@ -57,13 +57,13 @@ class KumpulinApiTest extends TestCase
             ]);
     }
 
-    public function test_member_can_create_hourly_booking_and_quota_decrements()
+    public function test_mahasiswa_can_create_hourly_booking_and_quota_decrements()
     {
-        $member = User::where('role', 'member')->first();
-        $room = Room::where('name', 'Meeting Pod Alpha')->first();
-        $initialQuota = $member->booking_quota;
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::where('name', 'Meeting Room Senat & Dosen Lt. 2')->first();
+        $initialQuota = $mahasiswa->booking_quota;
 
-        $response = $this->actingAs($member, 'sanctum')->postJson('/api/bookings', [
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
             'room_id' => $room->id,
             'booking_date' => now()->addDay()->format('Y-m-d'),
             'duration_type' => 'hourly',
@@ -75,19 +75,19 @@ class KumpulinApiTest extends TestCase
             ->assertJsonPath('success', true)
             ->assertJsonPath('data.remaining_quota', $initialQuota - 1);
 
-        $this->assertEquals($initialQuota - 1, $member->fresh()->booking_quota);
+        $this->assertEquals($initialQuota - 1, $mahasiswa->fresh()->booking_quota);
     }
 
     public function test_conflict_detection_prevents_double_booking()
     {
-        $member = User::where('role', 'member')->first();
-        $room = Room::where('name', 'Meeting Pod Alpha')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::where('name', 'Meeting Room Senat & Dosen Lt. 2')->first();
         $date = now()->addDays(2)->format('Y-m-d');
 
         // First booking: 14:00 - 16:00
         Booking::create([
             'booking_code' => 'CHB-TEST-001',
-            'user_id' => $member->id,
+            'user_id' => $mahasiswa->id,
             'room_id' => $room->id,
             'booking_date' => $date,
             'start_time' => '14:00:00',
@@ -97,7 +97,7 @@ class KumpulinApiTest extends TestCase
         ]);
 
         // Attempt overlapping booking: 15:00 - 17:00
-        $response = $this->actingAs($member, 'sanctum')->postJson('/api/bookings', [
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
             'room_id' => $room->id,
             'booking_date' => $date,
             'duration_type' => 'hourly',
@@ -109,31 +109,32 @@ class KumpulinApiTest extends TestCase
             ->assertJsonPath('success', false);
     }
 
-    public function test_guest_cannot_book_daily()
+    public function test_aula_booking_requires_proposal_file()
     {
-        $guest = User::where('role', 'guest')->first();
-        $room = Room::where('name', 'Grand Hall Event Space')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::where('name', 'Aula Utama Graha Nusantara Kampus')->first();
 
-        $response = $this->actingAs($guest, 'sanctum')->postJson('/api/bookings', [
+        // Attempt booking Aula without proposal
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
             'room_id' => $room->id,
             'booking_date' => now()->addDays(3)->format('Y-m-d'),
             'duration_type' => 'daily',
         ]);
 
-        $response->assertStatus(403)
+        $response->assertStatus(422)
             ->assertJsonPath('success', false);
     }
 
-    public function test_member_can_book_daily_with_proposal_for_event_space()
+    public function test_mahasiswa_can_book_daily_with_proposal_for_aula()
     {
         Storage::fake('public');
-        $member = User::where('role', 'member')->first();
-        $room = Room::where('name', 'Grand Hall Event Space')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::where('name', 'Aula Utama Graha Nusantara Kampus')->first();
         $date = now()->addDays(4)->format('Y-m-d');
 
-        $file = UploadedFile::fake()->create('event_proposal.pdf', 500, 'application/pdf');
+        $file = UploadedFile::fake()->create('proposal_kegiatan.pdf', 500, 'application/pdf');
 
-        $response = $this->actingAs($member, 'sanctum')->postJson('/api/bookings', [
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
             'room_id' => $room->id,
             'booking_date' => $date,
             'duration_type' => 'daily',
@@ -157,18 +158,18 @@ class KumpulinApiTest extends TestCase
     public function test_user_can_register_new_account()
     {
         $response = $this->postJson('/api/auth/register', [
-            'name' => 'Ahmad Baru',
-            'email' => 'ahmad@kumpulin.test',
+            'name' => 'Ahmad Mahasiswa Baru',
+            'email' => 'ahmad@kampus.test',
             'password' => 'secret123',
-            'role' => 'member',
+            'role' => 'mahasiswa',
         ]);
 
         $response->assertStatus(201)
             ->assertJsonPath('success', true)
-            ->assertJsonPath('data.user.role', 'member')
+            ->assertJsonPath('data.user.role', 'mahasiswa')
             ->assertJsonPath('data.user.booking_quota', 5);
 
-        $this->assertDatabaseHas('users', ['email' => 'ahmad@kumpulin.test']);
+        $this->assertDatabaseHas('users', ['email' => 'ahmad@kampus.test']);
     }
 
     public function test_admin_can_access_dashboard_stats_and_manage_bookings()
@@ -193,10 +194,9 @@ class KumpulinApiTest extends TestCase
 
     public function test_non_admin_cannot_access_admin_stats()
     {
-        $guest = User::where('role', 'guest')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
 
-        $response = $this->actingAs($guest, 'sanctum')->getJson('/api/admin/stats');
+        $response = $this->actingAs($mahasiswa, 'sanctum')->getJson('/api/admin/stats');
         $response->assertStatus(403);
     }
 }
-

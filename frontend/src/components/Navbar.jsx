@@ -40,11 +40,11 @@ export default function Navbar({
                   Kumpul-In
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#e39774]/20 text-[#d58560] uppercase tracking-wider">
-                  Hub
+                  Kampus
                 </span>
               </div>
               <span className="text-[10px] sm:text-[11px] font-semibold text-slate-500 tracking-normal leading-tight mt-0.5">
-                Community Hub & Coworking
+                Sistem Peminjaman Fasilitas Kampus
               </span>
             </div>
           </div>
@@ -137,34 +137,18 @@ export default function Navbar({
                 >
                   <button
                     type="button"
-                    onClick={() => onSwitchRole('guest')}
+                    onClick={() => onSwitchRole('mahasiswa')}
                     disabled={loadingUser}
-                    aria-pressed={currentUser.role === 'guest'}
+                    aria-pressed={currentUser.role === 'mahasiswa' || currentUser.role === 'member'}
                     className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                      currentUser.role === 'guest'
-                        ? 'bg-white text-[#326273] shadow-xs font-bold'
+                      currentUser.role === 'mahasiswa' || currentUser.role === 'member'
+                        ? 'bg-[#326273] text-white shadow-xs font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
-                    title="Beralih ke akun Guest (Kuota 2 slot, sewa per jam)"
+                    title="Beralih ke akun Mahasiswa (Kuota 5 slot)"
                   >
                     <User className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">Guest</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onSwitchRole('member')}
-                    disabled={loadingUser}
-                    aria-pressed={currentUser.role === 'member'}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                      currentUser.role === 'member'
-                        ? 'bg-[#5c9ead] text-white shadow-xs font-bold'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                    title="Beralih ke akun Member (Kuota 10 slot & sewa harian)"
-                  >
-                    <Award className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">Member</span>
+                    <span className="hidden sm:inline">Mahasiswa</span>
                   </button>
 
                   <button
@@ -177,10 +161,10 @@ export default function Navbar({
                         ? 'bg-[#326273] text-white shadow-xs font-bold'
                         : 'text-slate-500 hover:text-slate-800'
                     }`}
-                    title="Beralih ke akun Admin (Kelola seluruh reservasi & ruangan)"
+                    title="Beralih ke akun Biro Sarana / Admin"
                   >
                     <Shield className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">Admin</span>
+                    <span className="hidden sm:inline">Biro Sarana</span>
                   </button>
                 </div>
 

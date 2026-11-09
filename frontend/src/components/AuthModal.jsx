@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Mail, Lock, User, Award, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { X, Mail, Lock, User, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap } from 'lucide-react';
 import { authService } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode = 'login' }) {
@@ -7,7 +7,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState('member'); // 'guest' | 'member'
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -38,7 +37,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
       if (mode === 'login') {
         res = await authService.login(email, password);
       } else {
-        res = await authService.register({ name, email, password, role });
+        res = await authService.register({ name, email, password, role: 'mahasiswa' });
       }
 
       if (res.success) {
@@ -96,11 +95,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   Kumpul-In
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#e39774]/20 text-[#d58560] uppercase tracking-wider">
-                  Hub
+                  Kampus
                 </span>
               </div>
               <span className="text-[11px] font-medium text-slate-500 mt-0.5">
-                Sistem Reservasi Ruang Komunitas
+                Sistem Peminjaman Fasilitas Kampus
               </span>
             </div>
           </div>
@@ -144,7 +143,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   : 'hover:text-slate-900 text-slate-500'
               }`}
             >
-              Daftar Akun Baru
+              Daftar Mahasiswa
             </button>
           </div>
 
@@ -167,7 +166,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   htmlFor="auth-name"
                   className="block text-xs font-semibold text-slate-700 mb-1.5"
                 >
-                  Nama Lengkap
+                  Nama Lengkap Mahasiswa / Dosen
                 </label>
                 <div className="relative">
                   <User className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
@@ -189,7 +188,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                 htmlFor="auth-email"
                 className="block text-xs font-semibold text-slate-700 mb-1.5"
               >
-                Alamat Email
+                Email Kampus / Pribadi
               </label>
               <div className="relative">
                 <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" aria-hidden="true" />
@@ -199,7 +198,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="nama@email.com"
+                  placeholder="mahasiswa@kampus.ac.id"
                   className="w-full text-xs rounded-xl border border-slate-200 pl-10 pr-3.5 py-2.5 bg-slate-50/70 focus:bg-white focus:border-[#326273] focus:ring-2 focus:ring-[#326273]/20 transition-all outline-none text-slate-900"
                 />
               </div>
@@ -229,63 +228,11 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
             </div>
 
             {mode === 'register' && (
-              <div>
-                <span className="block text-xs font-semibold text-slate-700 mb-1.5">
-                  Tipe Keanggotaan
-                </span>
-                <div className="grid grid-cols-2 gap-3 text-xs">
-                  <label
-                    className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
-                      role === 'member'
-                        ? 'border-[#326273] bg-[#eef6f8] text-[#326273] ring-1 ring-[#326273]'
-                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold flex items-center gap-1">
-                        <Award className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
-                        Member
-                      </span>
-                      <input
-                        type="radio"
-                        name="auth-role"
-                        value="member"
-                        checked={role === 'member'}
-                        onChange={() => setRole('member')}
-                        className="text-[#326273] focus:ring-[#326273]"
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 font-medium leading-snug">
-                      10 kuota slot & prioritas booking harian
-                    </span>
-                  </label>
-
-                  <label
-                    className={`p-3.5 rounded-2xl border cursor-pointer flex flex-col justify-between transition-all ${
-                      role === 'guest'
-                        ? 'border-[#326273] bg-[#eef6f8] text-[#326273] ring-1 ring-[#326273]'
-                        : 'border-slate-200 bg-white hover:border-slate-300 text-slate-700'
-                    }`}
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-extrabold flex items-center gap-1">
-                        <User className="w-3.5 h-3.5 text-slate-400" aria-hidden="true" />
-                        Guest
-                      </span>
-                      <input
-                        type="radio"
-                        name="auth-role"
-                        value="guest"
-                        checked={role === 'guest'}
-                        onChange={() => setRole('guest')}
-                        className="text-[#326273] focus:ring-[#326273]"
-                      />
-                    </div>
-                    <span className="text-[10px] text-slate-500 mt-1.5 font-medium leading-snug">
-                      2 kuota slot untuk reservasi per jam
-                    </span>
-                  </label>
-                </div>
+              <div className="p-3.5 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 flex items-start gap-2.5 text-xs text-[#326273]">
+                <GraduationCap className="w-4 h-4 shrink-0 mt-0.5 text-[#326273]" aria-hidden="true" />
+                <p className="leading-relaxed">
+                  Pendaftaran terbuka untuk seluruh <strong>Civitas Akademika Kampus</strong>. Dapatkan kuota 5 peminjaman aktif untuk Aula, Perpustakaan, Meeting Room, dan Ruang Belajar.
+                </p>
               </div>
             )}
 
@@ -301,7 +248,7 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
                 </>
               ) : (
                 <>
-                  <span>{mode === 'login' ? 'Masuk ke Sistem' : 'Daftar Sekarang'}</span>
+                  <span>{mode === 'login' ? 'Masuk ke Portal Kampus' : 'Daftar Akun Mahasiswa'}</span>
                   <ArrowRight className="w-4 h-4" aria-hidden="true" />
                 </>
               )}
@@ -316,33 +263,24 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               </span>
               <span className="text-[10px] text-slate-400">1-Klik Langsung Masuk</span>
             </div>
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                disabled={loading}
+                onClick={() => handleQuickLogin('mahasiswa')}
+                className="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95"
+              >
+                <GraduationCap className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
+                <span>Mahasiswa (Civitas)</span>
+              </button>
               <button
                 type="button"
                 disabled={loading}
                 onClick={() => handleQuickLogin('admin')}
-                className="px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
+                className="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95"
               >
-                <Shield className="w-3 h-3 text-[#326273]" aria-hidden="true" />
-                <span>Admin</span>
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin('member')}
-                className="px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
-              >
-                <Award className="w-3 h-3 text-[#5c9ead]" aria-hidden="true" />
-                <span>Member</span>
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin('guest')}
-                className="px-2 py-1.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1 active:scale-95"
-              >
-                <User className="w-3 h-3 text-slate-400" aria-hidden="true" />
-                <span>Guest</span>
+                <Shield className="w-3.5 h-3.5 text-[#326273]" aria-hidden="true" />
+                <span>Biro Sarana (Admin)</span>
               </button>
             </div>
           </div>

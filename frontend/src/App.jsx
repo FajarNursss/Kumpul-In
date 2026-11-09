@@ -131,12 +131,12 @@ export default function App() {
       );
     }
 
-    if (sortBy === 'price-asc') {
-      result.sort((a, b) => a.price_per_hour - b.price_per_hour);
-    } else if (sortBy === 'price-desc') {
-      result.sort((a, b) => b.price_per_hour - a.price_per_hour);
-    } else if (sortBy === 'capacity-desc') {
+    if (sortBy === 'capacity-desc') {
       result.sort((a, b) => b.capacity - a.capacity);
+    } else if (sortBy === 'capacity-asc') {
+      result.sort((a, b) => a.capacity - b.capacity);
+    } else if (sortBy === 'name-asc') {
+      result.sort((a, b) => a.name.localeCompare(b.name));
     }
 
     return result;
@@ -227,7 +227,7 @@ export default function App() {
         <LandingPage
           onExploreCatalog={() => {
             if (!currentUser) {
-              authService.quickLogin('member').then((res) => {
+              authService.quickLogin('mahasiswa').then((res) => {
                 if (res.success) setCurrentUser(res.data.user);
               });
             }
@@ -283,25 +283,23 @@ export default function App() {
               <div className="max-w-3xl space-y-3">
                 <div className="flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
-                    <span>Dashboard Reservasi {currentUser?.role === 'member' ? 'Member' : 'Guest'}</span>
+                    <span>Portal Peminjaman Ruang Kampus</span>
                   </span>
                   {currentUser && (
                     <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
-                      Sisa Kuota: {currentUser.booking_quota} slot
+                      Sisa Kuota: {currentUser.booking_quota} slot aktif
                     </span>
                   )}
-                  {currentUser?.role === 'member' && (
-                    <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
-                      ★ Hak Istimewa Sewa Harian (Daily) Aktif
-                    </span>
-                  )}
+                  <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
+                    ★ Fasilitas Akademik Bebas Biaya
+                  </span>
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Halo, {currentUser?.name || 'Kawan Kumpul-In'}!
+                  Halo, {currentUser?.name || 'Civitas Akademika Kampus'}!
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
-                  Pilih ruangan kerja atau ruang diskusi yang Anda butuhkan. Cek ketersediaan slot waktu secara transparan dan pesan tanpa risiko jadwal bentrok.
+                  Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.
                 </p>
               </div>
             </div>
@@ -403,27 +401,15 @@ export default function App() {
         </span>
         <button
           type="button"
-          onClick={() => handleSwitchRole('guest')}
-          aria-pressed={currentUser?.role === 'guest'}
+          onClick={() => handleSwitchRole('mahasiswa')}
+          aria-pressed={currentUser?.role === 'mahasiswa' || currentUser?.role === 'member'}
           className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-            currentUser?.role === 'guest'
+            currentUser?.role === 'mahasiswa' || currentUser?.role === 'member'
               ? 'bg-[#326273] text-white shadow-xs'
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          Guest (2 Kuota)
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSwitchRole('member')}
-          aria-pressed={currentUser?.role === 'member'}
-          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-            currentUser?.role === 'member'
-              ? 'bg-[#5c9ead] text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          Member (10 Kuota + Daily)
+          Mahasiswa (5 Kuota)
         </button>
         <button
           type="button"
@@ -435,7 +421,7 @@ export default function App() {
               : 'text-slate-600 hover:bg-slate-100'
           }`}
         >
-          Admin (Pusat Kendali)
+          Biro Sarana (Admin)
         </button>
       </div>
 

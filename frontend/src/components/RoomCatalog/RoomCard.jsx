@@ -1,40 +1,45 @@
 import React from 'react';
-import { Users, ChevronRight, CheckCircle2, Wifi, Monitor, Coffee, ShieldCheck, FileText, Check } from 'lucide-react';
+import { Users, ChevronRight, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
 
 const categoryColorMap = {
-  'Open Desk': {
-    stripe: 'bg-[#5c9ead]',
-    badge: 'bg-[#eef6f8] text-[#326273] border-[#5c9ead]/40',
-    iconColor: 'text-[#5c9ead]',
-    perks: ['Wi-Fi 100Mbps', 'Colokan Tiap Meja', 'Free Kopi'],
-  },
-  'Meeting Pod': {
-    stripe: 'bg-[#326273]',
-    badge: 'bg-slate-100 text-[#326273] border-slate-200',
-    iconColor: 'text-[#326273]',
-    perks: ['Kedap Suara', 'Smart TV 43"', 'Whiteboard'],
-  },
-  'Event Space': {
+  'Aula': {
     stripe: 'bg-[#e39774]',
     badge: 'bg-[#fdf4f0] text-[#d58560] border-[#e39774]/40',
     iconColor: 'text-[#e39774]',
-    perks: ['Sound Pro', 'Dual Mic', 'Sewa Harian (Daily)'],
+    perks: ['Sound Pro & Mic', 'Panggung & Podium', 'Proyektor Besar', 'AC Sentral'],
+    desc: 'Aula serbaguna kampus untuk seminar, pelantikan ormawa, sidang, dan perhelatan akademik.',
+  },
+  'Perpustakaan': {
+    stripe: 'bg-[#5c9ead]',
+    badge: 'bg-[#eef6f8] text-[#326273] border-[#5c9ead]/40',
+    iconColor: 'text-[#5c9ead]',
+    perks: ['Akses Jurnal Digital', 'Wi-Fi Eduroam', 'Whiteboard Diskusi', 'Area Kondusif'],
+    desc: 'Ruang diskusi kelompok dan bilik riset multimedia di perpustakaan untuk kajian ilmiah.',
+  },
+  'Meeting Room': {
+    stripe: 'bg-[#326273]',
+    badge: 'bg-slate-100 text-[#326273] border-slate-200',
+    iconColor: 'text-[#326273]',
+    perks: ['Video Conference Cam', 'Smart TV 65"', 'Glass Board', 'Meja Rapat'],
+    desc: 'Ruangan representatif untuk rapat dosen, senat, koordinasi kepengurusan BEM dan Himpunan.',
+  },
+  'Ruang Belajar': {
+    stripe: 'bg-emerald-600',
+    badge: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    iconColor: 'text-emerald-600',
+    perks: ['Smart Board Interaktif', 'Meja Belajar Sekat', 'Stopkontak Tiap Meja', 'Lampu LED'],
+    desc: 'Smart classroom dan bilik belajar mandiri untuk fokus studi dan pengerjaan tugas akhir.',
   },
 };
 
 export default function RoomCard({ room, isSelected, onSelect }) {
   const meta = categoryColorMap[room.category] || {
-    stripe: 'bg-slate-500',
-    badge: 'bg-slate-100 text-slate-700 border-slate-200',
-    iconColor: 'text-slate-500',
-    perks: ['Fasilitas Standar'],
+    stripe: 'bg-[#326273]',
+    badge: 'bg-slate-100 text-[#326273] border-slate-200',
+    iconColor: 'text-[#326273]',
+    perks: ['Wi-Fi Kampus', 'AC', 'Stopkontak'],
+    desc: 'Fasilitas ruangan kampus siap pakai untuk kegiatan akademik mahasiswa.',
   };
-
-  const formattedPrice = new Intl.NumberFormat('id-ID', {
-    style: 'currency',
-    currency: 'IDR',
-    maximumFractionDigits: 0,
-  }).format(room.price_per_hour);
 
   return (
     <div
@@ -68,11 +73,7 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           </h3>
 
           <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-            {room.category === 'Event Space'
-              ? 'Aula serbaguna untuk seminar, workshop, dan gathering komunitas skala besar.'
-              : room.category === 'Meeting Pod'
-              ? 'Ruangan kedap suara ber-AC dilengkapi display screen dan whiteboard.'
-              : 'Meja kerja personal ergonomis dengan stopkontak dan Wi-Fi cepat.'}
+            {meta.desc}
           </p>
 
           {/* Feature Badges */}
@@ -88,30 +89,28 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           </div>
         </div>
 
-        {/* Price & Action */}
+        {/* Campus Non-Commercial Booking Status & Action */}
         <div className="pt-4 border-t border-slate-100 flex items-center justify-between">
           <div>
-            <div className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Tarif Sewa</div>
-            <div className="text-base sm:text-lg font-black text-slate-900">
-              {formattedPrice}
-              <span className="text-xs font-normal text-slate-500"> /jam</span>
+            <div className="text-[10px] uppercase font-extrabold text-emerald-700 tracking-wider flex items-center gap-1">
+              <Check className="w-3.5 h-3.5 text-emerald-600" />
+              Fasilitas Kampus
+            </div>
+            <div className="text-xs font-bold text-slate-700">
+              Bebas Biaya (Civitas)
             </div>
           </div>
 
           <button
             type="button"
-            className={`flex items-center space-x-1 px-3.5 py-2 rounded-xl text-xs font-bold transition-all ${
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
               isSelected
-                ? 'bg-[#326273] text-white shadow-sm'
+                ? 'bg-[#326273] text-white shadow-xs'
                 : 'bg-slate-100 text-slate-700 group-hover:bg-[#326273] group-hover:text-white'
             }`}
           >
-            <span>{isSelected ? 'Jadwal Terbuka' : 'Cek Jadwal'}</span>
-            <ChevronRight
-              className={`w-3.5 h-3.5 transition-transform ${
-                isSelected ? 'rotate-90' : 'group-hover:translate-x-0.5'
-              }`}
-            />
+            <span>{isSelected ? 'Terpilih' : 'Pinjam Ruang'}</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

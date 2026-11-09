@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->string('name', 100);
-            $table->enum('category', ['Meeting Pod', 'Open Desk', 'Event Space']);
+            $table->string('category', 50);
             $table->unsignedInteger('capacity');
             $table->decimal('price_per_hour', 10, 2)->default(0.00);
             $table->boolean('is_active')->default(true);

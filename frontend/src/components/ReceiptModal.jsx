@@ -28,7 +28,7 @@ export default function ReceiptModal({ booking, onClose }) {
         {/* Modal Top Action (hidden on print) */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden">
           <span id="receipt-modal-title" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
-            Voucher Bukti Reservasi
+            Surat Bukti Peminjaman Ruang Kampus
           </span>
           <div className="flex items-center space-x-2">
             <button
@@ -57,8 +57,8 @@ export default function ReceiptModal({ booking, onClose }) {
             <div className="flex items-center space-x-2.5">
               <img src="/logo-icon.png" alt="" className="h-8 w-auto object-contain" aria-hidden="true" />
               <div>
-                <h3 className="font-black text-slate-900 text-base tracking-tight">Kumpul-In Hub</h3>
-                <p className="text-[10px] text-slate-400">Sistem Reservasi Komunitas</p>
+                <h3 className="font-black text-slate-900 text-base tracking-tight">Kumpul-In Kampus</h3>
+                <p className="text-[10px] text-slate-400">Sistem Peminjaman Fasilitas Kampus</p>
               </div>
             </div>
             <div className="text-right">
