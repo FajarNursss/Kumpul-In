@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import Navbar from './components/Navbar';
+import Sidebar from './components/Sidebar';
 import LandingPage from './components/LandingPage';
 import AuthModal from './components/AuthModal';
 import AdminDashboard from './components/AdminDashboard';
@@ -13,7 +14,7 @@ import SuccessModal from './components/BookingModal/SuccessModal';
 import MyBookings from './components/MyBookings';
 import Toast from './components/Toast';
 import { authService, roomService } from './services/api';
-import { ArrowRight, AlertTriangle } from 'lucide-react';
+import { ArrowRight, AlertTriangle, Menu, Shield, GraduationCap } from 'lucide-react';
 
 // Route parser & validator for URL link handling
 const resolveRoute = (pathname, hash) => {
@@ -61,6 +62,7 @@ export default function App() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Dashboard Tab State: 'catalog' | 'my-bookings' | 'admin'
   const [activeTab, setActiveTab] = useState('catalog');
@@ -344,219 +346,9 @@ export default function App() {
     );
   }
 
-  // Dashboard / App View
-  return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-[#326273] selection:text-white">
-      {/* Backend Connection Error Banner */}
-      {serverError && (
-        <div role="alert" className="bg-[#fdf4f0] border-b border-[#e39774]/40 px-4 py-2.5 text-xs text-[#d58560] flex items-center justify-between">
-          <div className="flex items-center gap-2 max-w-4xl mx-auto">
-            <AlertTriangle className="w-4 h-4 shrink-0 text-[#e39774]" aria-hidden="true" />
-            <span className="font-medium">{serverError}</span>
-          </div>
-          <button
-            onClick={() => {
-              setServerError(null);
-              fetchRooms();
-            }}
-            className="px-3 py-1 rounded-lg bg-white border border-[#e39774]/40 text-[#d58560] font-bold text-[11px] hover:bg-[#fae6dc] transition-colors"
-          >
-            Coba Sambungkan
-          </button>
-        </div>
-      )}
-
-      {/* Top Navigation */}
-      <Navbar
-        currentUser={currentUser}
-        activeTab={activeTab}
-        setActiveTab={(tab) => {
-          if (tab === 'catalog') navigateTo('catalog');
-          else if (tab === 'my-bookings') navigateTo('my-bookings');
-          else if (tab === 'admin') navigateTo('admin');
-          else setActiveTab(tab);
-        }}
-        onOpenAuth={handleOpenAuth}
-        onLogout={handleLogout}
-        onGoHome={() => navigateTo('landing')}
-      />
-
-      {/* Main Container */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 space-y-8">
-        {activeTab === 'admin' && currentUser?.role === 'admin' ? (
-          /* Admin Dashboard */
-          <AdminDashboard currentUser={currentUser} onShowToast={showToast} />
-        ) : activeTab === 'my-bookings' ? (
-          /* My Bookings Tab with Realtime Quota Recovery */
-          <MyBookings
-            currentUser={currentUser}
-            onShowToast={showToast}
-            onQuotaRecovered={(newQuota) => {
-              if (currentUser && typeof newQuota === 'number') {
-                setCurrentUser((prev) => ({
-                  ...prev,
-                  booking_quota: newQuota,
-                }));
-              }
-            }}
-          />
-        ) : (
-          /* User Catalog & Reservation Tab (US-01 to US-04) */
-          <>
-            {/* User Welcome Banner */}
-            <div className="rounded-3xl bg-[#326273] text-white p-6 sm:p-8 shadow-sm border border-slate-700">
-              <div className="max-w-3xl space-y-3">
-                <div className="flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
-                    <span>Portal Peminjaman Ruang Kampus</span>
-                  </span>
-                  {currentUser ? (
-                    currentUser.role === 'admin' ? (
-                      <span className="text-xs bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full font-bold">
-                        Biro Sarana (Admin) • Mode Pratinjau Katalog
-                      </span>
-                    ) : (
-                      <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
-                        Civitas Aktif • Sisa Kuota: {currentUser.booking_quota} slot
-                      </span>
-                    )
-                  ) : (
-                    <span className="text-xs bg-white/15 text-white/90 border border-white/20 px-3 py-1 rounded-full font-bold">
-                      Akses Tamu / Publik
-                    </span>
-                  )}
-                  <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
-                    ★ Fasilitas Akademik Bebas Biaya
-                  </span>
-                </div>
-
-                <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  {currentUser
-                    ? `Halo, ${currentUser.name}!`
-                    : 'Katalog Fasilitas & Ruangan Kampus'}
-                </h1>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
-                  {currentUser?.role === 'admin'
-                    ? 'Anda sedang melihat pratinjau katalog ruangan dan transparansi slot jadwal publik. Untuk mengelola atau mengedit fasilitas kampus, silakan gunakan tab Dashboard Admin di navigasi.'
-                    : currentUser
-                    ? 'Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.'
-                    : 'Anda sedang menjelajahi katalog fasilitas kampus sebagai Pengunjung/Tamu. Silakan cek ketersediaan slot waktu yang tersisa secara bebas. Masuk ke akun Civitas saat ingin melakukan peminjaman ruangan.'}
-                </p>
-
-                {!currentUser && (
-                  <div className="pt-2 flex flex-wrap items-center gap-2.5">
-                    <button
-                      type="button"
-                      onClick={() => handleOpenAuth('login')}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all"
-                    >
-                      Masuk ke Akun
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => handleOpenAuth('register')}
-                      className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
-                    >
-                      Daftar Mahasiswa Baru
-                    </button>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            {/* Catalog & Filter Section (US-01) */}
-            <section className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h2 className="text-xl font-bold text-slate-900">Katalog Fasilitas Kampus</h2>
-                  <p className="text-xs text-slate-500">Pilih kategori fasilitas kampus sesuai kebutuhan kegiatan akademik Anda</p>
-                </div>
-              </div>
-
-              <CategoryFilter
-                selectedCategory={selectedCategory}
-                onSelectCategory={setSelectedCategory}
-                minCapacity={minCapacity}
-                onChangeMinCapacity={setMinCapacity}
-                searchQuery={searchQuery}
-                onSearchChange={setSearchQuery}
-                sortBy={sortBy}
-                onSortChange={setSortBy}
-                totalRooms={filteredRooms.length}
-              />
-
-              <RoomList
-                rooms={filteredRooms}
-                selectedRoomId={selectedRoom?.id}
-                onSelectRoom={(r) => {
-                  setSelectedRoom(r);
-                  showToast(`Ruangan ${r.name} dipilih. Jadwal slot diperbarui.`, 'info');
-                }}
-                loading={loadingRooms}
-              />
-            </section>
-
-            {/* Interactive Calendar & Time Slots Section (US-02, US-03, US-04) */}
-            {selectedRoom && (
-              <section className="space-y-4 pt-6 border-t border-slate-200">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900">Jadwal & Ketersediaan Slot</h2>
-                    <p className="text-xs text-slate-500">
-                      Pilih tanggal dan slot jam kosong untuk memesan ruangan secara instan
-                    </p>
-                  </div>
-
-                  {durationType === 'daily' && !availability?.has_daily_booking && (
-                    <button
-                      onClick={() => {
-                        if (!currentUser) {
-                          showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
-                          handleOpenAuth('login');
-                          return;
-                        }
-                        setIsBookingModalOpen(true);
-                      }}
-                      className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto active:scale-95"
-                    >
-                      <span>Lanjut Booking Seharian</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  )}
-                </div>
-
-                <DateSelector
-                  selectedDate={selectedDate}
-                  onSelectDate={(newDate) => {
-                    setSelectedDate(newDate);
-                    showToast(`Memeriksa jadwal untuk tanggal ${newDate}`, 'info');
-                  }}
-                />
-
-                <SlotGrid
-                  room={selectedRoom}
-                  availability={availability}
-                  loading={loadingAvailability}
-                  selectedSlot={selectedSlot}
-                  onSelectSlot={handleSelectSlot}
-                  durationType={durationType}
-                  onChangeDurationType={(type) => {
-                    setDurationType(type);
-                    showToast(
-                      type === 'daily'
-                        ? 'Mode peminjaman harian (08:00 - 18:00 WIB) dipilih.'
-                        : 'Mode peminjaman per jam dipilih.',
-                      'info'
-                    );
-                  }}
-                  currentUser={currentUser}
-                />
-              </section>
-            )}
-          </>
-        )}
-      </main>
-
+  // Render Shared Dashboard Modals & Toast
+  const renderSharedModals = () => (
+    <>
       {/* Mobile Sticky Booking Bar */}
       {selectedSlot && (
         <div className="fixed bottom-4 left-4 right-4 sm:hidden z-30 bg-[#326273] text-white p-3.5 rounded-2xl shadow-2xl flex items-center justify-between border border-[#5c9ead]/40">
@@ -610,11 +402,332 @@ export default function App() {
         type={toast.type}
         onClose={() => setToast({ message: '', type: 'info' })}
       />
+    </>
+  );
+
+  // Render Inner Dashboard Content (Admin / My Bookings / Catalog & Slots)
+  const renderDashboardContent = () => {
+    if (activeTab === 'admin' && currentUser?.role === 'admin') {
+      return <AdminDashboard currentUser={currentUser} onShowToast={showToast} />;
+    }
+
+    if (activeTab === 'my-bookings' && currentUser) {
+      return (
+        <MyBookings
+          currentUser={currentUser}
+          onShowToast={showToast}
+          onQuotaRecovered={(newQuota) => {
+            if (currentUser && typeof newQuota === 'number') {
+              setCurrentUser((prev) => ({
+                ...prev,
+                booking_quota: newQuota,
+              }));
+            }
+          }}
+        />
+      );
+    }
+
+    return (
+      <>
+        {/* User / Guest Welcome Banner */}
+        <div className="rounded-3xl bg-[#326273] text-white p-6 sm:p-8 shadow-sm border border-slate-700">
+          <div className="max-w-3xl space-y-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
+                <span>Portal Peminjaman Ruang Kampus</span>
+              </span>
+              {currentUser ? (
+                currentUser.role === 'admin' ? (
+                  <span className="text-xs bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full font-bold">
+                    Biro Sarana (Admin) • Mode Pratinjau Katalog
+                  </span>
+                ) : (
+                  <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
+                    Civitas Aktif • Sisa Kuota: {currentUser.booking_quota} slot
+                  </span>
+                )
+              ) : (
+                <span className="text-xs bg-white/15 text-white/90 border border-white/20 px-3 py-1 rounded-full font-bold">
+                  Akses Tamu / Publik
+                </span>
+              )}
+              <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
+                ★ Fasilitas Akademik Bebas Biaya
+              </span>
+            </div>
+
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+              {currentUser
+                ? `Halo, ${currentUser.name}!`
+                : 'Katalog Fasilitas & Ruangan Kampus'}
+            </h1>
+            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
+              {currentUser?.role === 'admin'
+                ? 'Anda sedang melihat pratinjau katalog ruangan dan transparansi slot jadwal publik. Untuk mengelola atau mengedit fasilitas kampus, silakan gunakan menu Dashboard Admin di sidebar.'
+                : currentUser
+                ? 'Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.'
+                : 'Anda sedang menjelajahi katalog fasilitas kampus sebagai Pengunjung/Tamu. Silakan cek ketersediaan slot waktu yang tersisa secara bebas. Masuk ke akun Civitas saat ingin melakukan peminjaman ruangan.'}
+            </p>
+
+            {!currentUser && (
+              <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => handleOpenAuth('login')}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all"
+                >
+                  Masuk ke Akun
+                </button>
+                <button
+                  type="button"
+                  onClick={() => handleOpenAuth('register')}
+                  className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                >
+                  Daftar Mahasiswa Baru
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Catalog & Filter Section (US-01) */}
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-xl font-bold text-slate-900">Katalog Fasilitas Kampus</h2>
+              <p className="text-xs text-slate-500">Pilih kategori fasilitas kampus sesuai kebutuhan kegiatan akademik Anda</p>
+            </div>
+          </div>
+
+          <CategoryFilter
+            selectedCategory={selectedCategory}
+            onSelectCategory={setSelectedCategory}
+            minCapacity={minCapacity}
+            onChangeMinCapacity={setMinCapacity}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            totalRooms={filteredRooms.length}
+          />
+
+          <RoomList
+            rooms={filteredRooms}
+            selectedRoomId={selectedRoom?.id}
+            onSelectRoom={(r) => {
+              setSelectedRoom(r);
+              showToast(`Ruangan ${r.name} dipilih. Jadwal slot diperbarui.`, 'info');
+            }}
+            loading={loadingRooms}
+          />
+        </section>
+
+        {/* Interactive Calendar & Time Slots Section (US-02, US-03, US-04) */}
+        {selectedRoom && (
+          <section className="space-y-4 pt-6 border-t border-slate-200">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">Jadwal & Ketersediaan Slot</h2>
+                <p className="text-xs text-slate-500">
+                  Pilih tanggal dan slot jam kosong untuk memesan ruangan secara instan
+                </p>
+              </div>
+
+              {durationType === 'daily' && !availability?.has_daily_booking && (
+                <button
+                  onClick={() => {
+                    if (!currentUser) {
+                      showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
+                      handleOpenAuth('login');
+                      return;
+                    }
+                    setIsBookingModalOpen(true);
+                  }}
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto active:scale-95"
+                >
+                  <span>Lanjut Booking Seharian</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
+
+            <DateSelector
+              selectedDate={selectedDate}
+              onSelectDate={(newDate) => {
+                setSelectedDate(newDate);
+                showToast(`Memeriksa jadwal untuk tanggal ${newDate}`, 'info');
+              }}
+            />
+
+            <SlotGrid
+              room={selectedRoom}
+              availability={availability}
+              loading={loadingAvailability}
+              selectedSlot={selectedSlot}
+              onSelectSlot={handleSelectSlot}
+              durationType={durationType}
+              onChangeDurationType={(type) => {
+                setDurationType(type);
+                showToast(
+                  type === 'daily'
+                    ? 'Mode peminjaman harian (08:00 - 18:00 WIB) dipilih.'
+                    : 'Mode peminjaman per jam dipilih.',
+                  'info'
+                );
+              }}
+              currentUser={currentUser}
+            />
+          </section>
+        )}
+      </>
+    );
+  };
+
+  // Case 1: LOGGED-IN USER & ADMIN -> DEDICATED SIDEBAR LAYOUT (NO TOP NAVBAR)
+  if (currentUser) {
+    return (
+      <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col md:flex-row font-sans selection:bg-[#326273] selection:text-white">
+        {/* Mobile Header Bar with Hamburger Menu (Only visible on screens < md) */}
+        <header className="md:hidden sticky top-0 z-20 bg-white/95 backdrop-blur-md border-b border-slate-200 px-4 py-3 flex items-center justify-between shadow-xs">
+          <div className="flex items-center space-x-2.5">
+            <button
+              type="button"
+              onClick={() => setMobileSidebarOpen(true)}
+              aria-label="Buka menu navigasi sidebar"
+              className="p-2 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center space-x-2">
+              <img src="/logo-icon.png" alt="Logo Kumpul-In" className="h-7 w-auto object-contain" />
+              <div className="flex flex-col">
+                <span className="text-sm font-black text-[#326273] leading-none">Kumpul-In</span>
+                <span className="text-[10px] font-semibold text-[#5c9ead] mt-0.5">
+                  {activeTab === 'admin'
+                    ? 'Dashboard Admin'
+                    : activeTab === 'my-bookings'
+                    ? 'Peminjaman Saya'
+                    : 'Katalog Fasilitas'}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="flex items-center space-x-2">
+            <div
+              className={`w-7 h-7 rounded-xl flex items-center justify-center text-white text-xs font-bold ${
+                currentUser.role === 'admin' ? 'bg-[#326273]' : 'bg-[#5c9ead]'
+              }`}
+            >
+              {currentUser.role === 'admin' ? (
+                <Shield className="w-4 h-4" />
+              ) : (
+                <GraduationCap className="w-4 h-4" />
+              )}
+            </div>
+          </div>
+        </header>
+
+        {/* Dedicated Sidebar for Logged-In User / Admin */}
+        <Sidebar
+          currentUser={currentUser}
+          activeTab={activeTab}
+          setActiveTab={(tab) => {
+            if (tab === 'catalog') navigateTo('catalog');
+            else if (tab === 'my-bookings') navigateTo('my-bookings');
+            else if (tab === 'admin') navigateTo('admin');
+            else setActiveTab(tab);
+          }}
+          onLogout={handleLogout}
+          onGoHome={() => navigateTo('landing')}
+          mobileOpen={mobileSidebarOpen}
+          setMobileOpen={setMobileSidebarOpen}
+        />
+
+        {/* Main Content Area beside Sidebar */}
+        <div className="flex-1 min-w-0 flex flex-col">
+          {/* Backend Connection Error Banner */}
+          {serverError && (
+            <div role="alert" className="bg-[#fdf4f0] border-b border-[#e39774]/40 px-4 py-2.5 text-xs text-[#d58560] flex items-center justify-between">
+              <div className="flex items-center gap-2 max-w-4xl mx-auto">
+                <AlertTriangle className="w-4 h-4 shrink-0 text-[#e39774]" aria-hidden="true" />
+                <span className="font-medium">{serverError}</span>
+              </div>
+              <button
+                onClick={() => {
+                  setServerError(null);
+                  fetchRooms();
+                }}
+                className="px-3 py-1 rounded-lg bg-white border border-[#e39774]/40 text-[#d58560] font-bold text-[11px] hover:bg-[#fae6dc] transition-colors"
+              >
+                Coba Sambungkan
+              </button>
+            </div>
+          )}
+
+          <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+            {renderDashboardContent()}
+          </main>
+
+          {/* Footer inside sidebar layout */}
+          <footer className="mt-auto bg-white border-t border-slate-200 py-6 pb-20 sm:pb-8 text-center text-xs text-slate-500">
+            <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Seluruh hak cipta dilindungi.</p>
+          </footer>
+        </div>
+
+        {/* Shared Modals & Toast */}
+        {renderSharedModals()}
+      </div>
+    );
+  }
+
+  // Case 2: GUEST / UNREGISTERED VISITOR -> TOP NAVBAR LAYOUT (NO SIDEBAR)
+  return (
+    <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans selection:bg-[#326273] selection:text-white">
+      {/* Backend Connection Error Banner */}
+      {serverError && (
+        <div role="alert" className="bg-[#fdf4f0] border-b border-[#e39774]/40 px-4 py-2.5 text-xs text-[#d58560] flex items-center justify-between">
+          <div className="flex items-center gap-2 max-w-4xl mx-auto">
+            <AlertTriangle className="w-4 h-4 shrink-0 text-[#e39774]" aria-hidden="true" />
+            <span className="font-medium">{serverError}</span>
+          </div>
+          <button
+            onClick={() => {
+              setServerError(null);
+              fetchRooms();
+            }}
+            className="px-3 py-1 rounded-lg bg-white border border-[#e39774]/40 text-[#d58560] font-bold text-[11px] hover:bg-[#fae6dc] transition-colors"
+          >
+            Coba Sambungkan
+          </button>
+        </div>
+      )}
+
+      {/* Top Navigation for Visitors */}
+      <Navbar
+        currentUser={null}
+        activeTab={activeTab}
+        setActiveTab={(tab) => {
+          if (tab === 'catalog') navigateTo('catalog');
+          else setActiveTab(tab);
+        }}
+        onOpenAuth={handleOpenAuth}
+        onGoHome={() => navigateTo('landing')}
+      />
+
+      {/* Main Container */}
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 space-y-8">
+        {renderDashboardContent()}
+      </main>
 
       {/* Footer */}
       <footer className="mt-auto bg-white border-t border-slate-200 py-6 pb-20 sm:pb-16 text-center text-xs text-slate-500">
         <p>© 2026 Kumpul-In Kampus • Sistem Peminjaman Fasilitas & Ruang Kampus Terpadu. Seluruh hak cipta dilindungi.</p>
       </footer>
+
+      {/* Shared Modals & Toast */}
+      {renderSharedModals()}
     </div>
   );
 }
