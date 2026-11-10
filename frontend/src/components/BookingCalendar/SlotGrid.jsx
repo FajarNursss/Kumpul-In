@@ -23,7 +23,6 @@ export default function SlotGrid({
   }
 
   const isDailyBooked = availability?.has_daily_booking;
-  const isMember = currentUser?.role === 'member';
 
   const totalSlots = availability?.slots?.length || 10;
   const bookedCount = availability?.slots?.filter((s) => s.is_booked)?.length || 0;

@@ -13,7 +13,7 @@ import SuccessModal from './components/BookingModal/SuccessModal';
 import MyBookings from './components/MyBookings';
 import Toast from './components/Toast';
 import { authService, roomService } from './services/api';
-import { Sparkles, Calendar, ArrowRight, CheckCircle2, Shield, User, Award, Clock, AlertTriangle, RefreshCw } from 'lucide-react';
+import { ArrowRight, AlertTriangle } from 'lucide-react';
 
 // Route parser & validator for URL link handling
 const resolveRoute = (pathname, hash) => {
@@ -59,7 +59,6 @@ export default function App() {
 
   // User & Auth State
   const [currentUser, setCurrentUser] = useState(null);
-  const [loadingUser, setLoadingUser] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
 
@@ -148,9 +147,6 @@ export default function App() {
         .then((res) => {
           if (res.success) {
             setCurrentUser(res.data);
-            if (res.data.role === 'admin' && activeTab === 'admin') {
-              setActiveTab('admin');
-            }
           }
         })
         .catch(() => {
@@ -239,37 +235,12 @@ export default function App() {
 
   const handleAuthSuccess = (user) => {
     setCurrentUser(user);
-    showToast(`Selamat datang, ${user.name}! Masuk sebagai ${user.role}.`, 'success');
+    const roleLabel = user.role === 'admin' ? 'Biro Sarana Kampus' : 'Civitas Akademika';
+    showToast(`Selamat datang, ${user.name}! Masuk sebagai ${roleLabel}.`, 'success');
     if (user.role === 'admin') {
       navigateTo('admin');
     } else {
       navigateTo('catalog');
-    }
-  };
-
-  // Switch role handler (Mahasiswa, Biro Sarana)
-  const handleSwitchRole = async (role) => {
-    try {
-      setLoadingUser(true);
-      const res = await authService.quickLogin(role);
-      if (res.success) {
-        setCurrentUser(res.data.user);
-        showToast(
-          `Beralih ke akun ${res.data.user.role.toUpperCase()} (Sisa Kuota: ${res.data.user.booking_quota} slot)`,
-          'info'
-        );
-        if (role === 'admin') {
-          navigateTo('admin');
-        } else {
-          if (activeTab === 'admin') navigateTo('catalog');
-          if (selectedRoom) fetchAvailability();
-        }
-      }
-    } catch (err) {
-      console.error('Failed to switch role:', err);
-      showToast(err.customMessage || 'Gagal beralih role demo.', 'error');
-    } finally {
-      setLoadingUser(false);
     }
   };
 
@@ -342,11 +313,6 @@ export default function App() {
 
         <LandingPage
           onExploreCatalog={() => {
-            if (!currentUser) {
-              authService.quickLogin('mahasiswa').then((res) => {
-                if (res.success) setCurrentUser(res.data.user);
-              });
-            }
             navigateTo('catalog');
           }}
           onOpenAuth={handleOpenAuth}
@@ -393,7 +359,6 @@ export default function App() {
       {/* Top Navigation */}
       <Navbar
         currentUser={currentUser}
-        onSwitchRole={handleSwitchRole}
         activeTab={activeTab}
         setActiveTab={(tab) => {
           if (tab === 'catalog') navigateTo('catalog');
@@ -401,7 +366,6 @@ export default function App() {
           else if (tab === 'admin') navigateTo('admin');
           else setActiveTab(tab);
         }}
-        loadingUser={loadingUser}
         onOpenAuth={handleOpenAuth}
         onLogout={handleLogout}
         onGoHome={() => navigateTo('landing')}
@@ -500,7 +464,14 @@ export default function App() {
 
                   {durationType === 'daily' && !availability?.has_daily_booking && (
                     <button
-                      onClick={() => setIsBookingModalOpen(true)}
+                      onClick={() => {
+                        if (!currentUser) {
+                          showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
+                          handleOpenAuth('login');
+                          return;
+                        }
+                        setIsBookingModalOpen(true);
+                      }}
                       className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto active:scale-95"
                     >
                       <span>Lanjut Booking Seharian</span>
@@ -540,41 +511,6 @@ export default function App() {
           </>
         )}
       </main>
-
-      {/* Floating Demo Role Switcher Toolbar (Bottom Center) */}
-      <div
-        role="region"
-        aria-label="Toolbar beralih akun pengujian cepat"
-        className="fixed bottom-4 left-1/2 -translate-x-1/2 z-30 bg-white/95 backdrop-blur-md px-3 py-2 rounded-2xl shadow-xl border border-slate-200 hidden sm:flex items-center space-x-2 text-xs print:hidden"
-      >
-        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider pl-1 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-[#e39774]" aria-hidden="true" /> Mode Pengujian:
-        </span>
-        <button
-          type="button"
-          onClick={() => handleSwitchRole('mahasiswa')}
-          aria-pressed={currentUser?.role === 'mahasiswa' || currentUser?.role === 'member'}
-          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-            currentUser?.role === 'mahasiswa' || currentUser?.role === 'member'
-              ? 'bg-[#326273] text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          Mahasiswa (5 Kuota)
-        </button>
-        <button
-          type="button"
-          onClick={() => handleSwitchRole('admin')}
-          aria-pressed={currentUser?.role === 'admin'}
-          className={`px-3 py-1 rounded-xl font-bold transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-            currentUser?.role === 'admin'
-              ? 'bg-slate-900 text-white shadow-xs'
-              : 'text-slate-600 hover:bg-slate-100'
-          }`}
-        >
-          Biro Sarana (Admin)
-        </button>
-      </div>
 
       {/* Mobile Sticky Booking Bar */}
       {selectedSlot && (

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
-import { X, Mail, Lock, User, Shield, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap, Check } from 'lucide-react';
+import { X, Mail, Lock, User, ArrowRight, Loader2, AlertCircle, CheckCircle2, GraduationCap, Check } from 'lucide-react';
 import { authService } from '../services/api';
 
 export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode = 'login' }) {
@@ -113,23 +113,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
       } finally {
         setLoading(false);
       }
-    }
-  };
-
-  const handleQuickLogin = async (targetRole) => {
-    setErrorMessage('');
-    setSuccessMessage('');
-    setLoading(true);
-    try {
-      const res = await authService.quickLogin(targetRole);
-      if (res.success) {
-        onAuthSuccess(res.data.user);
-        onClose();
-      }
-    } catch (err) {
-      setErrorMessage(err.customMessage || 'Gagal masuk cepat sebagai ' + targetRole);
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -367,36 +350,6 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
               )}
             </button>
           </form>
-
-          {/* Discreet Quick Login Helper for Testing / Demo */}
-          <div className="pt-4 border-t border-slate-100">
-            <div className="flex items-center justify-between mb-2">
-              <span className="text-[11px] font-semibold text-slate-400">
-                Akses Cepat Pengujian:
-              </span>
-              <span className="text-[10px] text-slate-400">1-Klik Masuk</span>
-            </div>
-            <div className="grid grid-cols-2 gap-2">
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin('mahasiswa')}
-                className="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95"
-              >
-                <GraduationCap className="w-3.5 h-3.5 text-[#5c9ead]" aria-hidden="true" />
-                <span>Mahasiswa (Civitas)</span>
-              </button>
-              <button
-                type="button"
-                disabled={loading}
-                onClick={() => handleQuickLogin('admin')}
-                className="px-2.5 py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 hover:border-slate-300 text-slate-700 text-xs font-bold transition-all flex items-center justify-center gap-1.5 active:scale-95"
-              >
-                <Shield className="w-3.5 h-3.5 text-[#326273]" aria-hidden="true" />
-                <span>Biro Sarana (Admin)</span>
-              </button>
-            </div>
-          </div>
         </div>
       </div>
     </div>,

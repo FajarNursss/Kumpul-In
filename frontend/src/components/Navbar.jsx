@@ -1,13 +1,11 @@
 import React, { useState } from 'react';
-import { User, Award, Shield, CalendarCheck, LogOut, Home, Menu, X, LayoutGrid } from 'lucide-react';
+import { User, Shield, CalendarCheck, LogOut, Home, Menu, X, LayoutGrid } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
 export default function Navbar({
   currentUser,
-  onSwitchRole,
   activeTab,
   setActiveTab,
-  loadingUser,
   onOpenAuth,
   onLogout,
   onGoHome,
@@ -63,7 +61,38 @@ export default function Navbar({
               <span>← Beranda Depan</span>
             </button>
 
-            {isAdmin ? (
+            {/* Katalog Fasilitas is available to EVERYONE */}
+            <button
+              type="button"
+              onClick={() => setActiveTab('catalog')}
+              className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
+                activeTab === 'catalog'
+                  ? 'bg-[#326273] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" aria-hidden="true" />
+              <span>Katalog Fasilitas</span>
+            </button>
+
+            {/* Peminjaman Saya for Logged-in Users */}
+            {currentUser && (
+              <button
+                type="button"
+                onClick={() => setActiveTab('my-bookings')}
+                className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
+                  activeTab === 'my-bookings'
+                    ? 'bg-[#326273] text-white shadow-xs'
+                    : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
+                }`}
+              >
+                <CalendarCheck className="w-4 h-4" aria-hidden="true" />
+                <span>Peminjaman Saya</span>
+              </button>
+            )}
+
+            {/* Dashboard Admin ONLY if currentUser is Admin */}
+            {isAdmin && (
               <button
                 type="button"
                 onClick={() => setActiveTab('admin')}
@@ -76,44 +105,14 @@ export default function Navbar({
                 <Shield className="w-4 h-4" aria-hidden="true" />
                 <span>Dashboard Admin</span>
               </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab('catalog')}
-                  className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                    activeTab === 'catalog'
-                      ? 'bg-[#326273] text-white shadow-xs'
-                      : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
-                  }`}
-                >
-                  <LayoutGrid className="w-4 h-4" aria-hidden="true" />
-                  <span>Katalog Fasilitas</span>
-                </button>
-
-                {currentUser && (
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab('my-bookings')}
-                    className={`px-4 py-2 rounded-xl text-xs sm:text-sm font-bold transition-all flex items-center space-x-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                      activeTab === 'my-bookings'
-                        ? 'bg-[#326273] text-white shadow-xs'
-                        : 'text-slate-600 hover:text-[#326273] hover:bg-slate-100'
-                    }`}
-                  >
-                    <CalendarCheck className="w-4 h-4" aria-hidden="true" />
-                    <span>Peminjaman Saya</span>
-                  </button>
-                )}
-              </>
             )}
           </nav>
 
-          {/* User Controls & Simulation */}
+          {/* User Controls */}
           <div className="flex items-center space-x-2 sm:space-x-3">
             {currentUser ? (
               <>
-                {/* Quota Badge (For Non-Admin) */}
+                {/* Quota Badge (For Non-Admin Civitas) */}
                 {!isAdmin && (
                   <div
                     className="hidden lg:flex items-center space-x-2 text-xs bg-slate-100 border border-slate-200 rounded-full px-3 py-1"
@@ -132,43 +131,27 @@ export default function Navbar({
                   </div>
                 )}
 
-                {/* Role Switcher Pill */}
-                <div
-                  role="group"
-                  aria-label="Pilih Role Pengguna Demo"
-                  className="flex items-center bg-slate-100 p-1 rounded-2xl border border-slate-200 text-xs font-bold"
-                >
-                  <button
-                    type="button"
-                    onClick={() => onSwitchRole('mahasiswa')}
-                    disabled={loadingUser}
-                    aria-pressed={currentUser.role === 'mahasiswa' || currentUser.role === 'member'}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                      currentUser.role === 'mahasiswa' || currentUser.role === 'member'
-                        ? 'bg-[#326273] text-white shadow-xs font-bold'
-                        : 'text-slate-500 hover:text-slate-800'
+                {/* Authentic User Identity Card */}
+                <div className="flex items-center space-x-2 bg-slate-100/90 py-1.5 px-3 rounded-2xl border border-slate-200">
+                  <div
+                    className={`w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] font-bold ${
+                      isAdmin ? 'bg-[#326273]' : 'bg-[#5c9ead]'
                     }`}
-                    title="Beralih ke akun Mahasiswa (Kuota 5 slot)"
                   >
-                    <User className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">Mahasiswa</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => onSwitchRole('admin')}
-                    disabled={loadingUser}
-                    aria-pressed={currentUser.role === 'admin'}
-                    className={`flex items-center space-x-1 px-2.5 py-1.5 rounded-xl transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-                      currentUser.role === 'admin'
-                        ? 'bg-[#326273] text-white shadow-xs font-bold'
-                        : 'text-slate-500 hover:text-slate-800'
-                    }`}
-                    title="Beralih ke akun Biro Sarana / Admin"
-                  >
-                    <Shield className="w-3.5 h-3.5" aria-hidden="true" />
-                    <span className="hidden sm:inline">Biro Sarana</span>
-                  </button>
+                    {isAdmin ? (
+                      <Shield className="w-3.5 h-3.5" aria-hidden="true" />
+                    ) : (
+                      <User className="w-3.5 h-3.5" aria-hidden="true" />
+                    )}
+                  </div>
+                  <div className="flex flex-col text-left leading-none">
+                    <span className="text-xs font-bold text-slate-800 max-w-[120px] sm:max-w-[160px] truncate">
+                      {currentUser.name}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-medium">
+                      {isAdmin ? 'Biro Sarana (Admin)' : 'Civitas Akademika'}
+                    </span>
+                  </div>
                 </div>
 
                 {/* Logout Button with Validation Modal */}
@@ -217,7 +200,7 @@ export default function Navbar({
 
       {/* Mobile Drawer Bar */}
       {mobileMenuOpen && (
-        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-2 shadow-lg">
+        <div className="md:hidden border-t border-slate-200 bg-white px-4 py-3 space-y-3 shadow-lg">
           <div className="grid grid-cols-2 gap-2 text-xs font-bold">
             <button
               type="button"
@@ -231,48 +214,90 @@ export default function Navbar({
               <span>Beranda</span>
             </button>
 
-            {isAdmin ? (
+            <button
+              type="button"
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setActiveTab('catalog');
+              }}
+              className={`p-2.5 rounded-xl text-left flex items-center gap-2 ${
+                activeTab === 'catalog'
+                  ? 'bg-[#326273] text-white'
+                  : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+              }`}
+            >
+              <LayoutGrid className="w-4 h-4" aria-hidden="true" />
+              <span>Katalog Fasilitas</span>
+            </button>
+
+            {currentUser && (
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setActiveTab('my-bookings');
+                }}
+                className={`p-2.5 rounded-xl text-left flex items-center gap-2 ${
+                  activeTab === 'my-bookings'
+                    ? 'bg-[#326273] text-white'
+                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <CalendarCheck className="w-4 h-4" aria-hidden="true" />
+                <span>Peminjaman Saya</span>
+              </button>
+            )}
+
+            {isAdmin && (
               <button
                 type="button"
                 onClick={() => {
                   setMobileMenuOpen(false);
                   setActiveTab('admin');
                 }}
-                className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
+                className={`p-2.5 rounded-xl text-left flex items-center gap-2 ${
+                  activeTab === 'admin'
+                    ? 'bg-[#326273] text-white'
+                    : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
+                }`}
               >
-                <Shield className="w-4 h-4 text-[#326273]" aria-hidden="true" />
+                <Shield className="w-4 h-4" aria-hidden="true" />
                 <span>Dashboard Admin</span>
               </button>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setActiveTab('catalog');
-                  }}
-                  className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
-                >
-                  <LayoutGrid className="w-4 h-4 text-[#326273]" aria-hidden="true" />
-                  <span>Katalog Ruangan</span>
-                </button>
-
-                {currentUser && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false);
-                      setActiveTab('my-bookings');
-                    }}
-                    className="p-2.5 rounded-xl bg-slate-50 text-slate-700 hover:bg-slate-100 text-left flex items-center gap-2"
-                  >
-                    <CalendarCheck className="w-4 h-4 text-[#326273]" aria-hidden="true" />
-                    <span>Reservasi Saya</span>
-                  </button>
-                )}
-              </>
             )}
           </div>
+
+          {/* Logged in info on mobile */}
+          {currentUser && (
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+              <div className="flex items-center space-x-2">
+                <div
+                  className={`w-7 h-7 rounded-full flex items-center justify-center text-white text-xs font-bold ${
+                    isAdmin ? 'bg-[#326273]' : 'bg-[#5c9ead]'
+                  }`}
+                >
+                  {isAdmin ? <Shield className="w-4 h-4" /> : <User className="w-4 h-4" />}
+                </div>
+                <div>
+                  <div className="font-bold text-slate-800 leading-tight">{currentUser.name}</div>
+                  <div className="text-[10px] text-slate-500">
+                    {isAdmin ? 'Biro Sarana (Admin)' : `Civitas • Kuota: ${currentUser.booking_quota} slot`}
+                  </div>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setIsLogoutConfirmOpen(true);
+                }}
+                className="px-2.5 py-1.5 rounded-lg text-rose-600 bg-rose-50 hover:bg-rose-100 font-bold flex items-center gap-1"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span>Keluar</span>
+              </button>
+            </div>
+          )}
         </div>
       )}
 
