@@ -240,4 +240,70 @@ class KumpulinApiTest extends TestCase
         $response = $this->actingAs($mahasiswa, 'sanctum')->getJson('/api/admin/stats');
         $response->assertStatus(403);
     }
+
+    public function test_admin_cannot_book_rooms()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $room = Room::first();
+
+        $response = $this->actingAs($admin, 'sanctum')->postJson('/api/bookings', [
+            'room_id' => $room->id,
+            'booking_date' => now()->addDay()->format('Y-m-d'),
+            'duration_type' => 'hourly',
+            'start_time' => '14:00',
+            'end_time' => '15:00',
+        ]);
+
+        $response->assertStatus(403)
+            ->assertJsonPath('success', false);
+    }
+
+    public function test_admin_can_manage_users_crud()
+    {
+        $admin = User::where('role', 'admin')->first();
+
+        // 1. List users
+        $listRes = $this->actingAs($admin, 'sanctum')->getJson('/api/admin/users');
+        $listRes->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        // 2. Create user
+        $createRes = $this->actingAs($admin, 'sanctum')->postJson('/api/admin/users', [
+            'name' => 'Fulan Mahasiswa',
+            'email' => 'fulan@kumpulin.test',
+            'password' => 'secret123',
+            'role' => 'mahasiswa',
+            'booking_quota' => 5,
+        ]);
+        $createRes->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.email', 'fulan@kumpulin.test');
+
+        $userId = $createRes->json('data.id');
+
+        // 3. Update user
+        $updateRes = $this->actingAs($admin, 'sanctum')->patchJson("/api/admin/users/{$userId}", [
+            'name' => 'Fulan Mahasiswa Update',
+            'booking_quota' => 7,
+        ]);
+        $updateRes->assertStatus(200)
+            ->assertJsonPath('data.name', 'Fulan Mahasiswa Update')
+            ->assertJsonPath('data.booking_quota', 7);
+
+        // 4. Delete user
+        $deleteRes = $this->actingAs($admin, 'sanctum')->deleteJson("/api/admin/users/{$userId}");
+        $deleteRes->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertNull(User::find($userId));
+    }
+
+    public function test_admin_cannot_delete_self()
+    {
+        $admin = User::where('role', 'admin')->first();
+
+        $response = $this->actingAs($admin, 'sanctum')->deleteJson("/api/admin/users/{$admin->id}");
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
 }

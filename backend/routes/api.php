@@ -32,5 +32,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/rooms', [AdminController::class, 'storeRoom']);
         Route::patch('/rooms/{id}', [AdminController::class, 'updateRoom']);
         Route::delete('/rooms/{id}', [AdminController::class, 'deleteRoom']);
+
+        // User Management (CRUD User)
+        Route::get('/users', [AdminController::class, 'users']);
+        Route::post('/users', [AdminController::class, 'storeUser']);
+        Route::patch('/users/{id}', [AdminController::class, 'updateUser']);
+        Route::delete('/users/{id}', [AdminController::class, 'deleteUser']);
     });
 });

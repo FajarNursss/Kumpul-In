@@ -157,6 +157,27 @@ export const adminService = {
     const res = await api.delete(`/admin/rooms/${id}`);
     return res.data;
   },
+
+  // User Management
+  getUsers: async (params = {}) => {
+    const res = await api.get('/admin/users', { params });
+    return res.data;
+  },
+
+  createUser: async (data) => {
+    const res = await api.post('/admin/users', data);
+    return res.data;
+  },
+
+  updateUser: async (id, data) => {
+    const res = await api.patch(`/admin/users/${id}`, data);
+    return res.data;
+  },
+
+  deleteUser: async (id) => {
+    const res = await api.delete(`/admin/users/${id}`);
+    return res.data;
+  },
 };
 
 export default api;

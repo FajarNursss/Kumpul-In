@@ -7,6 +7,7 @@ use App\Models\User;
 use App\Models\Room;
 use App\Models\Booking;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -174,6 +175,141 @@ class AdminController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Ruangan berhasil dihapus.',
+        ]);
+    }
+
+    /**
+     * List all users with optional role and search query filter.
+     */
+    public function users(Request $request)
+    {
+        $this->authorizeAdmin($request);
+
+        $query = User::withCount('bookings')->orderBy('created_at', 'desc');
+
+        if ($request->filled('role') && $request->query('role') !== 'all') {
+            $query->where('role', $request->query('role'));
+        }
+
+        if ($request->filled('q')) {
+            $search = '%' . $request->query('q') . '%';
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', $search)
+                  ->orWhere('email', 'like', $search);
+            });
+        }
+
+        $users = $query->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $users,
+        ]);
+    }
+
+    /**
+     * Store a newly created user (Admin or Mahasiswa).
+     */
+    public function storeUser(Request $request)
+    {
+        $this->authorizeAdmin($request);
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:6',
+            'role' => 'required|in:mahasiswa,admin',
+            'booking_quota' => 'nullable|integer|min:0',
+        ], [
+            'name.required' => 'Nama lengkap pengguna wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Alamat email sudah terdaftar pada sistem.',
+            'password.required' => 'Kata sandi wajib diisi.',
+            'password.min' => 'Kata sandi minimal 6 karakter.',
+            'role.required' => 'Peran pengguna wajib ditentukan.',
+            'role.in' => 'Peran pengguna harus mahasiswa atau admin.',
+        ]);
+
+        $defaultQuota = $validated['role'] === 'admin' ? 999 : 5;
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'role' => $validated['role'],
+            'booking_quota' => $validated['booking_quota'] ?? $defaultQuota,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengguna {$user->name} berhasil ditambahkan.",
+            'data' => $user,
+        ], 201);
+    }
+
+    /**
+     * Update an existing user.
+     */
+    public function updateUser(Request $request, $id)
+    {
+        $this->authorizeAdmin($request);
+
+        $user = User::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:100',
+            'email' => 'sometimes|required|email|unique:users,email,' . $id,
+            'password' => 'nullable|string|min:6',
+            'role' => 'sometimes|required|in:mahasiswa,admin',
+            'booking_quota' => 'sometimes|required|integer|min:0',
+        ], [
+            'name.required' => 'Nama lengkap pengguna wajib diisi.',
+            'email.required' => 'Alamat email wajib diisi.',
+            'email.email' => 'Format email tidak valid.',
+            'email.unique' => 'Alamat email sudah digunakan oleh pengguna lain.',
+            'password.min' => 'Kata sandi minimal 6 karakter.',
+            'role.in' => 'Peran pengguna harus mahasiswa atau admin.',
+            'booking_quota.min' => 'Kuota peminjaman tidak boleh negatif.',
+        ]);
+
+        if (!empty($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        } else {
+            unset($validated['password']);
+        }
+
+        $user->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Data pengguna {$user->name} berhasil diperbarui.",
+            'data' => $user->fresh(),
+        ]);
+    }
+
+    /**
+     * Delete an existing user.
+     */
+    public function deleteUser(Request $request, $id)
+    {
+        $this->authorizeAdmin($request);
+
+        $user = User::findOrFail($id);
+
+        if ($user->id === $request->user()->id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Anda tidak dapat menghapus akun Anda sendiri.',
+            ], 422);
+        }
+
+        $name = $user->name;
+        $user->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Pengguna {$name} berhasil dihapus dari sistem.",
         ]);
     }
 }

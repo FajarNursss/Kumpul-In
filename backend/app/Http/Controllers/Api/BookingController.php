@@ -36,6 +36,14 @@ class BookingController extends Controller
     {
         $user = $request->user();
 
+        // Administrator tidak dapat melakukan peminjaman ruangan (hanya Civitas Mahasiswa)
+        if ($user->role === 'admin') {
+            return response()->json([
+                'success' => false,
+                'message' => 'Akun Administrator tidak dapat melakukan reservasi peminjaman. Akun admin hanya memiliki hak mengelola fasilitas, memantau riwayat, dan mengelola pengguna.',
+            ], 403);
+        }
+
         // 1. Quota check
         if ($user->booking_quota <= 0) {
             return response()->json([

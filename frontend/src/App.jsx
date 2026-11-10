@@ -32,8 +32,17 @@ const resolveRoute = (pathname, hash) => {
     if (['#riwayat', '#peminjaman-saya', '#my-bookings', '#reservasi-saya'].includes(cleanHash)) {
       return { view: 'dashboard', tab: 'my-bookings', isValid: true };
     }
-    if (['#admin'].includes(cleanHash)) {
+    if (['#admin', '#admin-overview'].includes(cleanHash)) {
       return { view: 'dashboard', tab: 'admin', isValid: true };
+    }
+    if (['#admin-riwayat', '#admin-bookings'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'admin-bookings', isValid: true };
+    }
+    if (['#admin-fasilitas', '#admin-rooms'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'admin-rooms', isValid: true };
+    }
+    if (['#admin-pengguna', '#admin-users'].includes(cleanHash)) {
+      return { view: 'dashboard', tab: 'admin-users', isValid: true };
     }
     // Invalid hash link on root
     return { view: 'not-found', tab: 'catalog', isValid: false, badPath: cleanHash };
@@ -46,8 +55,17 @@ const resolveRoute = (pathname, hash) => {
   if (['/riwayat', '/peminjaman-saya', '/my-bookings', '/reservasi'].includes(cleanPath)) {
     return { view: 'dashboard', tab: 'my-bookings', isValid: true };
   }
-  if (cleanPath === '/admin') {
+  if (cleanPath === '/admin' || cleanPath === '/admin/overview') {
     return { view: 'dashboard', tab: 'admin', isValid: true };
+  }
+  if (['/admin/riwayat', '/admin/bookings', '/admin/reservasi'].includes(cleanPath)) {
+    return { view: 'dashboard', tab: 'admin-bookings', isValid: true };
+  }
+  if (['/admin/fasilitas', '/admin/ruangan', '/admin/rooms'].includes(cleanPath)) {
+    return { view: 'dashboard', tab: 'admin-rooms', isValid: true };
+  }
+  if (['/admin/pengguna', '/admin/users', '/admin/civitas'].includes(cleanPath)) {
+    return { view: 'dashboard', tab: 'admin-users', isValid: true };
   }
 
   // Any other URL pathname is an invalid link ("salah ketik link")
@@ -138,6 +156,18 @@ export default function App() {
       window.history.pushState(null, '', '/admin');
       setViewMode('dashboard');
       setActiveTab('admin');
+    } else if (target === 'admin-bookings') {
+      window.history.pushState(null, '', '/admin/riwayat');
+      setViewMode('dashboard');
+      setActiveTab('admin-bookings');
+    } else if (target === 'admin-rooms') {
+      window.history.pushState(null, '', '/admin/fasilitas');
+      setViewMode('dashboard');
+      setActiveTab('admin-rooms');
+    } else if (target === 'admin-users') {
+      window.history.pushState(null, '', '/admin/pengguna');
+      setViewMode('dashboard');
+      setActiveTab('admin-users');
     }
   };
 
@@ -157,9 +187,10 @@ export default function App() {
     }
   }, []);
 
-  // Security Guard: Prevent non-admins from opening the admin tab
+  // Security Guard: Prevent non-admins from opening any admin tab
   useEffect(() => {
-    if (activeTab === 'admin' && currentUser && currentUser.role !== 'admin') {
+    const adminTabs = ['admin', 'admin-bookings', 'admin-rooms', 'admin-users'];
+    if (adminTabs.includes(activeTab) && currentUser && currentUser.role !== 'admin') {
       navigateTo('catalog');
     }
   }, [activeTab, currentUser]);
@@ -273,6 +304,10 @@ export default function App() {
     if (!currentUser) {
       showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
       handleOpenAuth('login');
+      return;
+    }
+    if (currentUser.role === 'admin') {
+      showToast('Akun Administrator hanya dapat meninjau ketersediaan slot. Reservasi peminjaman hanya diperuntukkan bagi Civitas Mahasiswa.', 'error');
       return;
     }
     setSelectedSlot(slot);
@@ -407,8 +442,22 @@ export default function App() {
 
   // Render Inner Dashboard Content (Admin / My Bookings / Catalog & Slots)
   const renderDashboardContent = () => {
-    if (activeTab === 'admin' && currentUser?.role === 'admin') {
-      return <AdminDashboard currentUser={currentUser} onShowToast={showToast} />;
+    const adminTabs = ['admin', 'admin-bookings', 'admin-rooms', 'admin-users'];
+    if (adminTabs.includes(activeTab) && currentUser?.role === 'admin') {
+      return (
+        <AdminDashboard
+          currentUser={currentUser}
+          activeTab={activeTab}
+          setActiveTab={(tab) => {
+            if (['admin', 'admin-bookings', 'admin-rooms', 'admin-users'].includes(tab)) {
+              navigateTo(tab);
+            } else {
+              setActiveTab(tab);
+            }
+          }}
+          onShowToast={showToast}
+        />
+      );
     }
 
     if (activeTab === 'my-bookings' && currentUser) {
@@ -542,9 +591,13 @@ export default function App() {
                       handleOpenAuth('login');
                       return;
                     }
+                    if (currentUser.role === 'admin') {
+                      showToast('Akun Administrator hanya dapat meninjau ketersediaan slot. Reservasi peminjaman hanya diperuntukkan bagi Civitas Mahasiswa.', 'error');
+                      return;
+                    }
                     setIsBookingModalOpen(true);
                   }}
-                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto active:scale-95"
+                  className="px-5 py-2.5 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all flex items-center space-x-1.5 self-start sm:self-auto active:scale-95 cursor-pointer"
                 >
                   <span>Lanjut Booking Seharian</span>
                   <ArrowRight className="w-4 h-4" />
@@ -606,6 +659,12 @@ export default function App() {
                 <span className="text-[10px] font-semibold text-[#5c9ead] mt-0.5">
                   {activeTab === 'admin'
                     ? 'Dashboard Admin'
+                    : activeTab === 'admin-bookings'
+                    ? 'Riwayat Peminjaman'
+                    : activeTab === 'admin-rooms'
+                    ? 'Kelola Fasilitas'
+                    : activeTab === 'admin-users'
+                    ? 'Kelola Pengguna'
                     : activeTab === 'my-bookings'
                     ? 'Peminjaman Saya'
                     : 'Katalog Fasilitas'}
@@ -637,6 +696,9 @@ export default function App() {
             if (tab === 'catalog') navigateTo('catalog');
             else if (tab === 'my-bookings') navigateTo('my-bookings');
             else if (tab === 'admin') navigateTo('admin');
+            else if (tab === 'admin-bookings') navigateTo('admin-bookings');
+            else if (tab === 'admin-rooms') navigateTo('admin-rooms');
+            else if (tab === 'admin-users') navigateTo('admin-users');
             else setActiveTab(tab);
           }}
           onLogout={handleLogout}

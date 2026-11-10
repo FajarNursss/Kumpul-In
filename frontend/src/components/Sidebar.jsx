@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import {
   LayoutGrid, CalendarCheck, Shield, Home, LogOut,
-  User, GraduationCap, Clock, ChevronRight, X, Menu, Sparkles
+  User, GraduationCap, Clock, ChevronRight, X,
+  Building2, History, Users
 } from 'lucide-react';
 import ConfirmModal from './ConfirmModal';
 
@@ -17,29 +18,55 @@ export default function Sidebar({
   const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const isAdmin = currentUser?.role === 'admin';
 
-  const navItems = [
-    {
-      id: 'catalog',
-      label: 'Katalog Fasilitas',
-      description: 'Pilihan ruang & ketersediaan slot',
-      icon: LayoutGrid,
-      roleRequired: null, // Available for everyone
-    },
-    {
-      id: 'my-bookings',
-      label: 'Peminjaman Saya',
-      description: 'Jadwal & surat bukti peminjaman',
-      icon: CalendarCheck,
-      roleRequired: null, // Available for all logged in users
-    },
-    {
-      id: 'admin',
-      label: 'Dashboard Admin',
-      description: 'Kelola fasilitas & permohonan',
-      icon: Shield,
-      roleRequired: 'admin', // Only for Biro Sarana (Admin)
-    },
-  ];
+  // Navigation items dynamically structured by role
+  // For Admin: Dashboard is at the very top, followed by Riwayat, Kelola Fasilitas, Kelola Pengguna, and Pratinjau Katalog
+  const navItems = isAdmin
+    ? [
+        {
+          id: 'admin',
+          label: 'Dashboard Admin',
+          description: 'Ringkasan & statistik sarana',
+          icon: Shield,
+        },
+        {
+          id: 'admin-bookings',
+          label: 'Riwayat Peminjaman',
+          description: 'Log aktivitas & reservasi',
+          icon: History,
+        },
+        {
+          id: 'admin-rooms',
+          label: 'Kelola Fasilitas',
+          description: 'Daftar & status ruangan',
+          icon: Building2,
+        },
+        {
+          id: 'admin-users',
+          label: 'Kelola Pengguna',
+          description: 'Manajemen akun civitas & kuota',
+          icon: Users,
+        },
+        {
+          id: 'catalog',
+          label: 'Pratinjau Katalog',
+          description: 'Lihat transparansi slot publik',
+          icon: LayoutGrid,
+        },
+      ]
+    : [
+        {
+          id: 'catalog',
+          label: 'Katalog Fasilitas',
+          description: 'Pilihan ruang & ketersediaan slot',
+          icon: LayoutGrid,
+        },
+        {
+          id: 'my-bookings',
+          label: 'Peminjaman Saya',
+          description: 'Jadwal & surat bukti peminjaman',
+          icon: CalendarCheck,
+        },
+      ];
 
   const handleNavClick = (tabId) => {
     setActiveTab(tabId);
@@ -119,12 +146,12 @@ export default function Sidebar({
                   {currentUser.name}
                 </div>
                 <div className="text-[11px] font-semibold text-[#326273] flex items-center gap-1">
-                  <span>{isAdmin ? 'Biro Sarana (Admin)' : 'Civitas Akademika'}</span>
+                  <span>{isAdmin ? 'Biro Sarana (Admin)' : 'Civitas Mahasiswa'}</span>
                 </div>
               </div>
             </div>
 
-            {/* Quota Indicator for Mahasiswa */}
+            {/* Quota Indicator for Mahasiswa (Hidden for Admin) */}
             {!isAdmin && (
               <div className="pt-2 border-t border-[#5c9ead]/20 flex items-center justify-between text-[11px]">
                 <span className="text-slate-500 font-medium flex items-center gap-1">
@@ -147,65 +174,62 @@ export default function Sidebar({
 
       {/* Main Navigation Menu */}
       <div className="flex-1 overflow-y-auto px-4 py-5 space-y-6">
-        {/* Navigation Group */}
         <div className="space-y-1.5">
           <span className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-            Menu Peminjaman
+            {isAdmin ? 'Panel Kendali Biro Sarana' : 'Menu Peminjaman'}
           </span>
 
           <nav className="space-y-1" aria-label="Menu Navigasi Sidebar">
-            {navItems
-              .filter((item) => !item.roleRequired || (item.roleRequired === 'admin' && isAdmin))
-              .map((item) => {
-                const Icon = item.icon;
-                const isActive = activeTab === item.id;
+            {navItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
 
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    onClick={() => handleNavClick(item.id)}
-                    aria-current={isActive ? 'page' : undefined}
-                    className={`w-full group p-3 rounded-2xl text-left transition-all flex items-center justify-between focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none ${
-                      isActive
-                        ? 'bg-[#326273] text-white shadow-md shadow-[#326273]/20 font-bold'
-                        : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
-                    }`}
-                  >
-                    <div className="flex items-center space-x-3 min-w-0">
+              return (
+                <button
+                  key={item.id}
+                  type="button"
+                  onClick={() => handleNavClick(item.id)}
+                  aria-current={isActive ? 'page' : undefined}
+                  className={`w-full group p-3 rounded-2xl text-left transition-all flex items-center justify-between focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none ${
+                    isActive
+                      ? 'bg-[#326273] text-white shadow-md shadow-[#326273]/20 font-bold'
+                      : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                  }`}
+                >
+                  <div className="flex items-center space-x-3 min-w-0">
+                    <div
+                      className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
+                        isActive
+                          ? 'bg-white/20 text-white'
+                          : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-[#326273]'
+                      }`}
+                    >
+                      <Icon className="w-4 h-4" aria-hidden="true" />
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-xs font-bold leading-tight truncate">
+                        {item.label}
+                      </div>
                       <div
-                        className={`w-9 h-9 rounded-xl flex items-center justify-center shrink-0 transition-colors ${
-                          isActive
-                            ? 'bg-white/20 text-white'
-                            : 'bg-slate-100 text-slate-500 group-hover:bg-slate-200 group-hover:text-[#326273]'
+                        className={`text-[10px] leading-tight truncate mt-0.5 ${
+                          isActive ? 'text-slate-200' : 'text-slate-400'
                         }`}
                       >
-                        <Icon className="w-4 h-4" aria-hidden="true" />
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs font-bold leading-tight truncate">
-                          {item.label}
-                        </div>
-                        <div
-                          className={`text-[10px] leading-tight truncate mt-0.5 ${
-                            isActive ? 'text-slate-200' : 'text-slate-400'
-                          }`}
-                        >
-                          {item.description}
-                        </div>
+                        {item.description}
                       </div>
                     </div>
-                    <ChevronRight
-                      className={`w-4 h-4 shrink-0 transition-transform ${
-                        isActive
-                          ? 'text-white translate-x-0.5'
-                          : 'text-slate-300 group-hover:text-slate-500'
-                      }`}
-                      aria-hidden="true"
-                    />
-                  </button>
-                );
-              })}
+                  </div>
+                  <ChevronRight
+                    className={`w-4 h-4 shrink-0 transition-transform ${
+                      isActive
+                        ? 'text-white translate-x-0.5'
+                        : 'text-slate-300 group-hover:text-slate-500'
+                    }`}
+                    aria-hidden="true"
+                  />
+                </button>
+              );
+            })}
           </nav>
         </div>
 
@@ -234,14 +258,14 @@ export default function Sidebar({
         <button
           type="button"
           onClick={() => setIsLogoutConfirmOpen(true)}
-          className="w-full py-2.5 px-3 rounded-2xl text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-rose-500"
+          className="w-full py-2.5 px-3 rounded-2xl text-xs font-bold text-rose-600 hover:text-rose-700 bg-rose-50 hover:bg-rose-100 border border-rose-200/60 transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-rose-500 cursor-pointer"
         >
           <LogOut className="w-4 h-4" aria-hidden="true" />
           <span>Keluar dari Akun</span>
         </button>
 
         <div className="text-center text-[10px] text-slate-400">
-          Kumpul-In Kampus • Layanan Sarana Terpadu
+          Kumpul-In Kampus • Biro Sarana Terpadu
         </div>
       </div>
 
@@ -249,7 +273,7 @@ export default function Sidebar({
       <ConfirmModal
         isOpen={isLogoutConfirmOpen}
         title="Konfirmasi Keluar Akun"
-        description={`Apakah Anda yakin ingin keluar dari akun ${currentUser?.name || ''}? Anda harus masuk kembali untuk meminjam ruangan.`}
+        description={`Apakah Anda yakin ingin keluar dari akun ${currentUser?.name || ''}? Anda harus masuk kembali untuk mengakses sistem.`}
         confirmText="Ya, Keluar Akun"
         cancelText="Batal"
         variant="danger"
