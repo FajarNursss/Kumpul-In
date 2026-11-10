@@ -155,6 +155,13 @@ export default function App() {
     }
   }, []);
 
+  // Security Guard: Prevent non-admins from opening the admin tab
+  useEffect(() => {
+    if (activeTab === 'admin' && currentUser && currentUser.role !== 'admin') {
+      navigateTo('catalog');
+    }
+  }, [activeTab, currentUser]);
+
   // Fetch Rooms
   const fetchRooms = async () => {
     try {
@@ -315,8 +322,6 @@ export default function App() {
         )}
 
         <LandingPage
-          currentUser={currentUser}
-          onLogout={handleLogout}
           onExploreCatalog={(category) => {
             navigateTo('catalog', category);
           }}
