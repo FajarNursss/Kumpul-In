@@ -163,8 +163,11 @@ export default function App() {
       const res = await roomService.getRooms(selectedCategory, minCapacity);
       if (res.success) {
         setRooms(res.data);
-        if (!selectedRoom && res.data.length > 0) {
-          setSelectedRoom(res.data[0]);
+        if (res.data.length > 0) {
+          setSelectedRoom((prev) => {
+            if (prev && res.data.some((r) => r.id === prev.id)) return prev;
+            return res.data[0];
+          });
         }
       }
     } catch (err) {
@@ -312,8 +315,10 @@ export default function App() {
         )}
 
         <LandingPage
-          onExploreCatalog={() => {
-            navigateTo('catalog');
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onExploreCatalog={(category) => {
+            navigateTo('catalog', category);
           }}
           onOpenAuth={handleOpenAuth}
         />
@@ -400,9 +405,19 @@ export default function App() {
                   <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
                     <span>Portal Peminjaman Ruang Kampus</span>
                   </span>
-                  {currentUser && (
-                    <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
-                      Sisa Kuota: {currentUser.booking_quota} slot aktif
+                  {currentUser ? (
+                    currentUser.role === 'admin' ? (
+                      <span className="text-xs bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full font-bold">
+                        Biro Sarana (Admin) • Mode Pratinjau Katalog
+                      </span>
+                    ) : (
+                      <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
+                        Civitas Aktif • Sisa Kuota: {currentUser.booking_quota} slot
+                      </span>
+                    )
+                  ) : (
+                    <span className="text-xs bg-white/15 text-white/90 border border-white/20 px-3 py-1 rounded-full font-bold">
+                      Akses Tamu / Publik
                     </span>
                   )}
                   <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
@@ -411,11 +426,36 @@ export default function App() {
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Halo, {currentUser?.name || 'Civitas Akademika Kampus'}!
+                  {currentUser
+                    ? `Halo, ${currentUser.name}!`
+                    : 'Katalog Fasilitas & Ruangan Kampus'}
                 </h1>
                 <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
-                  Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.
+                  {currentUser?.role === 'admin'
+                    ? 'Anda sedang melihat pratinjau katalog ruangan dan transparansi slot jadwal publik. Untuk mengelola atau mengedit fasilitas kampus, silakan gunakan tab Dashboard Admin di navigasi.'
+                    : currentUser
+                    ? 'Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.'
+                    : 'Anda sedang menjelajahi katalog fasilitas kampus sebagai Pengunjung/Tamu. Silakan cek ketersediaan slot waktu yang tersisa secara bebas. Masuk ke akun Civitas saat ingin melakukan peminjaman ruangan.'}
                 </p>
+
+                {!currentUser && (
+                  <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenAuth('login')}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all"
+                    >
+                      Masuk ke Akun
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleOpenAuth('register')}
+                      className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
+                    >
+                      Daftar Mahasiswa Baru
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
 
