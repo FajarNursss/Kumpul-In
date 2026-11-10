@@ -19,7 +19,7 @@ export default function Sidebar({
   const isAdmin = currentUser?.role === 'admin';
 
   // Navigation items dynamically structured by role
-  // For Admin: Dashboard is at the very top, followed by Riwayat, Kelola Fasilitas, Kelola Pengguna, and Pratinjau Katalog
+  // For Admin: Dashboard -> Pratinjau Katalog -> Kelola Fasilitas -> Kelola Pengguna -> Riwayat Peminjaman (di paling bawah)
   const navItems = isAdmin
     ? [
         {
@@ -29,10 +29,10 @@ export default function Sidebar({
           icon: Shield,
         },
         {
-          id: 'admin-bookings',
-          label: 'Riwayat Peminjaman',
-          description: 'Log aktivitas & reservasi',
-          icon: History,
+          id: 'catalog',
+          label: 'Pratinjau Katalog',
+          description: 'Lihat transparansi slot publik',
+          icon: LayoutGrid,
         },
         {
           id: 'admin-rooms',
@@ -47,10 +47,10 @@ export default function Sidebar({
           icon: Users,
         },
         {
-          id: 'catalog',
-          label: 'Pratinjau Katalog',
-          description: 'Lihat transparansi slot publik',
-          icon: LayoutGrid,
+          id: 'admin-bookings',
+          label: 'Riwayat Peminjaman',
+          description: 'Log aktivitas & reservasi',
+          icon: History,
         },
       ]
     : [

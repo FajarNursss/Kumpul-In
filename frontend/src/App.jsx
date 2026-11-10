@@ -479,66 +479,81 @@ export default function App() {
 
     return (
       <>
-        {/* User / Guest Welcome Banner */}
-        <div className="rounded-3xl bg-[#326273] text-white p-6 sm:p-8 shadow-sm border border-slate-700">
-          <div className="max-w-3xl space-y-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
-                <span>Portal Peminjaman Ruang Kampus</span>
-              </span>
-              {currentUser ? (
-                currentUser.role === 'admin' ? (
-                  <span className="text-xs bg-amber-500/20 text-amber-200 border border-amber-400/30 px-3 py-1 rounded-full font-bold">
-                    Biro Sarana (Admin) • Mode Pratinjau Katalog
-                  </span>
-                ) : (
+        {/* User / Guest Welcome Banner (Hanya untuk Mahasiswa / Tamu; Admin langsung melihat header katalog) */}
+        {currentUser?.role !== 'admin' ? (
+          <div className="rounded-3xl bg-[#326273] text-white p-6 sm:p-8 shadow-sm border border-slate-700">
+            <div className="max-w-3xl space-y-3">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-white/10 text-xs font-semibold text-white/90 border border-white/20">
+                  <span>Portal Peminjaman Ruang Kampus</span>
+                </span>
+                {currentUser ? (
                   <span className="text-xs bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 px-3 py-1 rounded-full font-bold">
                     Civitas Aktif • Sisa Kuota: {currentUser.booking_quota} slot
                   </span>
-                )
-              ) : (
-                <span className="text-xs bg-white/15 text-white/90 border border-white/20 px-3 py-1 rounded-full font-bold">
-                  Akses Tamu / Publik
+                ) : (
+                  <span className="text-xs bg-white/15 text-white/90 border border-white/20 px-3 py-1 rounded-full font-bold">
+                    Akses Tamu / Publik
+                  </span>
+                )}
+                <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
+                  ★ Fasilitas Akademik Bebas Biaya
                 </span>
+              </div>
+
+              <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
+                {currentUser ? `Halo, ${currentUser.name}!` : 'Katalog Fasilitas & Ruangan Kampus'}
+              </h1>
+              <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
+                {currentUser
+                  ? 'Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.'
+                  : 'Anda sedang menjelajahi katalog fasilitas kampus sebagai Pengunjung/Tamu. Silakan cek ketersediaan slot waktu yang tersisa secara bebas. Masuk ke akun Civitas saat ingin melakukan peminjaman ruangan.'}
+              </p>
+
+              {!currentUser && (
+                <div className="pt-2 flex flex-wrap items-center gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAuth('login')}
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all cursor-pointer"
+                  >
+                    Masuk ke Akun
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleOpenAuth('register')}
+                    className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all cursor-pointer"
+                  >
+                    Daftar Mahasiswa Baru
+                  </button>
+                </div>
               )}
-              <span className="text-xs bg-[#e39774]/30 text-amber-200 border border-[#e39774]/40 px-3 py-1 rounded-full font-bold">
-                ★ Fasilitas Akademik Bebas Biaya
+            </div>
+          </div>
+        ) : (
+          /* Header Bersih Khusus Pratinjau Admin (Tanpa kotak sapaan AI slop) */
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
+                  Pratinjau Publik
+                </span>
+              </div>
+              <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
+                Pratinjau Katalog Fasilitas Kampus
+              </h1>
+              <p className="text-xs text-slate-500 mt-0.5">
+                Pantau tampilan katalog ruangan dan transparansi ketersediaan slot jadwal sebagaimana dilihat oleh mahasiswa dan publik.
+              </p>
+            </div>
+            <div className="flex items-center gap-2">
+              <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200/80 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-2xs">
+                <Shield className="w-3.5 h-3.5 text-amber-600" />
+                <span>Mode Pratinjau (Hanya Pantau)</span>
               </span>
             </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-              {currentUser
-                ? `Halo, ${currentUser.name}!`
-                : 'Katalog Fasilitas & Ruangan Kampus'}
-            </h1>
-            <p className="text-xs sm:text-sm text-slate-200 leading-relaxed max-w-2xl">
-              {currentUser?.role === 'admin'
-                ? 'Anda sedang melihat pratinjau katalog ruangan dan transparansi slot jadwal publik. Untuk mengelola atau mengedit fasilitas kampus, silakan gunakan menu Dashboard Admin di sidebar.'
-                : currentUser
-                ? 'Pilih fasilitas Aula, Perpustakaan, Meeting Room, atau Ruang Belajar Mandiri. Cek transparansi ketersediaan slot waktu secara real-time dan ajukan peminjaman tanpa bentrok.'
-                : 'Anda sedang menjelajahi katalog fasilitas kampus sebagai Pengunjung/Tamu. Silakan cek ketersediaan slot waktu yang tersisa secara bebas. Masuk ke akun Civitas saat ingin melakukan peminjaman ruangan.'}
-            </p>
-
-            {!currentUser && (
-              <div className="pt-2 flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => handleOpenAuth('login')}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-[#e39774] text-white hover:bg-[#d58560] shadow-sm transition-all"
-                >
-                  Masuk ke Akun
-                </button>
-                <button
-                  type="button"
-                  onClick={() => handleOpenAuth('register')}
-                  className="px-4 py-2 rounded-xl text-xs font-bold bg-white/10 hover:bg-white/20 text-white border border-white/20 transition-all"
-                >
-                  Daftar Mahasiswa Baru
-                </button>
-              </div>
-            )}
           </div>
-        </div>
+        )}
 
         {/* Catalog & Filter Section (US-01) */}
         <section className="space-y-4">

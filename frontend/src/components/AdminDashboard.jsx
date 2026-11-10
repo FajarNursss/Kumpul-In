@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { adminService, roomService } from '../services/api';
 import ConfirmModal from './ConfirmModal';
 import { formatDateIndo, formatTimeClean } from '../utils/formatters';
@@ -18,9 +18,17 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
   const [loading, setLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Filters
+  // Riwayat Peminjaman Filter
   const [statusFilter, setStatusFilter] = useState('');
+
+  // Kelola Fasilitas Filter & Search
+  const [roomSearchQuery, setRoomSearchQuery] = useState('');
+  const [roomCategoryFilter, setRoomCategoryFilter] = useState('all');
+  const [roomStatusFilter, setRoomStatusFilter] = useState('all');
+
+  // Kelola Pengguna Filter & Search
   const [userRoleFilter, setUserRoleFilter] = useState('all');
+  const [userQuotaFilter, setUserQuotaFilter] = useState('all');
   const [userSearchQuery, setUserSearchQuery] = useState('');
 
   // Confirmation Modal State
@@ -96,7 +104,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
     fetchAdminData();
   }, [statusFilter, userRoleFilter]);
 
-  // Handle Search Users with debounce
+  // Handle Search Users with debounce for server sync
   useEffect(() => {
     const timer = setTimeout(() => {
       adminService.getUsers({
@@ -122,6 +130,50 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
       }, 750);
     }
   };
+
+  // Filtered Rooms for Kelola Fasilitas
+  const filteredRooms = useMemo(() => {
+    return rooms.filter((room) => {
+      if (roomSearchQuery.trim()) {
+        const q = roomSearchQuery.toLowerCase().trim();
+        const matchName = room.name.toLowerCase().includes(q);
+        const matchCat = room.category.toLowerCase().includes(q);
+        if (!matchName && !matchCat) return false;
+      }
+      if (roomCategoryFilter !== 'all' && room.category !== roomCategoryFilter) {
+        return false;
+      }
+      if (roomStatusFilter === 'active' && !room.is_active) {
+        return false;
+      }
+      if (roomStatusFilter === 'inactive' && room.is_active) {
+        return false;
+      }
+      return true;
+    });
+  }, [rooms, roomSearchQuery, roomCategoryFilter, roomStatusFilter]);
+
+  // Filtered Users for Kelola Pengguna
+  const filteredUsersList = useMemo(() => {
+    return usersList.filter((user) => {
+      if (userSearchQuery.trim()) {
+        const q = userSearchQuery.toLowerCase().trim();
+        const matchName = user.name?.toLowerCase().includes(q);
+        const matchEmail = user.email?.toLowerCase().includes(q);
+        if (!matchName && !matchEmail) return false;
+      }
+      if (userRoleFilter !== 'all' && user.role !== userRoleFilter) {
+        return false;
+      }
+      if (userQuotaFilter === 'has_quota' && user.booking_quota <= 0 && user.role !== 'admin') {
+        return false;
+      }
+      if (userQuotaFilter === 'zero_quota' && (user.booking_quota > 0 || user.role === 'admin')) {
+        return false;
+      }
+      return true;
+    });
+  }, [usersList, userSearchQuery, userRoleFilter, userQuotaFilter]);
 
   // Status Change Confirmation
   const handleUpdateBookingStatus = (booking, newStatus) => {
@@ -368,8 +420,8 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
 
   return (
     <div className="space-y-6 max-w-7xl mx-auto">
-      {/* Header Banner */}
-      <div className="p-6 rounded-3xl bg-[#326273] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-slate-700">
+      {/* Header Banner with Personalized Greeting on Dashboard */}
+      <div className="p-6 sm:p-7 rounded-3xl bg-[#326273] text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm border border-slate-700">
         <div className="flex items-center space-x-3.5">
           <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-white shrink-0 border border-white/20">
             <Shield className="w-6 h-6" />
@@ -379,12 +431,15 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
               <span className="text-[10px] uppercase font-bold tracking-wider px-2.5 py-0.5 rounded-full bg-white/10 text-[#5c9ead] border border-[#5c9ead]/40">
                 Pusat Kendali Biro Sarana
               </span>
+              <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-[#e39774]/20 text-amber-200 border border-[#e39774]/30">
+                Administrator
+              </span>
             </div>
             <h1 className="text-xl sm:text-2xl font-black mt-1 tracking-tight">
-              Dashboard Biro Sarana & Fasilitas Kampus
+              Halo, {currentUser?.name || 'Biro Sarana Kampus'}!
             </h1>
-            <p className="text-xs text-slate-200 mt-0.5">
-              Kelola fasilitas kampus, verifikasi peminjaman, pantau riwayat civitas, dan atur akun pengguna.
+            <p className="text-xs text-slate-200 mt-0.5 max-w-2xl">
+              Selamat datang di Dashboard Biro Sarana & Fasilitas Kampus. Pantau permohonan peminjaman, kelola ruangan & fasilitas, serta atur akun civitas kampus.
             </p>
           </div>
         </div>
@@ -394,7 +449,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
           type="button"
           onClick={handleRefresh}
           disabled={isRefreshing}
-          className="self-start sm:self-auto px-4 py-2.5 rounded-2xl text-xs font-bold bg-white/10 hover:bg-white/20 active:bg-white/30 text-white transition-all flex items-center gap-2 border border-white/20 shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-white"
+          className="self-start sm:self-auto px-4 py-2.5 rounded-2xl text-xs font-bold bg-white/10 hover:bg-white/20 active:bg-white/30 text-white transition-all flex items-center gap-2 border border-white/20 shadow-xs cursor-pointer focus-visible:ring-2 focus-visible:ring-white shrink-0"
           title="Segarkan data terbaru dari server"
         >
           <RefreshCw className={`w-3.5 h-3.5 ${isRefreshing ? 'animate-spin' : ''}`} />
@@ -447,7 +502,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
         </div>
       </div>
 
-      {/* Internal Sub-Tabs Navigation */}
+      {/* Internal Sub-Tabs Navigation (Order: Dashboard -> Kelola Fasilitas -> Kelola Pengguna -> Riwayat di paling bawah) */}
       <div className="flex border-b border-slate-200 gap-2 sm:gap-6 text-xs sm:text-sm font-bold overflow-x-auto scrollbar-none">
         <button
           type="button"
@@ -460,22 +515,6 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
         >
           <Shield className="w-4 h-4" />
           <span>Ringkasan Dashboard</span>
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setActiveTab('admin-bookings')}
-          className={`pb-3.5 transition-all border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
-            activeTab === 'admin-bookings'
-              ? 'border-[#326273] text-[#326273]'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
-          }`}
-        >
-          <History className="w-4 h-4" />
-          <span>Riwayat Peminjaman</span>
-          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-            {bookings.length}
-          </span>
         </button>
 
         <button
@@ -507,6 +546,22 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
           <span>Kelola Pengguna</span>
           <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
             {usersList.length}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setActiveTab('admin-bookings')}
+          className={`pb-3.5 transition-all border-b-2 flex items-center gap-2 whitespace-nowrap cursor-pointer ${
+            activeTab === 'admin-bookings'
+              ? 'border-[#326273] text-[#326273]'
+              : 'border-transparent text-slate-500 hover:text-slate-800'
+          }`}
+        >
+          <History className="w-4 h-4" />
+          <span>Riwayat Peminjaman</span>
+          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            {bookings.length}
           </span>
         </button>
       </div>
@@ -603,7 +658,373 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
         </div>
       )}
 
-      {/* SECTION 2: RIWAYAT PEMINJAMAN (HISTORY / ACTIVITY) */}
+      {/* SECTION 2: KELOLA FASILITAS (ROOM CRUD WITH SEARCH & FILTER) */}
+      {activeTab === 'admin-rooms' && (
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-slate-800">Daftar & Pengelolaan Fasilitas Kampus</h3>
+              <p className="text-xs text-slate-500">
+                Kelola data fasilitas ruangan, aktifkan atau nonaktifkan jadwal, serta tambahkan sarana baru.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => setIsAddRoomOpen(true)}
+              className="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer shrink-0"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Tambah Fasilitas Baru</span>
+            </button>
+          </div>
+
+          {/* Filter & Search Toolbar */}
+          <div className="bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+              {/* Search Room */}
+              <div className="relative flex-1 min-w-[200px] max-w-sm">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari nama fasilitas atau ruangan..."
+                  value={roomSearchQuery}
+                  onChange={(e) => setRoomSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-2 rounded-xl border border-slate-200 bg-slate-50 text-xs focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                />
+                {roomSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setRoomSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Filter Kategori */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400">Kategori:</span>
+                <select
+                  value={roomCategoryFilter}
+                  onChange={(e) => setRoomCategoryFilter(e.target.value)}
+                  className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-2 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                >
+                  <option value="all">Semua Kategori</option>
+                  <option value="Aula">Aula</option>
+                  <option value="Perpustakaan">Perpustakaan</option>
+                  <option value="Meeting Room">Meeting Room</option>
+                  <option value="Ruang Belajar">Ruang Belajar</option>
+                </select>
+              </div>
+
+              {/* Filter Status Aktif */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400">Status:</span>
+                <select
+                  value={roomStatusFilter}
+                  onChange={(e) => setRoomStatusFilter(e.target.value)}
+                  className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-2 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                >
+                  <option value="all">Semua Status</option>
+                  <option value="active">Hanya Aktif</option>
+                  <option value="inactive">Hanya Non-Aktif</option>
+                </select>
+              </div>
+
+              {/* Reset Filter Button */}
+              {(roomSearchQuery || roomCategoryFilter !== 'all' || roomStatusFilter !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setRoomSearchQuery('');
+                    setRoomCategoryFilter('all');
+                    setRoomStatusFilter('all');
+                  }}
+                  className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline px-2 py-1"
+                >
+                  Reset Filter
+                </button>
+              )}
+            </div>
+
+            <div className="text-xs text-slate-400 font-medium">
+              Menampilkan <strong className="text-slate-700">{filteredRooms.length}</strong> dari {rooms.length} fasilitas
+            </div>
+          </div>
+
+          {/* Rooms Grid */}
+          {filteredRooms.length === 0 ? (
+            <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center space-y-3">
+              <Building2 className="w-10 h-10 text-slate-300 mx-auto" />
+              <p className="text-sm font-semibold text-slate-600">
+                Tidak ada fasilitas yang cocok dengan pencarian atau filter yang dipilih.
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  setRoomSearchQuery('');
+                  setRoomCategoryFilter('all');
+                  setRoomStatusFilter('all');
+                }}
+                className="px-4 py-2 rounded-xl text-xs font-bold bg-slate-100 text-[#326273] hover:bg-slate-200 cursor-pointer"
+              >
+                Reset Semua Filter
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {filteredRooms.map((room) => (
+                <div
+                  key={room.id}
+                  className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                        {room.category}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => handleToggleRoomActive(room)}
+                        className="flex items-center gap-1 text-xs font-semibold cursor-pointer"
+                        title="Klik untuk toggle status aktif"
+                      >
+                        {room.is_active ? (
+                          <span className="text-emerald-600 flex items-center gap-1 font-bold">
+                            <ToggleRight className="w-5 h-5 text-emerald-600" /> Aktif
+                          </span>
+                        ) : (
+                          <span className="text-slate-400 flex items-center gap-1 font-semibold">
+                            <ToggleLeft className="w-5 h-5 text-slate-400" /> Non-Aktif
+                          </span>
+                        )}
+                      </button>
+                    </div>
+
+                    <h4 className="text-base font-bold text-slate-900">{room.name}</h4>
+                    <p className="text-xs text-slate-500 mt-1">
+                      Kapasitas: <strong className="text-slate-800">{room.capacity} Orang</strong> •{' '}
+                      <span className="text-emerald-700 font-semibold">Fasilitas Bebas Biaya</span>
+                    </p>
+                  </div>
+
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-1">
+                    <button
+                      type="button"
+                      onClick={() => handleOpenEditRoom(room)}
+                      className="p-2 rounded-xl text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
+                      title="Ubah Data Fasilitas"
+                    >
+                      <Edit3 className="w-4 h-4" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => handleDeleteRoom(room)}
+                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      title="Hapus Fasilitas Ruangan"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* SECTION 3: KELOLA PENGGUNA (USER CRUD WITH SEARCH & FILTER) */}
+      {activeTab === 'admin-users' && (
+        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden space-y-4">
+          {/* Header & Controls */}
+          <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-base font-bold text-slate-900">Kelola Pengguna Sistem</h3>
+              <p className="text-xs text-slate-500">
+                Manajemen akun Civitas Mahasiswa dan Administrator Biro Sarana serta kuota peminjaman aktif.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setIsAddUserOpen(true)}
+              className="px-4 py-2 rounded-xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs transition-all flex items-center gap-1.5 self-start md:self-auto cursor-pointer shrink-0"
+            >
+              <UserPlus className="w-4 h-4" />
+              <span>Tambah Pengguna Baru</span>
+            </button>
+          </div>
+
+          {/* Filter Toolbar for Users */}
+          <div className="px-5 py-3 bg-slate-50/70 border-b border-slate-100 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+              {/* Search Bar */}
+              <div className="relative flex-1 min-w-[200px] max-w-sm">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Cari nama atau email civitas..."
+                  value={userSearchQuery}
+                  onChange={(e) => setUserSearchQuery(e.target.value)}
+                  className="w-full pl-9 pr-8 py-1.5 rounded-xl border border-slate-200 bg-white text-xs focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                />
+                {userSearchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setUserSearchQuery('')}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Role Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400">Peran:</span>
+                <select
+                  value={userRoleFilter}
+                  onChange={(e) => setUserRoleFilter(e.target.value)}
+                  className="text-xs rounded-xl border border-slate-200 bg-white py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                >
+                  <option value="all">Semua Peran</option>
+                  <option value="mahasiswa">Civitas Mahasiswa</option>
+                  <option value="admin">Biro Sarana (Admin)</option>
+                </select>
+              </div>
+
+              {/* Quota Filter */}
+              <div className="flex items-center gap-1.5">
+                <span className="text-xs font-semibold text-slate-400">Kuota:</span>
+                <select
+                  value={userQuotaFilter}
+                  onChange={(e) => setUserQuotaFilter(e.target.value)}
+                  className="text-xs rounded-xl border border-slate-200 bg-white py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                >
+                  <option value="all">Semua Kuota</option>
+                  <option value="has_quota">Kuota Tersedia (&gt; 0)</option>
+                  <option value="zero_quota">Kuota Habis (0 Slot)</option>
+                </select>
+              </div>
+
+              {/* Reset Filter Button */}
+              {(userSearchQuery || userRoleFilter !== 'all' || userQuotaFilter !== 'all') && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setUserSearchQuery('');
+                    setUserRoleFilter('all');
+                    setUserQuotaFilter('all');
+                  }}
+                  className="text-xs font-bold text-rose-600 hover:text-rose-700 hover:underline px-2 py-1"
+                >
+                  Reset Filter
+                </button>
+              )}
+            </div>
+
+            <div className="text-xs text-slate-400 font-medium">
+              Menampilkan <strong className="text-slate-700">{filteredUsersList.length}</strong> dari {usersList.length} pengguna
+            </div>
+          </div>
+
+          {/* Users Table */}
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr className="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
+                  <th scope="col" className="py-3 px-4">Nama Civitas</th>
+                  <th scope="col" className="py-3 px-4">Alamat Email</th>
+                  <th scope="col" className="py-3 px-4">Peran Sistem</th>
+                  <th scope="col" className="py-3 px-4">Sisa Kuota</th>
+                  <th scope="col" className="py-3 px-4">Total Peminjaman</th>
+                  <th scope="col" className="py-3 px-4 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {filteredUsersList.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      Tidak ada data pengguna yang sesuai dengan filter atau pencarian.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsersList.map((u) => {
+                    const isSelf = u.id === currentUser?.id;
+                    return (
+                      <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
+                        <td className="py-3.5 px-4 font-bold text-slate-900">
+                          <div className="flex items-center gap-2">
+                            <span>{u.name}</span>
+                            {isSelf && (
+                              <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">
+                                Akun Anda
+                              </span>
+                            )}
+                          </div>
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-600 font-mono">
+                          {u.email}
+                        </td>
+                        <td className="py-3.5 px-4">
+                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
+                            u.role === 'admin'
+                              ? 'bg-[#326273]/15 text-[#326273]'
+                              : 'bg-emerald-100 text-emerald-800'
+                          }`}>
+                            {u.role === 'admin' ? 'Biro Sarana (Admin)' : 'Civitas Mahasiswa'}
+                          </span>
+                        </td>
+                        <td className="py-3.5 px-4 font-bold">
+                          {u.role === 'admin' ? (
+                            <span className="text-slate-400 font-normal">Tak Terbatas</span>
+                          ) : (
+                            <span className={u.booking_quota > 0 ? 'text-emerald-700' : 'text-rose-700'}>
+                              {u.booking_quota} Slot
+                            </span>
+                          )}
+                        </td>
+                        <td className="py-3.5 px-4 text-slate-700 font-semibold">
+                          {u.bookings_count ?? 0} Kali
+                        </td>
+                        <td className="py-3.5 px-4 text-right">
+                          <div className="flex items-center justify-end space-x-1">
+                            <button
+                              type="button"
+                              onClick={() => handleOpenEditUser(u)}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
+                              title="Ubah Data Pengguna"
+                            >
+                              <Edit3 className="w-3.5 h-3.5" />
+                            </button>
+                            {!isSelf && (
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteUser(u)}
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                                title="Hapus Pengguna"
+                              >
+                                <Trash2 className="w-3.5 h-3.5" />
+                              </button>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          <div className="p-4 border-t border-slate-100 text-right text-xs text-slate-400">
+            Total {usersList.length} pengguna terdaftar pada sistem
+          </div>
+        </div>
+      )}
+
+      {/* SECTION 4: RIWAYAT PEMINJAMAN (HISTORY / ACTIVITY - DI PALING BAWAH) */}
       {activeTab === 'admin-bookings' && (
         <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden space-y-4">
           {/* Header & Filter Bar */}
@@ -733,229 +1154,6 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
         </div>
       )}
 
-      {/* SECTION 3: KELOLA FASILITAS (ROOM CRUD) */}
-      {activeTab === 'admin-rooms' && (
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-800">Daftar Fasilitas Ruangan Kampus</h3>
-              <p className="text-xs text-slate-500">
-                Kelola data fasilitas ruangan, aktifkan atau nonaktifkan jadwal, serta tambahkan sarana baru.
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={() => setIsAddRoomOpen(true)}
-              className="px-4 py-2.5 rounded-2xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs transition-all flex items-center gap-1.5 self-start sm:self-auto cursor-pointer"
-            >
-              <Plus className="w-4 h-4" />
-              <span>Tambah Fasilitas Baru</span>
-            </button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {rooms.map((room) => (
-              <div
-                key={room.id}
-                className="bg-white p-5 rounded-3xl border border-slate-200 shadow-xs flex flex-col justify-between space-y-3"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
-                      {room.category}
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => handleToggleRoomActive(room)}
-                      className="flex items-center gap-1 text-xs font-semibold cursor-pointer"
-                      title="Klik untuk toggle status aktif"
-                    >
-                      {room.is_active ? (
-                        <span className="text-emerald-600 flex items-center gap-1 font-bold">
-                          <ToggleRight className="w-5 h-5 text-emerald-600" /> Aktif
-                        </span>
-                      ) : (
-                        <span className="text-slate-400 flex items-center gap-1 font-semibold">
-                          <ToggleLeft className="w-5 h-5 text-slate-400" /> Non-Aktif
-                        </span>
-                      )}
-                    </button>
-                  </div>
-
-                  <h4 className="text-base font-bold text-slate-900">{room.name}</h4>
-                  <p className="text-xs text-slate-500 mt-1">
-                    Kapasitas: <strong className="text-slate-800">{room.capacity} Orang</strong> •{' '}
-                    <span className="text-emerald-700 font-semibold">Fasilitas Bebas Biaya</span>
-                  </p>
-                </div>
-
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-1">
-                  <button
-                    type="button"
-                    onClick={() => handleOpenEditRoom(room)}
-                    className="p-2 rounded-xl text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
-                    title="Ubah Data Fasilitas"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => handleDeleteRoom(room)}
-                    className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                    title="Hapus Fasilitas Ruangan"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* SECTION 4: KELOLA PENGGUNA (USER CRUD) */}
-      {activeTab === 'admin-users' && (
-        <div className="bg-white rounded-3xl border border-slate-200 shadow-xs overflow-hidden space-y-4">
-          {/* Header & Controls */}
-          <div className="p-5 border-b border-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <h3 className="text-base font-bold text-slate-900">Kelola Pengguna Sistem</h3>
-              <p className="text-xs text-slate-500">
-                Manajemen akun Civitas Mahasiswa dan Administrator Biro Sarana serta kuota peminjaman aktif.
-              </p>
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2.5">
-              {/* Search Bar */}
-              <div className="relative">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Cari nama atau email..."
-                  value={userSearchQuery}
-                  onChange={(e) => setUserSearchQuery(e.target.value)}
-                  className="pl-9 pr-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs w-48 sm:w-56 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
-                />
-              </div>
-
-              {/* Role Filter */}
-              <select
-                value={userRoleFilter}
-                onChange={(e) => setUserRoleFilter(e.target.value)}
-                className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
-              >
-                <option value="all">Semua Peran</option>
-                <option value="mahasiswa">Civitas Mahasiswa</option>
-                <option value="admin">Biro Sarana (Admin)</option>
-              </select>
-
-              {/* Add User Button */}
-              <button
-                type="button"
-                onClick={() => setIsAddUserOpen(true)}
-                className="px-3.5 py-1.5 rounded-xl text-xs font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs transition-all flex items-center gap-1.5 cursor-pointer"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Tambah Pengguna</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Users Table */}
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-xs">
-              <thead>
-                <tr className="bg-slate-50 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider text-[11px]">
-                  <th scope="col" className="py-3 px-4">Nama Civitas</th>
-                  <th scope="col" className="py-3 px-4">Alamat Email</th>
-                  <th scope="col" className="py-3 px-4">Peran Sistem</th>
-                  <th scope="col" className="py-3 px-4">Sisa Kuota</th>
-                  <th scope="col" className="py-3 px-4">Total Peminjaman</th>
-                  <th scope="col" className="py-3 px-4 text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100">
-                {usersList.length === 0 ? (
-                  <tr>
-                    <td colSpan={6} className="py-12 text-center text-slate-400">
-                      Tidak ada data pengguna yang sesuai dengan pencarian.
-                    </td>
-                  </tr>
-                ) : (
-                  usersList.map((u) => {
-                    const isSelf = u.id === currentUser?.id;
-                    return (
-                      <tr key={u.id} className="hover:bg-slate-50/70 transition-colors">
-                        <td className="py-3.5 px-4 font-bold text-slate-900">
-                          <div className="flex items-center gap-2">
-                            <span>{u.name}</span>
-                            {isSelf && (
-                              <span className="text-[10px] bg-slate-100 text-slate-600 px-1.5 py-0.5 rounded font-semibold">
-                                Akun Anda
-                              </span>
-                            )}
-                          </div>
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-600 font-mono">
-                          {u.email}
-                        </td>
-                        <td className="py-3.5 px-4">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
-                            u.role === 'admin'
-                              ? 'bg-[#326273]/15 text-[#326273]'
-                              : 'bg-emerald-100 text-emerald-800'
-                          }`}>
-                            {u.role === 'admin' ? 'Biro Sarana (Admin)' : 'Civitas Mahasiswa'}
-                          </span>
-                        </td>
-                        <td className="py-3.5 px-4 font-bold">
-                          {u.role === 'admin' ? (
-                            <span className="text-slate-400 font-normal">Tak Terbatas</span>
-                          ) : (
-                            <span className={u.booking_quota > 0 ? 'text-emerald-700' : 'text-rose-700'}>
-                              {u.booking_quota} Slot
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-3.5 px-4 text-slate-700 font-semibold">
-                          {u.bookings_count ?? 0} Kali
-                        </td>
-                        <td className="py-3.5 px-4 text-right">
-                          <div className="flex items-center justify-end space-x-1">
-                            <button
-                              type="button"
-                              onClick={() => handleOpenEditUser(u)}
-                              className="p-1.5 rounded-lg text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
-                              title="Ubah Data Pengguna"
-                            >
-                              <Edit3 className="w-3.5 h-3.5" />
-                            </button>
-                            {!isSelf && (
-                              <button
-                                type="button"
-                                onClick={() => handleDeleteUser(u)}
-                                className="p-1.5 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                                title="Hapus Pengguna"
-                              >
-                                <Trash2 className="w-3.5 h-3.5" />
-                              </button>
-                            )}
-                          </div>
-                        </td>
-                      </tr>
-                    );
-                  })
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          <div className="p-4 border-t border-slate-100 text-right text-xs text-slate-400">
-            Total {usersList.length} pengguna terdaftar pada sistem
-          </div>
-        </div>
-      )}
-
       {/* MODAL 1: Tambah Fasilitas Ruangan */}
       {isAddRoomOpen && (
         <div
@@ -1071,7 +1269,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 <label className="block font-semibold text-slate-700 mb-1">Kategori Fasilitas</label>
                 <select
                   value={editRoomCategory}
-                  onChange={(e) => setEditRoomCategory(e.target.value)}
+                  onChange={(e) => setNewRoomCategory(e.target.value)}
                   className="w-full rounded-xl border border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
                 >
                   <option value="Aula">Aula</option>
