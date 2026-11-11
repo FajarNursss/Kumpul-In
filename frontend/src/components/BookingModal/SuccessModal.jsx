@@ -44,19 +44,19 @@ export default function SuccessModal({ bookingData, onClose }) {
       <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 p-6 sm:p-8 space-y-6 my-auto relative animate-scale-in">
         {/* Top Celebration Icon */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-600 flex items-center justify-center mx-auto shadow-inner">
-            <CheckCircle2 className="w-10 h-10" aria-hidden="true" />
+          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-200">
+            <Clock className="w-10 h-10 animate-pulse" aria-hidden="true" />
           </div>
-          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">Peminjaman Berhasil!</h2>
-          <p className="text-xs text-slate-500">
-            Permohonan peminjaman Anda telah dikonfirmasi secara instan oleh sistem Kumpul-In Kampus.
+          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">Permohonan Berhasil Diajukan!</h2>
+          <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
+            Permohonan peminjaman ruangan Anda telah terkirim. Status peminjaman saat ini <strong>Menunggu Persetujuan</strong> dari admin Biro Sarana Kampus.
           </p>
         </div>
 
         {/* Booking Code Box */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4 text-center space-y-1.5">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Kode Peminjaman Sah
+            Kode Permohonan Reservasi
           </span>
           <div className="flex items-center justify-center space-x-2">
             <span className="text-lg sm:text-xl font-mono font-black text-[#326273] tracking-wide">
@@ -65,9 +65,9 @@ export default function SuccessModal({ bookingData, onClose }) {
             <button
               type="button"
               onClick={handleCopy}
-              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
-              title="Salin Kode Booking"
-              aria-label="Salin Kode Booking Resmi"
+              className="p-1.5 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-200/60 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer"
+              title="Salin Kode Permohonan"
+              aria-label="Salin Kode Permohonan"
             >
               {copied ? <Check className="w-4 h-4 text-emerald-600" aria-hidden="true" /> : <Copy className="w-4 h-4" aria-hidden="true" />}
             </button>
@@ -93,8 +93,16 @@ export default function SuccessModal({ bookingData, onClose }) {
 
           <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
             <span className="text-slate-400">Tipe Peminjaman</span>
-            <span className="font-semibold text-slate-700 capitalize">
-              {bookingData.duration_type === 'daily' ? 'Harian Penuh (Daily)' : 'Per Jam (Hourly)'}
+            <span className="font-semibold text-slate-700">
+              {bookingData.duration_type === 'daily' ? 'Seharian Penuh' : 'Sesi Jam'}
+            </span>
+          </div>
+
+          <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
+            <span className="text-slate-400">Status Permohonan</span>
+            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+              <Clock className="w-3 h-3 text-amber-600" />
+              <span>Menunggu Verifikasi Admin</span>
             </span>
           </div>
 

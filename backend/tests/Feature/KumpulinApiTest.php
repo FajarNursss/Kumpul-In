@@ -306,4 +306,110 @@ class KumpulinApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonPath('success', false);
     }
+
+    public function test_mahasiswa_booking_starts_with_pending_status_awaiting_approval()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(2)->format('Y-m-d'),
+            'duration_type' => 'hourly',
+            'start_time' => '11:00',
+            'end_time' => '12:00',
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.status', 'pending');
+    }
+
+    public function test_admin_can_approve_pending_booking()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+
+        $booking = Booking::create([
+            'booking_code' => 'KMP-PENDING-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(4)->format('Y-m-d'),
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin, 'sanctum')->patchJson("/api/admin/bookings/{$booking->id}/status", [
+            'status' => 'confirmed',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.status', 'confirmed');
+
+        $this->assertEquals('confirmed', $booking->fresh()->status);
+    }
+
+    public function test_admin_can_reject_pending_booking_and_refund_quota()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+        $initialQuota = $mahasiswa->booking_quota;
+
+        $booking = Booking::create([
+            'booking_code' => 'KMP-REJECT-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(5)->format('Y-m-d'),
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin, 'sanctum')->patchJson("/api/admin/bookings/{$booking->id}/status", [
+            'status' => 'rejected',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.status', 'rejected');
+
+        $this->assertEquals('rejected', $booking->fresh()->status);
+        $this->assertEquals($initialQuota + 1, $mahasiswa->fresh()->booking_quota);
+    }
+
+    public function test_pending_booking_locks_slot_and_prevents_conflict()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+
+        // Create pending booking
+        Booking::create([
+            'booking_code' => 'KMP-LOCK-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(6)->format('Y-m-d'),
+            'start_time' => '13:00:00',
+            'end_time' => '14:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'pending',
+        ]);
+
+        // Attempt another booking at overlapping time
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(6)->format('Y-m-d'),
+            'duration_type' => 'hourly',
+            'start_time' => '13:00',
+            'end_time' => '14:00',
+        ]);
+
+        $response->assertStatus(422)
+            ->assertJsonPath('success', false);
+    }
 }

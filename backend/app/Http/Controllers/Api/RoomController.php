@@ -54,10 +54,10 @@ class RoomController extends Controller
             ['start' => '17:00:00', 'end' => '18:00:00', 'label' => '17:00 - 18:00'],
         ];
 
-        // Retrieve all confirmed bookings on this room and date
+        // Retrieve all active bookings on this room and date (confirmed or pending approval)
         $bookings = Booking::where('room_id', $room->id)
             ->whereDate('booking_date', $date)
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['confirmed', 'pending'])
             ->get();
 
         // Check if there is any daily booking on this date

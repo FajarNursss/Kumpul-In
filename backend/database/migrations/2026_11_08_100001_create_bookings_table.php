@@ -21,7 +21,7 @@ return new class extends Migration
             $table->time('end_time');
             $table->enum('duration_type', ['hourly', 'daily'])->default('hourly');
             $table->string('proposal_path', 255)->nullable();
-            $table->enum('status', ['confirmed', 'cancelled'])->default('confirmed');
+            $table->enum('status', ['pending', 'confirmed', 'rejected', 'cancelled'])->default('pending');
             $table->timestamps();
         });
     }

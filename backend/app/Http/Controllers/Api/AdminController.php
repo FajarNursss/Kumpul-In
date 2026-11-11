@@ -35,6 +35,7 @@ class AdminController extends Controller
         $totalRooms = Room::count();
         $activeRooms = Room::where('is_active', true)->count();
         $totalBookings = Booking::count();
+        $pendingBookings = Booking::where('status', 'pending')->count();
         $confirmedBookings = Booking::where('status', 'confirmed')->count();
         $todayBookings = Booking::whereDate('booking_date', now()->format('Y-m-d'))->count();
 
@@ -45,6 +46,7 @@ class AdminController extends Controller
                 'total_rooms' => $totalRooms,
                 'active_rooms' => $activeRooms,
                 'total_bookings' => $totalBookings,
+                'pending_bookings' => $pendingBookings,
                 'confirmed_bookings' => $confirmedBookings,
                 'today_bookings' => $todayBookings,
             ],
@@ -84,7 +86,7 @@ class AdminController extends Controller
         $this->authorizeAdmin($request);
 
         $validated = $request->validate([
-            'status' => 'required|in:confirmed,cancelled',
+            'status' => 'required|in:confirmed,rejected,cancelled',
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -94,14 +96,21 @@ class AdminController extends Controller
         $booking->status = $newStatus;
         $booking->save();
 
-        // If booking is cancelled, restore user quota
-        if ($oldStatus === 'confirmed' && $newStatus === 'cancelled') {
+        // If booking is rejected or cancelled, restore user quota
+        if (in_array($oldStatus, ['pending', 'confirmed']) && in_array($newStatus, ['rejected', 'cancelled'])) {
             $booking->user->increment('booking_quota');
         }
 
+        $statusLabels = [
+            'confirmed' => 'Disetujui',
+            'rejected' => 'Ditolak',
+            'cancelled' => 'Dibatalkan',
+        ];
+        $label = $statusLabels[$newStatus] ?? $newStatus;
+
         return response()->json([
             'success' => true,
-            'message' => "Status reservasi {$booking->booking_code} berhasil diperbarui menjadi {$newStatus}.",
+            'message' => "Permohonan reservasi {$booking->booking_code} berhasil diubah statusnya menjadi \"{$label}\".",
             'data' => $booking->fresh(['user', 'room']),
         ]);
     }

@@ -101,10 +101,10 @@ class BookingController extends Controller
             }
         }
 
-        // 5. Conflict Validation
+        // 5. Conflict Validation (both confirmed and pending approval lock the slot)
         $existingBookings = Booking::where('room_id', $room->id)
             ->whereDate('booking_date', $validated['booking_date'])
-            ->where('status', 'confirmed')
+            ->whereIn('status', ['confirmed', 'pending'])
             ->get();
 
         foreach ($existingBookings as $existing) {
@@ -147,7 +147,7 @@ class BookingController extends Controller
                     'end_time' => $endTime,
                     'duration_type' => $durationType,
                     'proposal_path' => $proposalPath,
-                    'status' => 'confirmed',
+                    'status' => 'pending',
                 ]);
 
                 // Decrement quota
@@ -158,7 +158,7 @@ class BookingController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Reservasi berhasil dikonfirmasi secara instan.',
+                'message' => 'Permohonan peminjaman berhasil diajukan dan sedang menunggu verifikasi/persetujuan Biro Sarana Kampus.',
                 'data' => [
                     'id' => $booking->id,
                     'booking_code' => $booking->booking_code,
@@ -194,10 +194,10 @@ class BookingController extends Controller
             ->where('user_id', $user->id)
             ->firstOrFail();
 
-        if ($booking->status === 'cancelled') {
+        if (in_array($booking->status, ['cancelled', 'rejected'])) {
             return response()->json([
                 'success' => false,
-                'message' => 'Peminjaman ruangan ini sudah dibatalkan sebelumnya.',
+                'message' => 'Peminjaman ruangan ini sudah tidak aktif (status: ' . $booking->status . ').',
             ], 422);
         }
 
