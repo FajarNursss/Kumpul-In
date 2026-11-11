@@ -131,7 +131,9 @@ export default function BookingForm({
             </div>
             <div className="text-right">
               <span className="text-slate-400 block text-[11px]">Sisa Kuota:</span>
-              <span className="font-extrabold text-emerald-700 text-sm">{currentUser?.booking_quota} slot</span>
+              <span className="font-extrabold text-emerald-700 text-sm">
+                {currentUser?.role === 'admin' ? 'Tanpa Batas (Biro Sarana)' : `${currentUser?.booking_quota} slot`}
+              </span>
             </div>
           </div>
 
@@ -159,8 +161,8 @@ export default function BookingForm({
             </div>
           </div>
 
-          {/* Proposal Upload (Mandatory for Aula Kampus) */}
-          {isAula && (
+          {/* Proposal Upload (Mandatory for Aula Kampus - exempted for Biro Sarana) */}
+          {isAula && currentUser?.role !== 'admin' && (
             <div className="space-y-1.5">
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold text-slate-700">Proposal / Izin Kegiatan Ormawa</span>
@@ -175,15 +177,27 @@ export default function BookingForm({
           )}
 
           {/* Verification Notice */}
-          <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 flex items-start space-x-2.5">
-            <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
-            <div className="text-xs text-amber-900 space-y-0.5">
-              <span className="font-bold block">Verifikasi Persetujuan Biro Sarana</span>
-              <p className="text-[11px] text-amber-800 leading-relaxed">
-                Permohonan peminjaman ruangan ini akan diproses dengan status <strong>Menunggu Persetujuan</strong> hingga diverifikasi dan disetujui oleh admin Biro Sarana Kampus.
-              </p>
+          {currentUser?.role !== 'admin' ? (
+            <div className="p-3.5 rounded-2xl bg-amber-50/90 border border-amber-200/90 flex items-start space-x-2.5">
+              <Clock className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="text-xs text-amber-900 space-y-0.5">
+                <span className="font-bold block">Verifikasi Persetujuan Biro Sarana</span>
+                <p className="text-[11px] text-amber-800 leading-relaxed">
+                  Permohonan peminjaman ruangan ini akan diproses dengan status <strong>Menunggu Persetujuan</strong> hingga diverifikasi dan disetujui oleh admin Biro Sarana Kampus.
+                </p>
+              </div>
             </div>
-          </div>
+          ) : (
+            <div className="p-3.5 rounded-2xl bg-emerald-50/90 border border-emerald-200/90 flex items-start space-x-2.5">
+              <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="text-xs text-emerald-900 space-y-0.5">
+                <span className="font-bold block">Reservasi Resmi Biro Sarana</span>
+                <p className="text-[11px] text-emerald-800 leading-relaxed">
+                  Peminjaman oleh akun Biro Sarana otomatis langsung terkonfirmasi tanpa memerlukan verifikasi lanjutan.
+                </p>
+              </div>
+            </div>
+          )}
 
           {/* Campus Facility Policy Card (Non-Commercial / Free) */}
           <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-start space-x-3">
@@ -198,30 +212,30 @@ export default function BookingForm({
             </div>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center space-x-3 pt-2">
+          {/* Action Buttons - Perfectly Consistent Sizing */}
+          <div className="grid grid-cols-2 gap-3 pt-2">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer"
+              className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer flex items-center justify-center"
             >
               Batal
             </button>
             <button
               type="submit"
-              disabled={loading || currentUser?.booking_quota <= 0}
-              className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer"
+              disabled={loading || (currentUser?.role !== 'admin' && currentUser?.booking_quota <= 0)}
+              className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-1.5 focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer"
             >
               {loading ? (
                 <>
-                  <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                  <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
                   <span>Mengajukan...</span>
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="w-4 h-4" aria-hidden="true" />
-                  <span>Kirim Permohonan Peminjaman</span>
+                  <CheckCircle2 className="w-4 h-4 shrink-0" aria-hidden="true" />
+                  <span>{currentUser?.role === 'admin' ? 'Konfirmasi Booking' : 'Kirim Permohonan'}</span>
                 </>
               )}
             </button>

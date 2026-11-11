@@ -306,10 +306,6 @@ export default function App() {
       handleOpenAuth('login');
       return;
     }
-    if (currentUser.role === 'admin') {
-      showToast('Akun Administrator hanya dapat meninjau ketersediaan slot. Reservasi peminjaman hanya diperuntukkan bagi Civitas Mahasiswa.', 'error');
-      return;
-    }
     setSelectedSlot(slot);
     setIsBookingModalOpen(true);
   };
@@ -531,25 +527,25 @@ export default function App() {
             </div>
           </div>
         ) : (
-          /* Header Bersih Khusus Pratinjau Admin (Tanpa kotak sapaan AI slop) */
+          /* Header Bersih Khusus Biro Sarana Kampus */
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200">
             <div>
               <div className="flex items-center gap-2 mb-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800 border border-amber-300">
-                  Pratinjau Publik
+                <span className="text-[10px] font-bold uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-[#5c9ead]/20 text-[#326273] border border-[#5c9ead]/40">
+                  Panel Biro Sarana
                 </span>
               </div>
               <h1 className="text-xl sm:text-2xl font-black text-slate-900 tracking-tight">
-                Pratinjau Katalog Fasilitas Kampus
+                Katalog & Peminjaman Fasilitas Kampus
               </h1>
               <p className="text-xs text-slate-500 mt-0.5">
-                Pantau tampilan katalog ruangan dan transparansi ketersediaan slot jadwal sebagaimana dilihat oleh mahasiswa dan publik.
+                Pilih fasilitas kampus untuk reservasi ruangan atau tinjau transparansi ketersediaan slot jadwal secara real-time.
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="text-xs bg-amber-50 text-amber-800 border border-amber-200/80 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-2xs">
-                <Shield className="w-3.5 h-3.5 text-amber-600" />
-                <span>Mode Pratinjau (Hanya Pantau)</span>
+              <span className="text-xs bg-[#eef6f8] text-[#326273] border border-[#5c9ead]/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 shadow-2xs">
+                <Shield className="w-3.5 h-3.5 text-[#326273]" />
+                <span>Akses Biro Sarana (Admin)</span>
               </span>
             </div>
           </div>
@@ -604,10 +600,6 @@ export default function App() {
                     if (!currentUser) {
                       showToast('Silakan masuk terlebih dahulu untuk memesan fasilitas kampus.', 'info');
                       handleOpenAuth('login');
-                      return;
-                    }
-                    if (currentUser.role === 'admin') {
-                      showToast('Akun Administrator hanya dapat meninjau ketersediaan slot. Reservasi peminjaman hanya diperuntukkan bagi Civitas Mahasiswa.', 'error');
                       return;
                     }
                     setIsBookingModalOpen(true);

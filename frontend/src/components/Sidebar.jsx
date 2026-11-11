@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  LayoutGrid, CalendarCheck, Shield, Home, LogOut,
+  LayoutGrid, CalendarCheck, Shield, LogOut,
   User, GraduationCap, Clock, ChevronRight, X,
   Building2, History, Users
 } from 'lucide-react';
@@ -30,8 +30,8 @@ export default function Sidebar({
         },
         {
           id: 'catalog',
-          label: 'Pratinjau Katalog',
-          description: 'Lihat transparansi slot publik',
+          label: 'Katalog & Booking Ruang',
+          description: 'Pilihan fasilitas & reservasi',
           icon: LayoutGrid,
         },
         {
@@ -231,25 +231,6 @@ export default function Sidebar({
               );
             })}
           </nav>
-        </div>
-
-        {/* Public Landing Link */}
-        <div className="space-y-1.5 pt-4 border-t border-slate-100">
-          <span className="px-3 text-[10px] font-extrabold uppercase tracking-wider text-slate-400">
-            Halaman Depan
-          </span>
-
-          <button
-            type="button"
-            onClick={handleHomeClick}
-            className="w-full p-2.5 rounded-2xl text-left text-xs font-semibold text-slate-600 hover:text-[#326273] hover:bg-slate-100 transition-colors flex items-center space-x-3 focus-visible:ring-2 focus-visible:ring-[#326273]"
-            title="Kembali ke Beranda Informasi Kampus"
-          >
-            <div className="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center text-slate-500 shrink-0">
-              <Home className="w-4 h-4 text-[#5c9ead]" aria-hidden="true" />
-            </div>
-            <span>← Beranda Informasi</span>
-          </button>
         </div>
       </div>
 

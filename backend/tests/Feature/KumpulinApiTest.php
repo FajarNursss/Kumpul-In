@@ -241,21 +241,22 @@ class KumpulinApiTest extends TestCase
         $response->assertStatus(403);
     }
 
-    public function test_admin_cannot_book_rooms()
+    public function test_admin_can_book_rooms()
     {
         $admin = User::where('role', 'admin')->first();
         $room = Room::first();
 
         $response = $this->actingAs($admin, 'sanctum')->postJson('/api/bookings', [
             'room_id' => $room->id,
-            'booking_date' => now()->addDay()->format('Y-m-d'),
+            'booking_date' => now()->addDays(3)->format('Y-m-d'),
             'duration_type' => 'hourly',
             'start_time' => '14:00',
             'end_time' => '15:00',
         ]);
 
-        $response->assertStatus(403)
-            ->assertJsonPath('success', false);
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.status', 'confirmed');
     }
 
     public function test_admin_can_manage_users_crud()

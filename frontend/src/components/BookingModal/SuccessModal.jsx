@@ -44,19 +44,29 @@ export default function SuccessModal({ bookingData, onClose }) {
       <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-100 p-6 sm:p-8 space-y-6 my-auto relative animate-scale-in">
         {/* Top Celebration Icon */}
         <div className="text-center space-y-2">
-          <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-200">
-            <Clock className="w-10 h-10 animate-pulse" aria-hidden="true" />
-          </div>
-          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">Permohonan Berhasil Diajukan!</h2>
+          {bookingData.status === 'confirmed' ? (
+            <div className="w-16 h-16 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center mx-auto shadow-inner border border-emerald-200">
+              <CheckCircle2 className="w-10 h-10 animate-scale-in" aria-hidden="true" />
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto shadow-inner border border-amber-200">
+              <Clock className="w-10 h-10 animate-pulse" aria-hidden="true" />
+            </div>
+          )}
+          <h2 id="success-modal-title" className="text-xl font-bold text-slate-900">
+            {bookingData.status === 'confirmed' ? 'Reservasi Berhasil Dikonfirmasi!' : 'Permohonan Berhasil Diajukan!'}
+          </h2>
           <p className="text-xs text-slate-500 leading-relaxed max-w-sm mx-auto">
-            Permohonan peminjaman ruangan Anda telah terkirim. Status peminjaman saat ini <strong>Menunggu Persetujuan</strong> dari admin Biro Sarana Kampus.
+            {bookingData.status === 'confirmed'
+              ? 'Peminjaman ruangan Anda telah resmi terkonfirmasi langsung oleh Biro Sarana Kampus.'
+              : 'Permohonan peminjaman ruangan Anda telah terkirim. Status peminjaman saat ini Menunggu Persetujuan dari admin Biro Sarana Kampus.'}
           </p>
         </div>
 
         {/* Booking Code Box */}
         <div className="bg-slate-50 rounded-2xl border border-slate-200 p-4 text-center space-y-1.5">
           <span className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">
-            Kode Permohonan Reservasi
+            {bookingData.status === 'confirmed' ? 'Kode Reservasi Sah' : 'Kode Permohonan Reservasi'}
           </span>
           <div className="flex items-center justify-center space-x-2">
             <span className="text-lg sm:text-xl font-mono font-black text-[#326273] tracking-wide">
@@ -99,16 +109,25 @@ export default function SuccessModal({ bookingData, onClose }) {
           </div>
 
           <div className="flex items-center justify-between py-1.5 border-b border-slate-100">
-            <span className="text-slate-400">Status Permohonan</span>
-            <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
-              <Clock className="w-3 h-3 text-amber-600" />
-              <span>Menunggu Verifikasi Admin</span>
-            </span>
+            <span className="text-slate-400">Status Reservasi</span>
+            {bookingData.status === 'confirmed' ? (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                <span>Disetujui Langsung</span>
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-100 text-amber-800 border border-amber-200">
+                <Clock className="w-3 h-3 text-amber-600" />
+                <span>Menunggu Verifikasi Admin</span>
+              </span>
+            )}
           </div>
 
           <div className="flex items-center justify-between py-1.5">
             <span className="text-slate-400">Sisa Kuota Peminjaman</span>
-            <span className="font-bold text-emerald-700">{bookingData.remaining_quota} slot</span>
+            <span className="font-bold text-emerald-700">
+              {bookingData.remaining_quota > 100 ? 'Tanpa Batas (Biro Sarana)' : `${bookingData.remaining_quota} slot`}
+            </span>
           </div>
         </div>
 
@@ -116,7 +135,7 @@ export default function SuccessModal({ bookingData, onClose }) {
         <button
           type="button"
           onClick={onClose}
-          className="w-full py-3 px-4 rounded-xl font-bold text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-md transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273]"
+          className="w-full h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-md transition-all flex items-center justify-center space-x-2 focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer"
         >
           <span>Selesai & Tutup</span>
           <ArrowRight className="w-4 h-4" aria-hidden="true" />

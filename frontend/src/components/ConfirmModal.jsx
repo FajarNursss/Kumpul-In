@@ -97,12 +97,12 @@ export default function ConfirmModal({
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center space-x-3 pt-2">
+        <div className="grid grid-cols-2 gap-3 pt-2">
           <button
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="flex-1 py-2.5 px-4 rounded-xl font-bold text-xs text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
+            className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm text-slate-600 bg-slate-100 hover:bg-slate-200 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer flex items-center justify-center"
           >
             {cancelText}
           </button>
@@ -110,11 +110,11 @@ export default function ConfirmModal({
             type="button"
             onClick={onConfirm}
             disabled={isLoading}
-            className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs shadow-sm transition-all flex items-center justify-center space-x-1.5 active:scale-95 focus-visible:ring-2 focus-visible:outline-none ${currentTheme.confirmBtn}`}
+            className={`h-11 px-4 rounded-xl font-bold text-xs sm:text-sm shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95 focus-visible:ring-2 focus-visible:outline-none ${currentTheme.confirmBtn}`}
           >
             {isLoading ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" aria-hidden="true" />
+                <Loader2 className="w-4 h-4 animate-spin shrink-0" aria-hidden="true" />
                 <span>Memproses...</span>
               </>
             ) : (

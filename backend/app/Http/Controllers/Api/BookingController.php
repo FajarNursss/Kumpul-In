@@ -36,16 +36,8 @@ class BookingController extends Controller
     {
         $user = $request->user();
 
-        // Administrator tidak dapat melakukan peminjaman ruangan (hanya Civitas Mahasiswa)
-        if ($user->role === 'admin') {
-            return response()->json([
-                'success' => false,
-                'message' => 'Akun Administrator tidak dapat melakukan reservasi peminjaman. Akun admin hanya memiliki hak mengelola fasilitas, memantau riwayat, dan mengelola pengguna.',
-            ], 403);
-        }
-
-        // 1. Quota check
-        if ($user->booking_quota <= 0) {
+        // 1. Quota check (only for non-admin civitas)
+        if ($user->role !== 'admin' && $user->booking_quota <= 0) {
             return response()->json([
                 'success' => false,
                 'message' => 'Kuota booking Anda telah habis. Harap hubungi administrator.',
@@ -91,8 +83,8 @@ class BookingController extends Controller
             }
         }
 
-        // 4. Validate Aula proposal file requirement
-        if ($room->category === 'Aula') {
+        // 4. Validate Aula proposal file requirement (for non-admin civitas)
+        if ($room->category === 'Aula' && $user->role !== 'admin') {
             if (!$request->hasFile('proposal_file')) {
                 return response()->json([
                     'success' => false,
@@ -138,6 +130,9 @@ class BookingController extends Controller
 
         try {
             $booking = DB::transaction(function () use ($user, $room, $validated, $bookingCode, $startTime, $endTime, $durationType, $proposalPath) {
+                // Biro Sarana (admin) bookings are confirmed immediately; students await approval (pending)
+                $initialStatus = ($user->role === 'admin') ? 'confirmed' : 'pending';
+
                 $createdBooking = Booking::create([
                     'booking_code' => $bookingCode,
                     'user_id' => $user->id,
@@ -147,18 +142,24 @@ class BookingController extends Controller
                     'end_time' => $endTime,
                     'duration_type' => $durationType,
                     'proposal_path' => $proposalPath,
-                    'status' => 'pending',
+                    'status' => $initialStatus,
                 ]);
 
-                // Decrement quota
-                $user->decrement('booking_quota');
+                // Decrement quota only for students/non-admin
+                if ($user->role !== 'admin') {
+                    $user->decrement('booking_quota');
+                }
 
                 return $createdBooking;
             });
 
+            $responseMessage = ($user->role === 'admin')
+                ? 'Reservasi peminjaman fasilitas oleh Biro Sarana berhasil dikonfirmasi secara langsung.'
+                : 'Permohonan peminjaman berhasil diajukan dan sedang menunggu verifikasi/persetujuan Biro Sarana Kampus.';
+
             return response()->json([
                 'success' => true,
-                'message' => 'Permohonan peminjaman berhasil diajukan dan sedang menunggu verifikasi/persetujuan Biro Sarana Kampus.',
+                'message' => $responseMessage,
                 'data' => [
                     'id' => $booking->id,
                     'booking_code' => $booking->booking_code,

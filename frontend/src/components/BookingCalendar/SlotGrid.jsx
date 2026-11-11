@@ -70,16 +70,6 @@ export default function SlotGrid({
         </div>
       </div>
 
-      {/* Admin Notice */}
-      {currentUser?.role === 'admin' && (
-        <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center gap-2.5">
-          <Info className="w-4 h-4 text-amber-600 shrink-0" />
-          <span>
-            <strong>Mode Pratinjau Administrator:</strong> Anda sedang meninjau transparansi slot publik. Akun Biro Sarana tidak dapat melakukan reservasi peminjaman ruangan.
-          </span>
-        </div>
-      )}
-
       {/* Visual Occupancy Progress Bar */}
       <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 space-y-2">
         <div className="flex items-center justify-between text-xs font-semibold">

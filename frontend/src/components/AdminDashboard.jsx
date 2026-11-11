@@ -478,56 +478,46 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
       </div>
 
       {/* Stats Cards Grid */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-          <div className="p-2.5 rounded-2xl bg-[#5c9ead]/15 text-[#326273] shrink-0">
-            <CalendarCheck className="w-5 h-5" />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+          <div className="p-3 rounded-2xl bg-[#5c9ead]/15 text-[#326273] shrink-0">
+            <CalendarCheck className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Total Reservasi</div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">{stats?.total_bookings || 0}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Total Reservasi</div>
+            <div className="text-2xl font-black text-slate-900 mt-0.5">{stats?.total_bookings || 0}</div>
           </div>
         </div>
 
-        <div className="bg-white p-4.5 rounded-2xl border border-amber-200/80 shadow-xs flex items-center space-x-3.5">
-          <div className="p-2.5 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
-            <Clock className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+          <div className="p-3 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
+            <CheckCircle2 className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] font-semibold text-amber-600 uppercase tracking-wider">Menunggu Verifikasi</div>
-            <div className="text-xl sm:text-2xl font-black text-amber-700 mt-0.5">{stats?.pending_bookings || 0}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Terkonfirmasi</div>
+            <div className="text-2xl font-black text-emerald-600 mt-0.5">{stats?.confirmed_bookings || 0}</div>
           </div>
         </div>
 
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-          <div className="p-2.5 rounded-2xl bg-emerald-50 text-emerald-600 shrink-0">
-            <CheckCircle2 className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+          <div className="p-3 rounded-2xl bg-[#5c9ead]/15 text-[#326273] shrink-0">
+            <Building2 className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Disetujui</div>
-            <div className="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5">{stats?.confirmed_bookings || 0}</div>
-          </div>
-        </div>
-
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-3.5">
-          <div className="p-2.5 rounded-2xl bg-[#5c9ead]/15 text-[#326273] shrink-0">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Ruangan Aktif</div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Ruangan Aktif</div>
+            <div className="text-2xl font-black text-slate-900 mt-0.5">
               {stats?.active_rooms || 0} <span className="text-xs font-normal text-slate-400">/ {stats?.total_rooms || 0}</span>
             </div>
           </div>
         </div>
 
-        <div className="bg-white p-4.5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-3.5 col-span-2 md:col-span-1">
-          <div className="p-2.5 rounded-2xl bg-slate-100 text-slate-600 shrink-0">
-            <Users className="w-5 h-5" />
+        <div className="bg-white p-5 rounded-2xl border border-slate-200/80 shadow-xs flex items-center space-x-4">
+          <div className="p-3 rounded-2xl bg-amber-50 text-amber-600 shrink-0">
+            <Users className="w-6 h-6" />
           </div>
           <div>
-            <div className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Civitas Terdaftar</div>
-            <div className="text-xl sm:text-2xl font-black text-slate-900 mt-0.5">{stats?.total_users || 0}</div>
+            <div className="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Civitas Terdaftar</div>
+            <div className="text-2xl font-black text-slate-900 mt-0.5">{stats?.total_users || 0}</div>
           </div>
         </div>
       </div>
@@ -599,35 +589,6 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
       {/* SECTION 1: RINGKASAN DASHBOARD (OVERVIEW) */}
       {activeTab === 'admin' && (
         <div className="space-y-6">
-          {/* Attention Callout for Pending Approvals */}
-          {stats?.pending_bookings > 0 && (
-            <div className="p-4 rounded-2xl bg-amber-50/90 border border-amber-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0">
-                  <Clock className="w-5 h-5 animate-pulse" />
-                </div>
-                <div>
-                  <h4 className="text-xs sm:text-sm font-bold text-amber-900">
-                    Ada {stats.pending_bookings} Permohonan Peminjaman Menunggu Verifikasi
-                  </h4>
-                  <p className="text-[11px] sm:text-xs text-amber-700">
-                    Tinjau proposal dan setujui atau tolak reservasi ruangan agar civitas kampus mendapatkan kepastian jadwal.
-                  </p>
-                </div>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  setStatusFilter('pending');
-                  setActiveTab('admin-bookings');
-                }}
-                className="px-3.5 py-1.5 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-bold text-xs transition-colors shadow-xs shrink-0 self-start sm:self-auto cursor-pointer"
-              >
-                Tinjau Sekarang →
-              </button>
-            </div>
-          )}
-
           {/* Quick Monitoring Row */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Recent Bookings Box */}
@@ -654,7 +615,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
               ) : (
                 <div className="divide-y divide-slate-100">
                   {bookings.slice(0, 5).map((b) => (
-                    <div key={b.id} className="py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div key={b.id} className="py-3 flex items-center justify-between gap-4">
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="font-mono font-bold text-xs text-[#326273]">{b.booking_code}</span>
@@ -664,49 +625,15 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                           {b.user?.name} ({b.user?.email}) • {formatDateIndo(b.booking_date)}
                         </div>
                       </div>
-                      <div className="shrink-0 flex items-center gap-2">
+                      <div className="shrink-0 flex items-center gap-3">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                           b.status === 'confirmed'
                             ? 'bg-emerald-100 text-emerald-800'
-                            : b.status === 'pending'
-                            ? 'bg-amber-100 text-amber-800'
-                            : b.status === 'rejected'
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-slate-100 text-slate-600'
+                            : 'bg-rose-100 text-rose-800'
                         }`}>
-                          {b.status === 'confirmed' && <CheckCircle2 className="w-3 h-3" />}
-                          {b.status === 'pending' && <Clock className="w-3 h-3" />}
-                          {b.status === 'rejected' && <XCircle className="w-3 h-3" />}
-                          {b.status === 'cancelled' && <XCircle className="w-3 h-3" />}
-                          {b.status === 'confirmed'
-                            ? 'Disetujui'
-                            : b.status === 'pending'
-                            ? 'Menunggu'
-                            : b.status === 'rejected'
-                            ? 'Ditolak'
-                            : 'Dibatalkan'}
+                          {b.status === 'confirmed' ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                          {b.status === 'confirmed' ? 'Terkonfirmasi' : 'Dibatalkan'}
                         </span>
-
-                        {b.status === 'pending' && (
-                          <div className="flex items-center gap-1">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
-                              className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[10px] transition-colors cursor-pointer"
-                              title="Setujui permohonan ini"
-                            >
-                              Setujui
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'rejected')}
-                              className="px-2 py-0.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-[10px] transition-colors cursor-pointer"
-                              title="Tolak permohonan ini"
-                            >
-                              Tolak
-                            </button>
-                          </div>
-                        )}
                       </div>
                     </div>
                   ))}
@@ -1139,9 +1066,7 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
               >
                 <option value="">Semua Status</option>
-                <option value="pending">Menunggu Verifikasi</option>
-                <option value="confirmed">Disetujui</option>
-                <option value="rejected">Ditolak</option>
+                <option value="confirmed">Terkonfirmasi</option>
                 <option value="cancelled">Dibatalkan</option>
               </select>
             </div>
@@ -1210,46 +1135,14 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                         <span className={`inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[11px] font-bold ${
                           b.status === 'confirmed'
                             ? 'bg-emerald-100 text-emerald-800'
-                            : b.status === 'pending'
-                            ? 'bg-amber-100 text-amber-800'
-                            : b.status === 'rejected'
-                            ? 'bg-rose-100 text-rose-800'
-                            : 'bg-slate-100 text-slate-600'
+                            : 'bg-rose-100 text-rose-800'
                         }`}>
-                          {b.status === 'confirmed' && <CheckCircle2 className="w-3 h-3" />}
-                          {b.status === 'pending' && <Clock className="w-3 h-3" />}
-                          {b.status === 'rejected' && <XCircle className="w-3 h-3" />}
-                          {b.status === 'cancelled' && <XCircle className="w-3 h-3" />}
-                          {b.status === 'confirmed'
-                            ? 'Disetujui'
-                            : b.status === 'pending'
-                            ? 'Menunggu Verifikasi'
-                            : b.status === 'rejected'
-                            ? 'Ditolak'
-                            : 'Dibatalkan'}
+                          {b.status === 'confirmed' ? <CheckCircle2 className="w-3 h-3" /> : <XCircle className="w-3 h-3" />}
+                          {b.status === 'confirmed' ? 'Terkonfirmasi' : 'Dibatalkan'}
                         </span>
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        {b.status === 'pending' ? (
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
-                              className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors cursor-pointer shadow-2xs"
-                              title="Setujui permohonan reservasi ini"
-                            >
-                              Setujui
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'rejected')}
-                              className="px-2.5 py-1 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors font-bold text-[11px] cursor-pointer"
-                              title="Tolak permohonan reservasi ini (kuota otomatis dipulihkan)"
-                            >
-                              Tolak
-                            </button>
-                          </div>
-                        ) : b.status === 'confirmed' ? (
+                        {b.status === 'confirmed' ? (
                           <button
                             type="button"
                             onClick={() => handleUpdateBookingStatus(b, 'cancelled')}
@@ -1263,9 +1156,8 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                             type="button"
                             onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
                             className="px-2.5 py-1 rounded-xl text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-colors font-bold text-[11px] cursor-pointer"
-                            title="Setujui ulang reservasi ini"
                           >
-                            Setujui Ulang
+                            Konfirmasi Ulang
                           </button>
                         )}
                       </td>
@@ -1341,18 +1233,18 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 />
               </div>
 
-              <div className="flex gap-2 pt-3">
+              <div className="grid grid-cols-2 gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setIsAddRoomOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center justify-center transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingRoom}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer flex items-center justify-center transition-colors"
                 >
                   {savingRoom ? 'Menyimpan...' : 'Simpan Ruangan'}
                 </button>
@@ -1419,18 +1311,18 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 />
               </div>
 
-              <div className="flex gap-2 pt-3">
+              <div className="grid grid-cols-2 gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setEditingRoom(null)}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center justify-center transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingEditRoom}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer flex items-center justify-center transition-colors"
                 >
                   {savingEditRoom ? 'Menyimpan...' : 'Perbarui Ruangan'}
                 </button>
@@ -1527,18 +1419,18 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-3">
+              <div className="grid grid-cols-2 gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setIsAddUserOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center justify-center transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingUser}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer flex items-center justify-center transition-colors"
                 >
                   {savingUser ? 'Mendaftarkan...' : 'Tambah Pengguna'}
                 </button>
@@ -1630,18 +1522,18 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                 </div>
               </div>
 
-              <div className="flex gap-2 pt-3">
+              <div className="grid grid-cols-2 gap-3 pt-3">
                 <button
                   type="button"
                   onClick={() => setEditingUser(null)}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center justify-center transition-colors"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
                   disabled={savingEditUser}
-                  className="flex-1 py-2.5 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer"
+                  className="h-11 px-4 rounded-xl font-bold text-xs sm:text-sm bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer flex items-center justify-center transition-colors"
                 >
                   {savingEditUser ? 'Memperbarui...' : 'Perbarui Pengguna'}
                 </button>
