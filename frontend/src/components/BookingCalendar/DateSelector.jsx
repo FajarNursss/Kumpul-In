@@ -58,69 +58,71 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
       </div>
 
       {/* Date controls: Quick pills + Day Step + Native Picker */}
-      <div className="flex flex-wrap items-center gap-2 justify-end">
-        {/* Step Prev Day */}
-        <button
-          type="button"
-          onClick={() => handleStepDay(-1)}
-          disabled={isToday}
-          aria-label="Pilih hari sebelumnya"
-          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
-          title="Hari Sebelumnya"
-        >
-          <ChevronLeft className="w-4 h-4" aria-hidden="true" />
-        </button>
+      <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-2 justify-start sm:justify-end w-full md:w-auto">
+        <div className="flex items-center gap-1.5 w-full sm:w-auto justify-between sm:justify-start">
+          {/* Step Prev Day */}
+          <button
+            type="button"
+            onClick={() => handleStepDay(-1)}
+            disabled={isToday}
+            aria-label="Pilih hari sebelumnya"
+            className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] shrink-0 cursor-pointer"
+            title="Hari Sebelumnya"
+          >
+            <ChevronLeft className="w-4 h-4" aria-hidden="true" />
+          </button>
 
-        {/* Quick Date Pills */}
-        <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold" role="group" aria-label="Pilihan Cepat Tanggal">
+          {/* Quick Date Pills */}
+          <div className="flex items-center bg-slate-100 p-1 rounded-xl text-xs font-bold flex-1 sm:flex-none justify-around sm:justify-start" role="group" aria-label="Pilihan Cepat Tanggal">
+            <button
+              type="button"
+              onClick={() => handleQuickAddDays(0)}
+              aria-pressed={isToday}
+              className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer ${
+                isToday
+                  ? 'bg-[#326273] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Hari Ini
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickAddDays(1)}
+              aria-pressed={selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]}
+              className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer ${
+                selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]
+                  ? 'bg-[#326273] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Besok
+            </button>
+            <button
+              type="button"
+              onClick={() => handleQuickAddDays(2)}
+              aria-pressed={selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]}
+              className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] cursor-pointer ${
+                selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]
+                  ? 'bg-[#326273] text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+            >
+              Lusa
+            </button>
+          </div>
+
+          {/* Step Next Day */}
           <button
             type="button"
-            onClick={() => handleQuickAddDays(0)}
-            aria-pressed={isToday}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-              isToday
-                ? 'bg-[#326273] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
+            onClick={() => handleStepDay(1)}
+            aria-label="Pilih hari berikutnya"
+            className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] shrink-0 cursor-pointer"
+            title="Hari Berikutnya"
           >
-            Hari Ini
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickAddDays(1)}
-            aria-pressed={selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-              selectedDate === new Date(Date.now() + 86400000).toISOString().split('T')[0]
-                ? 'bg-[#326273] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Besok
-          </button>
-          <button
-            type="button"
-            onClick={() => handleQuickAddDays(2)}
-            aria-pressed={selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]}
-            className={`px-3 py-1.5 rounded-lg transition-all focus-visible:ring-2 focus-visible:ring-[#326273] ${
-              selectedDate === new Date(Date.now() + 172800000).toISOString().split('T')[0]
-                ? 'bg-[#326273] text-white shadow-xs'
-                : 'text-slate-600 hover:text-slate-900'
-            }`}
-          >
-            Lusa
+            <ChevronRight className="w-4 h-4" aria-hidden="true" />
           </button>
         </div>
-
-        {/* Step Next Day */}
-        <button
-          type="button"
-          onClick={() => handleStepDay(1)}
-          aria-label="Pilih hari berikutnya"
-          className="p-2 rounded-xl text-slate-600 bg-slate-50 border border-slate-200 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273]"
-          title="Hari Berikutnya"
-        >
-          <ChevronRight className="w-4 h-4" aria-hidden="true" />
-        </button>
 
         {/* Date Input with Accessible Label */}
         <label htmlFor="calendar-date-input" className="sr-only">
@@ -132,7 +134,7 @@ export default function DateSelector({ selectedDate, onSelectDate }) {
           min={todayStr}
           value={selectedDate}
           onChange={(e) => onSelectDate(e.target.value)}
-          className="text-xs sm:text-sm rounded-xl border-slate-200 bg-slate-50 py-1.5 px-3 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] font-semibold text-slate-700 cursor-pointer"
+          className="w-full sm:w-auto text-xs sm:text-sm rounded-xl border border-slate-200 bg-slate-50 py-2 px-3 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] font-semibold text-slate-700 cursor-pointer"
         />
       </div>
     </div>

@@ -735,7 +735,7 @@ export default function App() {
             </div>
           )}
 
-          <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+          <main id="main-content" className="flex-1 max-w-6xl w-full mx-auto px-3 sm:px-6 lg:px-8 py-5 sm:py-8 space-y-6 sm:space-y-8">
             {renderDashboardContent()}
           </main>
 
@@ -786,7 +786,7 @@ export default function App() {
       />
 
       {/* Main Container */}
-      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-20 space-y-8">
+      <main id="main-content" className="flex-1 max-w-7xl w-full mx-auto px-3 sm:px-6 lg:px-8 pt-5 sm:pt-8 pb-16 sm:pb-20 space-y-6 sm:space-y-8">
         {renderDashboardContent()}
       </main>
 

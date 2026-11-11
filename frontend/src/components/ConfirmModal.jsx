@@ -64,12 +64,12 @@ export default function ConfirmModal({
       aria-modal="true"
       aria-labelledby="confirm-modal-title"
       aria-describedby="confirm-modal-desc"
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget && !isLoading) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col p-6 space-y-5 animate-scale-in my-auto relative">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col p-5 sm:p-6 space-y-4 sm:space-y-5 animate-scale-in my-auto relative max-h-[92vh]">
         {/* Header with Icon */}
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-start space-x-3.5">

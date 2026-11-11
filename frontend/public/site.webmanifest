@@ -1,0 +1,23 @@
+{
+  "name": "Kumpul-In Kampus • Sistem Peminjaman Fasilitas Kampus",
+  "short_name": "Kumpul-In",
+  "description": "Sistem peminjaman fasilitas ruangan kampus (Aula, Perpustakaan, Meeting Room, Ruang Belajar) dengan jadwal anti-bentrok.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f8fafc",
+  "theme_color": "#326273",
+  "icons": [
+    {
+      "src": "/logo-icon.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/logo-icon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -33,14 +33,14 @@ export default function ReceiptModal({ booking, onClose }) {
       role="dialog"
       aria-modal="true"
       aria-labelledby="receipt-modal-title"
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto print:p-0 print:bg-white"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto print:p-0 print:bg-white"
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-auto relative animate-scale-in print:border-none print:shadow-none print:w-full">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-200 overflow-hidden my-auto relative animate-scale-in max-h-[92vh] flex flex-col print:border-none print:shadow-none print:w-full print:max-h-none">
         {/* Modal Top Action (hidden on print) */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden">
+        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between print:hidden shrink-0">
           <span id="receipt-modal-title" className="text-xs font-bold text-slate-500 uppercase tracking-wider">
             Surat Bukti Peminjaman Ruang Kampus
           </span>
@@ -65,7 +65,7 @@ export default function ReceiptModal({ booking, onClose }) {
         </div>
 
         {/* Receipt Voucher Body */}
-        <div className="p-6 sm:p-8 space-y-6">
+        <div className="p-5 sm:p-8 space-y-5 sm:space-y-6 overflow-y-auto flex-1">
           {/* Header Brand */}
           <div className="flex items-center justify-between pb-4 border-b border-dashed border-slate-300">
             <div className="flex items-center space-x-2.5">

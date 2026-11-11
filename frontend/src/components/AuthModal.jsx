@@ -121,30 +121,30 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
       role="dialog"
       aria-modal="true"
       aria-labelledby="auth-modal-title"
-      className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-sm animate-fade-in overflow-y-auto"
       onClick={(e) => {
         if (e.target === e.currentTarget && !loading) onClose();
       }}
     >
-      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all my-auto relative animate-scale-in">
+      <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl border border-slate-100 overflow-hidden flex flex-col transition-all my-auto relative animate-scale-in max-h-[92vh]">
         {/* Sleek Top Header */}
-        <div className="px-6 pt-6 pb-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-5 sm:px-6 pt-5 sm:pt-6 pb-3.5 sm:pb-4 border-b border-slate-100 flex items-center justify-between shrink-0">
           <div className="flex items-center space-x-3">
             <img
               src="/logo-icon.png"
               alt="Logo Kumpul-In"
-              className="h-10 w-auto object-contain"
+              className="h-9 sm:h-10 w-auto object-contain"
             />
             <div className="flex flex-col">
               <div className="flex items-center gap-1.5">
-                <span className="text-lg font-black text-[#326273] tracking-tight leading-none">
+                <span className="text-base sm:text-lg font-black text-[#326273] tracking-tight leading-none">
                   Kumpul-In
                 </span>
                 <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-[#e39774]/20 text-[#d58560] uppercase tracking-wider">
                   Kampus
                 </span>
               </div>
-              <span className="text-[11px] font-semibold text-[#5c9ead] mt-0.5">
+              <span className="text-[10px] sm:text-[11px] font-semibold text-[#5c9ead] mt-0.5">
                 Sistem Peminjaman Fasilitas Kampus
               </span>
             </div>
@@ -154,14 +154,14 @@ export default function AuthModal({ isOpen, onClose, onAuthSuccess, defaultMode 
             onClick={onClose}
             disabled={loading}
             aria-label="Tutup jendela autentikasi"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
+            className="p-1.5 sm:p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none cursor-pointer"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <div className="p-6 space-y-5">
+        <div className="p-5 sm:p-6 space-y-4 sm:space-y-5 overflow-y-auto flex-1">
           {/* Segmented Control Mode Tabs */}
           <div className="grid grid-cols-2 p-1 bg-slate-100 rounded-2xl text-xs font-bold text-slate-600">
             <button

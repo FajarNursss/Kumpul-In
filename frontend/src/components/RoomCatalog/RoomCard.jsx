@@ -43,8 +43,18 @@ export default function RoomCard({ room, isSelected, onSelect }) {
 
   return (
     <div
+      role="button"
+      tabIndex={0}
+      aria-pressed={isSelected}
+      aria-label={`Pilih ruangan ${room.name}, kategori ${room.category}, kapasitas ${room.capacity} orang`}
       onClick={onSelect}
-      className={`group relative bg-white rounded-3xl border transition-all duration-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:shadow-lg ${
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onSelect();
+        }
+      }}
+      className={`group relative bg-white rounded-3xl border transition-all duration-200 overflow-hidden cursor-pointer flex flex-col justify-between hover:shadow-lg focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none ${
         isSelected
           ? 'border-[#326273] ring-2 ring-[#326273]/30 shadow-md -translate-y-1'
           : 'border-slate-200 hover:border-slate-300 hover:-translate-y-0.5'
@@ -101,8 +111,8 @@ export default function RoomCard({ room, isSelected, onSelect }) {
             </div>
           </div>
 
-          <button
-            type="button"
+          <div
+            aria-hidden="true"
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
               isSelected
                 ? 'bg-[#326273] text-white shadow-xs'
@@ -111,7 +121,7 @@ export default function RoomCard({ room, isSelected, onSelect }) {
           >
             <span>{isSelected ? 'Terpilih' : 'Pinjam Ruang'}</span>
             <ChevronRight className="w-3.5 h-3.5" />
-          </button>
+          </div>
         </div>
       </div>
     </div>

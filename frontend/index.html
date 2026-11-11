@@ -5,50 +5,117 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     
     <!-- Primary SEO Meta Tags -->
-    <title>Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus</title>
-    <meta name="title" content="Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus" />
-    <meta name="description" content="Sistem peminjaman fasilitas kampus terpadu: Aula, Perpustakaan, Meeting Room, dan Ruang Belajar Mandiri. Cek ketersediaan slot jam real-time bebas jadwal bentrok." />
-    <meta name="keywords" content="kumpul-in, peminjaman aula kampus, ruang diskusi perpustakaan, meeting room ormawa, ruang belajar mandiri, jadwal ruangan kampus" />
-    <meta name="author" content="Kumpul-In Campus Engineering" />
-    <meta name="robots" content="index, follow" />
+    <title>Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus Terpadu</title>
+    <meta name="title" content="Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus Terpadu" />
+    <meta name="description" content="Sistem peminjaman fasilitas kampus terpadu: Aula, Perpustakaan, Meeting Room, dan Ruang Belajar Mandiri. Cek transparansi ketersediaan slot jam real-time bebas bentrok." />
+    <meta name="keywords" content="kumpul-in, peminjaman aula kampus, ruang diskusi perpustakaan, meeting room ormawa, ruang belajar mandiri, jadwal ruangan kampus, biro sarana prasarana" />
+    <meta name="author" content="Biro Sarana & Prasarana Kampus" />
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+    <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#326273" />
+    <link rel="canonical" href="http://localhost:5173/" />
 
     <!-- Open Graph / Facebook -->
     <meta property="og:type" content="website" />
     <meta property="og:url" content="http://localhost:5173/" />
+    <meta property="og:site_name" content="Kumpul-In Kampus" />
     <meta property="og:title" content="Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus" />
-    <meta property="og:description" content="Peminjaman fasilitas Aula, Perpustakaan, Meeting Room, dan Ruang Belajar kampus bebas biaya dan bebas bentrok." />
-    <meta property="og:image" content="/logo.png" />
+    <meta property="og:description" content="Peminjaman fasilitas Aula, Perpustakaan, Meeting Room, dan Ruang Belajar kampus bebas biaya dan bebas bentrok dengan verifikasi jadwal instan." />
+    <meta property="og:image" content="/logo-icon.png" />
     <meta property="og:locale" content="id_ID" />
 
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="http://localhost:5173/" />
-    <meta property="twitter:title" content="Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus" />
-    <meta property="twitter:description" content="Peminjaman fasilitas Aula, Perpustakaan, Meeting Room, dan Ruang Belajar kampus bebas biaya dan bebas bentrok." />
-    <meta property="twitter:image" content="/logo.png" />
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="http://localhost:5173/" />
+    <meta name="twitter:title" content="Kumpul-In • Sistem Peminjaman Ruang & Fasilitas Kampus" />
+    <meta name="twitter:description" content="Peminjaman fasilitas Aula, Perpustakaan, Meeting Room, dan Ruang Belajar kampus bebas biaya dan bebas bentrok." />
+    <meta name="twitter:image" content="/logo-icon.png" />
 
-    <!-- Favicon & Touch Icon -->
+    <!-- Mobile & PWA Manifest -->
     <link rel="icon" type="image/png" sizes="32x32" href="/logo-icon.png" />
     <link rel="apple-touch-icon" href="/logo-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
 
-    <!-- Structured Data (JSON-LD) for SEO & Rich Snippets -->
+    <!-- AI Agent & Agentic Browsing Metadata -->
+    <meta name="application-name" content="Kumpul-In Kampus" />
+    <meta name="apple-mobile-web-app-title" content="Kumpul-In" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="format-detection" content="telephone=no" />
+
+    <!-- Structured Data (JSON-LD) for SEO, Rich Snippets, & Agentic Browsing -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "SoftwareApplication",
-        "name": "Kumpul-In Kampus",
-        "applicationCategory": "EducationalApplication",
-        "operatingSystem": "Web",
-        "description": "Sistem peminjaman fasilitas ruang kampus terpadu (Aula, Perpustakaan, Meeting Room, Ruang Belajar) dengan validasi jadwal real-time anti bentrok."
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "@id": "http://localhost:5173/#webapp",
+            "name": "Kumpul-In Kampus",
+            "url": "http://localhost:5173/",
+            "applicationCategory": "EducationalApplication",
+            "operatingSystem": "All modern browsers (Web, Mobile, Desktop)",
+            "description": "Sistem informasi peminjaman fasilitas ruang kampus terpadu (Aula, Perpustakaan, Meeting Room, Ruang Belajar) dengan validasi atomic anti-bentrok secara real-time.",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "IDR",
+              "description": "Bebas biaya bagi civitas akademika kampus (Mahasiswa, Dosen, Tendik, Ormawa)"
+            },
+            "featureList": [
+              "Transparansi ketersediaan slot 10 sesi harian (08:00 - 18:00 WIB)",
+              "Deteksi jadwal bentrok otomatis via Database Atomic Transaction",
+              "Reservasi harian penuh (Daily Booking) dan per jam (Hourly Booking)",
+              "Unggah dan validasi dokumen proposal format PDF",
+              "Penerbitan surat bukti reservasi sah digital",
+              "Panel kendali persetujuan & verifikasi Biro Sarana Kampus"
+            ]
+          },
+          {
+            "@type": "EducationalOrganization",
+            "@id": "http://localhost:5173/#organization",
+            "name": "Biro Sarana & Prasarana Kampus",
+            "url": "http://localhost:5173/",
+            "logo": "http://localhost:5173/logo-icon.png",
+            "description": "Unit pengelola sarana, prasarana, dan ruang fasilitas kampus untuk penunjang kegiatan tridharma perguruan tinggi dan kemahasiswaan."
+          },
+          {
+            "@type": "Service",
+            "serviceType": "Peminjaman Fasilitas Ruang Kampus",
+            "provider": {
+              "@id": "http://localhost:5173/#organization"
+            },
+            "areaServed": "Kampus",
+            "audience": {
+              "@type": "Audience",
+              "audienceType": "Civitas Akademika Kampus"
+            },
+            "potentialAction": {
+              "@type": "ReserveAction",
+              "target": {
+                "@type": "EntryPoint",
+                "urlTemplate": "http://localhost:5173/katalog",
+                "inLanguage": "id",
+                "actionPlatform": [
+                  "http://schema.org/DesktopWebPlatform",
+                  "http://schema.org/MobileWebPlatform"
+                ]
+              },
+              "result": {
+                "@type": "Reservation",
+                "name": "Bukti Reservasi Fasilitas Kampus"
+              }
+            }
+          }
+        ]
       }
     </script>
   </head>
-  <body class="bg-[#f8fafc] text-slate-800 antialiased selection:bg-[#326273] selection:text-white">
+  <body class="bg-[#f8fafc] text-slate-800 antialiased selection:bg-[#326273] selection:text-white min-h-screen">
     <!-- Skip Link for Keyboard Accessibility (WCAG 2.4.1) -->
     <a
       href="#main-content"
-      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#326273] focus:text-white focus:font-bold focus:rounded-xl focus:shadow-xl focus:ring-2 focus:ring-white"
+      class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2.5 focus:bg-[#326273] focus:text-white focus:font-bold focus:rounded-xl focus:shadow-xl focus:ring-2 focus:ring-white focus:outline-none"
     >
       Lewati ke konten utama
     </a>

@@ -1,0 +1,34 @@
+# Kumpul-In Kampus • robots.txt
+# Standard search engines and modern AI agentic crawlers policy
+
+User-agent: *
+Allow: /
+Allow: /katalog
+Allow: /faq
+Allow: /fasilitas
+Disallow: /api/
+Disallow: /admin
+
+# Modern AI Agents & Crawlers (Agentic Browsing Friendly)
+User-agent: GPTBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: anthropic-ai
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+Sitemap: http://localhost:5173/sitemap.xml

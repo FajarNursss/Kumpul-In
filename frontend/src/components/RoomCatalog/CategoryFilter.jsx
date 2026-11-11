@@ -45,9 +45,9 @@ export default function CategoryFilter({
         </div>
 
         {/* Sort & Capacity Selectors */}
-        <div className="flex items-center space-x-2">
+        <div className="grid grid-cols-2 sm:flex items-center gap-2 w-full sm:w-auto">
           {/* Capacity */}
-          <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
+          <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 sm:py-1.5 justify-between sm:justify-start">
             <Users className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
             <label htmlFor="min-capacity-select" className="sr-only">
               Filter Kapasitas Minimum
@@ -56,7 +56,7 @@ export default function CategoryFilter({
               id="min-capacity-select"
               value={minCapacity}
               onChange={(e) => onChangeMinCapacity(e.target.value)}
-              className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer"
+              className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer w-full"
             >
               <option value="">Kapasitas Bebas</option>
               <option value="1">≥ 1 Orang</option>
@@ -69,7 +69,7 @@ export default function CategoryFilter({
           </div>
 
           {/* Sort By (Non-commercial: by capacity / name) */}
-          <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-1.5">
+          <div className="flex items-center space-x-1.5 bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 sm:py-1.5 justify-between sm:justify-start">
             <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 shrink-0" aria-hidden="true" />
             <label htmlFor="sort-by-select" className="sr-only">
               Urutkan Daftar Ruangan
@@ -78,7 +78,7 @@ export default function CategoryFilter({
               id="sort-by-select"
               value={sortBy}
               onChange={(e) => onSortChange(e.target.value)}
-              className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer"
+              className="text-xs bg-transparent border-none p-0 focus:ring-0 font-medium text-slate-700 cursor-pointer w-full"
             >
               <option value="default">Rekomendasi Kampus</option>
               <option value="capacity-desc">Kapasitas Terbesar</option>
