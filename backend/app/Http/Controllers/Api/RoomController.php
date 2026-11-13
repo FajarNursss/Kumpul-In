@@ -58,7 +58,7 @@ class RoomController extends Controller
         $bookings = Booking::where('room_id', $room->id)
             ->whereDate('booking_date', $date)
             ->whereIn('status', ['confirmed', 'pending'])
-            ->get();
+            ->get(['id', 'booking_code', 'start_time', 'end_time', 'duration_type']);
 
         // Check if there is any daily booking on this date
         $dailyBooking = $bookings->firstWhere('duration_type', 'daily');

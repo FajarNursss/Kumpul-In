@@ -97,7 +97,7 @@ class BookingController extends Controller
         $existingBookings = Booking::where('room_id', $room->id)
             ->whereDate('booking_date', $validated['booking_date'])
             ->whereIn('status', ['confirmed', 'pending'])
-            ->get();
+            ->get(['id', 'booking_code', 'start_time', 'end_time', 'duration_type']);
 
         foreach ($existingBookings as $existing) {
             // If existing is daily or new is daily, it conflicts with any booking on that date

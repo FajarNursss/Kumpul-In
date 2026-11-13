@@ -100,11 +100,26 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
     }
   };
 
+  // Initial full load
   useEffect(() => {
     fetchAdminData();
-  }, [statusFilter, userRoleFilter]);
+  }, []);
 
-  // Handle Search Users with debounce for server sync
+  // Targeted update: bookings filter
+  const isFirstMount = React.useRef(true);
+  useEffect(() => {
+    if (isFirstMount.current) {
+      isFirstMount.current = false;
+      return;
+    }
+    adminService.getBookings(statusFilter ? { status: statusFilter } : {})
+      .then((res) => {
+        if (res.success) setBookings(res.data);
+      })
+      .catch((err) => console.error('Failed to filter bookings:', err));
+  }, [statusFilter]);
+
+  // Targeted update: users filter & search with debounce
   useEffect(() => {
     const timer = setTimeout(() => {
       adminService.getUsers({
@@ -113,9 +128,9 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
       }).then((res) => {
         if (res.success) setUsersList(res.data);
       }).catch(() => {});
-    }, 300);
+    }, 250);
     return () => clearTimeout(timer);
-  }, [userSearchQuery]);
+  }, [userRoleFilter, userSearchQuery]);
 
   // Interactive Spin Refresh Handler
   const handleRefresh = async () => {

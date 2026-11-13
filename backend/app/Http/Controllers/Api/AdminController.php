@@ -32,23 +32,30 @@ class AdminController extends Controller
         $this->authorizeAdmin($request);
 
         $totalUsers = User::where('role', '!=', 'admin')->count();
-        $totalRooms = Room::count();
-        $activeRooms = Room::where('is_active', true)->count();
-        $totalBookings = Booking::count();
-        $pendingBookings = Booking::where('status', 'pending')->count();
-        $confirmedBookings = Booking::where('status', 'confirmed')->count();
-        $todayBookings = Booking::whereDate('booking_date', now()->format('Y-m-d'))->count();
+
+        $roomStats = Room::selectRaw('
+            COUNT(*) as total,
+            SUM(CASE WHEN is_active = 1 THEN 1 ELSE 0 END) as active
+        ')->first();
+
+        $todayStr = now()->format('Y-m-d');
+        $bookingStats = Booking::selectRaw('
+            COUNT(*) as total,
+            SUM(CASE WHEN status = "pending" THEN 1 ELSE 0 END) as pending,
+            SUM(CASE WHEN status = "confirmed" THEN 1 ELSE 0 END) as confirmed,
+            SUM(CASE WHEN booking_date = ? THEN 1 ELSE 0 END) as today
+        ', [$todayStr])->first();
 
         return response()->json([
             'success' => true,
             'data' => [
                 'total_users' => $totalUsers,
-                'total_rooms' => $totalRooms,
-                'active_rooms' => $activeRooms,
-                'total_bookings' => $totalBookings,
-                'pending_bookings' => $pendingBookings,
-                'confirmed_bookings' => $confirmedBookings,
-                'today_bookings' => $todayBookings,
+                'total_rooms' => (int) ($roomStats->total ?? 0),
+                'active_rooms' => (int) ($roomStats->active ?? 0),
+                'total_bookings' => (int) ($bookingStats->total ?? 0),
+                'pending_bookings' => (int) ($bookingStats->pending ?? 0),
+                'confirmed_bookings' => (int) ($bookingStats->confirmed ?? 0),
+                'today_bookings' => (int) ($bookingStats->today ?? 0),
             ],
         ]);
     }

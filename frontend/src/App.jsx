@@ -17,58 +17,54 @@ import { authService, roomService } from './services/api';
 import { ArrowRight, AlertTriangle, Menu, Shield, GraduationCap } from 'lucide-react';
 
 // Route parser & validator for URL link handling
+const VALID_HASH_LANDING = new Set(['', '#', '#hero', '#fasilitas', '#alur-booking', '#faq', '#cara-kerja', '#main-content']);
+
+const HASH_TAB_MAP = {
+  '#katalog': 'catalog', '#catalog': 'catalog', '#ruangan': 'catalog', '#fasilitas-kampus': 'catalog',
+  '#riwayat': 'my-bookings', '#peminjaman-saya': 'my-bookings', '#my-bookings': 'my-bookings', '#reservasi-saya': 'my-bookings',
+  '#admin': 'admin', '#admin-overview': 'admin',
+  '#admin-riwayat': 'admin-bookings', '#admin-bookings': 'admin-bookings',
+  '#admin-fasilitas': 'admin-rooms', '#admin-rooms': 'admin-rooms',
+  '#admin-pengguna': 'admin-users', '#admin-users': 'admin-users',
+};
+
+const PATH_TAB_MAP = {
+  '/katalog': 'catalog', '/catalog': 'catalog', '/fasilitas': 'catalog', '/portal': 'catalog',
+  '/riwayat': 'my-bookings', '/peminjaman-saya': 'my-bookings', '/my-bookings': 'my-bookings', '/reservasi': 'my-bookings',
+  '/admin': 'admin', '/admin/overview': 'admin',
+  '/admin/riwayat': 'admin-bookings', '/admin/bookings': 'admin-bookings', '/admin/reservasi': 'admin-bookings',
+  '/admin/fasilitas': 'admin-rooms', '/admin/ruangan': 'admin-rooms', '/admin/rooms': 'admin-rooms',
+  '/admin/pengguna': 'admin-users', '/admin/users': 'admin-users', '/admin/civitas': 'admin-users',
+};
+
+const ROUTE_CONFIG = {
+  landing: { path: '/', view: 'landing', tab: 'catalog' },
+  catalog: { path: '/katalog', view: 'dashboard', tab: 'catalog' },
+  'my-bookings': { path: '/riwayat', view: 'dashboard', tab: 'my-bookings' },
+  admin: { path: '/admin', view: 'dashboard', tab: 'admin' },
+  'admin-bookings': { path: '/admin/riwayat', view: 'dashboard', tab: 'admin-bookings' },
+  'admin-rooms': { path: '/admin/fasilitas', view: 'dashboard', tab: 'admin-rooms' },
+  'admin-users': { path: '/admin/pengguna', view: 'dashboard', tab: 'admin-users' },
+};
+
 const resolveRoute = (pathname, hash) => {
   const cleanPath = (pathname || '/').replace(/\/+$/, '') || '/';
   const cleanHash = (hash || '').toLowerCase();
 
-  // Root or in-page anchors on landing
   if (cleanPath === '/' || cleanPath === '') {
-    if (['', '#', '#hero', '#fasilitas', '#alur-booking', '#faq', '#cara-kerja', '#main-content'].includes(cleanHash)) {
+    if (VALID_HASH_LANDING.has(cleanHash)) {
       return { view: 'landing', tab: 'catalog', isValid: true };
     }
-    if (['#katalog', '#catalog', '#ruangan', '#fasilitas-kampus'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'catalog', isValid: true };
+    if (HASH_TAB_MAP[cleanHash]) {
+      return { view: 'dashboard', tab: HASH_TAB_MAP[cleanHash], isValid: true };
     }
-    if (['#riwayat', '#peminjaman-saya', '#my-bookings', '#reservasi-saya'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'my-bookings', isValid: true };
-    }
-    if (['#admin', '#admin-overview'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'admin', isValid: true };
-    }
-    if (['#admin-riwayat', '#admin-bookings'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'admin-bookings', isValid: true };
-    }
-    if (['#admin-fasilitas', '#admin-rooms'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'admin-rooms', isValid: true };
-    }
-    if (['#admin-pengguna', '#admin-users'].includes(cleanHash)) {
-      return { view: 'dashboard', tab: 'admin-users', isValid: true };
-    }
-    // Invalid hash link on root
     return { view: 'not-found', tab: 'catalog', isValid: false, badPath: cleanHash };
   }
 
-  // Path based routing
-  if (['/katalog', '/catalog', '/fasilitas', '/portal'].includes(cleanPath)) {
-    return { view: 'dashboard', tab: 'catalog', isValid: true };
-  }
-  if (['/riwayat', '/peminjaman-saya', '/my-bookings', '/reservasi'].includes(cleanPath)) {
-    return { view: 'dashboard', tab: 'my-bookings', isValid: true };
-  }
-  if (cleanPath === '/admin' || cleanPath === '/admin/overview') {
-    return { view: 'dashboard', tab: 'admin', isValid: true };
-  }
-  if (['/admin/riwayat', '/admin/bookings', '/admin/reservasi'].includes(cleanPath)) {
-    return { view: 'dashboard', tab: 'admin-bookings', isValid: true };
-  }
-  if (['/admin/fasilitas', '/admin/ruangan', '/admin/rooms'].includes(cleanPath)) {
-    return { view: 'dashboard', tab: 'admin-rooms', isValid: true };
-  }
-  if (['/admin/pengguna', '/admin/users', '/admin/civitas'].includes(cleanPath)) {
-    return { view: 'dashboard', tab: 'admin-users', isValid: true };
+  if (PATH_TAB_MAP[cleanPath]) {
+    return { view: 'dashboard', tab: PATH_TAB_MAP[cleanPath], isValid: true };
   }
 
-  // Any other URL pathname is an invalid link ("salah ketik link")
   return { view: 'not-found', tab: 'catalog', isValid: false, badPath: cleanPath + (cleanHash || '') };
 };
 
@@ -140,35 +136,10 @@ export default function App() {
     if (category) {
       setSelectedCategory(category);
     }
-
-    if (target === 'landing') {
-      window.history.pushState(null, '', '/');
-      setViewMode('landing');
-    } else if (target === 'catalog') {
-      window.history.pushState(null, '', '/katalog');
-      setViewMode('dashboard');
-      setActiveTab('catalog');
-    } else if (target === 'my-bookings') {
-      window.history.pushState(null, '', '/riwayat');
-      setViewMode('dashboard');
-      setActiveTab('my-bookings');
-    } else if (target === 'admin') {
-      window.history.pushState(null, '', '/admin');
-      setViewMode('dashboard');
-      setActiveTab('admin');
-    } else if (target === 'admin-bookings') {
-      window.history.pushState(null, '', '/admin/riwayat');
-      setViewMode('dashboard');
-      setActiveTab('admin-bookings');
-    } else if (target === 'admin-rooms') {
-      window.history.pushState(null, '', '/admin/fasilitas');
-      setViewMode('dashboard');
-      setActiveTab('admin-rooms');
-    } else if (target === 'admin-users') {
-      window.history.pushState(null, '', '/admin/pengguna');
-      setViewMode('dashboard');
-      setActiveTab('admin-users');
-    }
+    const dest = ROUTE_CONFIG[target] || ROUTE_CONFIG.catalog;
+    window.history.pushState(null, '', dest.path);
+    setViewMode(dest.view);
+    setActiveTab(dest.tab);
   };
 
   // Check existing session on mount
@@ -444,13 +415,7 @@ export default function App() {
         <AdminDashboard
           currentUser={currentUser}
           activeTab={activeTab}
-          setActiveTab={(tab) => {
-            if (['admin', 'admin-bookings', 'admin-rooms', 'admin-users'].includes(tab)) {
-              navigateTo(tab);
-            } else {
-              setActiveTab(tab);
-            }
-          }}
+          setActiveTab={(tab) => navigateTo(tab)}
           onShowToast={showToast}
         />
       );
@@ -699,15 +664,7 @@ export default function App() {
         <Sidebar
           currentUser={currentUser}
           activeTab={activeTab}
-          setActiveTab={(tab) => {
-            if (tab === 'catalog') navigateTo('catalog');
-            else if (tab === 'my-bookings') navigateTo('my-bookings');
-            else if (tab === 'admin') navigateTo('admin');
-            else if (tab === 'admin-bookings') navigateTo('admin-bookings');
-            else if (tab === 'admin-rooms') navigateTo('admin-rooms');
-            else if (tab === 'admin-users') navigateTo('admin-users');
-            else setActiveTab(tab);
-          }}
+          setActiveTab={(tab) => navigateTo(tab)}
           onLogout={handleLogout}
           onGoHome={() => navigateTo('landing')}
           mobileOpen={mobileSidebarOpen}
