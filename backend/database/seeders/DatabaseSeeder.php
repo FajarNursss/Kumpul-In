@@ -5,8 +5,10 @@ namespace Database\Seeders;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Booking;
+use App\Models\RoomInventory;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Str;
 
 class DatabaseSeeder extends Seeder
 {
@@ -112,7 +114,41 @@ class DatabaseSeeder extends Seeder
         ];
 
         foreach ($rooms as $roomData) {
-            Room::updateOrCreate(['name' => $roomData['name']], $roomData);
+            $createdRoom = Room::updateOrCreate(['name' => $roomData['name']], $roomData);
+
+            // Seed inventory equipment for each room category if empty
+            if ($createdRoom->inventories()->count() === 0) {
+                if ($createdRoom->category === 'Aula') {
+                    $createdRoom->inventories()->createMany([
+                        ['item_name' => 'Sound System Line Array 5000W', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Mixer Digital 16 Channel'],
+                        ['item_name' => 'Wireless Microphone Shure Beta', 'quantity' => 4, 'condition' => 'good', 'notes' => 'Baterai cadangan tersedia di meja kontrol'],
+                        ['item_name' => 'Laser Projector 10.000 Lumens', 'quantity' => 2, 'condition' => 'good', 'notes' => 'Koneksi HDMI & Wireless Screen'],
+                        ['item_name' => 'Podium Utama Resmi Kayu Jati', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Logo universitas kuningan'],
+                        ['item_name' => 'Kursi Tamu VIP Beludru Merah', 'quantity' => 50, 'condition' => 'good', 'notes' => 'Baris depan area VIP'],
+                    ]);
+                } elseif ($createdRoom->category === 'Perpustakaan') {
+                    $createdRoom->inventories()->createMany([
+                        ['item_name' => 'Smart TV Samsung 55" UHD', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Mendukung casting laptop mahasiswa'],
+                        ['item_name' => 'Magnetic Whiteboard 2x1 Meter', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Lengkap 4 spidol dan penghapus'],
+                        ['item_name' => 'Stopkontak Meja Modular 4 Lubang', 'quantity' => 4, 'condition' => 'good', 'notes' => 'Terintegrasi di tiap meja diskusi'],
+                        ['item_name' => 'Kabel HDMI 4K High Speed 3 Meter', 'quantity' => 2, 'condition' => 'good', 'notes' => 'Kabel cadangan di laci staf'],
+                    ]);
+                } elseif ($createdRoom->category === 'Meeting Room') {
+                    $createdRoom->inventories()->createMany([
+                        ['item_name' => 'Conference Camera PTZ 4K Zoom', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Kompatibel Zoom/Google Meet'],
+                        ['item_name' => 'Microphone Goose-neck Meja Rapat', 'quantity' => 8, 'condition' => 'good', 'notes' => 'Dilengkapi tombol mute personal'],
+                        ['item_name' => 'Smart TV Display 65" LG Commercial', 'quantity' => 1, 'condition' => 'good', 'notes' => 'HDMI 1 & 2 terpasang'],
+                        ['item_name' => 'Glass Whiteboard Premium 2.4 Meter', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Spidol kaca non-permanent'],
+                    ]);
+                } elseif ($createdRoom->category === 'Ruang Belajar') {
+                    $createdRoom->inventories()->createMany([
+                        ['item_name' => 'Interactive Smart Board 75"', 'quantity' => 1, 'condition' => 'good', 'notes' => 'Stylus pen 2 buah'],
+                        ['item_name' => 'Meja Belajar Sekat Partisi Akustik', 'quantity' => $createdRoom->capacity, 'condition' => 'good', 'notes' => 'Ergonomis untuk fokus belajar'],
+                        ['item_name' => 'Lampu Belajar LED Meja Personal', 'quantity' => $createdRoom->capacity, 'condition' => 'good', 'notes' => '3 tingkat kecerahan'],
+                        ['item_name' => 'Air Conditioner Daikin Inverter 2 PK', 'quantity' => 2, 'condition' => 'good', 'notes' => 'Suhu optimal 22°C'],
+                    ]);
+                }
+            }
         }
 
         // 3. Seed an initial sample booking for testing conflict visualization
@@ -128,6 +164,7 @@ class DatabaseSeeder extends Seeder
                     'end_time' => '11:00:00',
                     'duration_type' => 'hourly',
                     'status' => 'confirmed',
+                    'checkin_token' => 'CHK-INIT-' . Str::random(12),
                 ]
             );
         }

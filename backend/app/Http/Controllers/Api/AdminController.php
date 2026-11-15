@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Room;
 use App\Models\Booking;
+use App\Models\RoomInventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -86,7 +87,83 @@ class AdminController extends Controller
     }
 
     /**
-     * Update booking status (confirm or cancel).
+     * Export filtered bookings to CSV for campus reporting.
+     */
+    public function exportCsv(Request $request)
+    {
+        $this->authorizeAdmin($request);
+
+        $query = Booking::with(['user', 'room'])->orderBy('created_at', 'desc');
+
+        if ($request->filled('status')) {
+            $query->where('status', $request->query('status'));
+        }
+        if ($request->filled('date')) {
+            $query->whereDate('booking_date', $request->query('date'));
+        }
+
+        $bookings = $query->get();
+        $filename = 'laporan-peminjaman-kumpulin-' . date('Ymd-His') . '.csv';
+
+        $headers = [
+            'Content-Type' => 'text/csv; charset=UTF-8',
+            'Content-Disposition' => "attachment; filename=\"{$filename}\"",
+            'Pragma' => 'no-cache',
+            'Cache-Control' => 'must-revalidate, post-check=0, pre-check=0',
+            'Expires' => '0',
+        ];
+
+        $callback = function () use ($bookings) {
+            $file = fopen('php://output', 'w');
+            // Write UTF-8 BOM for Microsoft Excel
+            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF));
+
+            fputcsv($file, [
+                'No',
+                'Kode Reservasi',
+                'Nama Pemesan',
+                'Email Pemesan',
+                'Peran',
+                'Fasilitas Ruangan',
+                'Kategori',
+                'Tanggal Reservasi',
+                'Waktu Mulai',
+                'Waktu Selesai',
+                'Tipe Durasi',
+                'Status Verifikasi',
+                'Waktu Check-In',
+                'Catatan Penolakan',
+                'Tanggal Diajukan',
+            ]);
+
+            foreach ($bookings as $index => $b) {
+                fputcsv($file, [
+                    $index + 1,
+                    $b->booking_code,
+                    $b->user?->name ?? '-',
+                    $b->user?->email ?? '-',
+                    $b->user?->role ?? '-',
+                    $b->room?->name ?? '-',
+                    $b->room?->category ?? '-',
+                    $b->booking_date ? $b->booking_date->format('Y-m-d') : '-',
+                    $b->start_time,
+                    $b->end_time,
+                    $b->duration_type === 'daily' ? 'Seharian Penuh' : 'Sesi Jam',
+                    $b->status,
+                    $b->checked_in_at ? $b->checked_in_at->format('Y-m-d H:i:s') : 'Belum Check-In',
+                    $b->rejection_reason ?? '-',
+                    $b->created_at ? $b->created_at->format('Y-m-d H:i:s') : '-',
+                ]);
+            }
+
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Update booking status (confirm, reject with reason, or cancel).
      */
     public function updateBookingStatus(Request $request, $id)
     {
@@ -94,6 +171,7 @@ class AdminController extends Controller
 
         $validated = $request->validate([
             'status' => 'required|in:confirmed,rejected,cancelled',
+            'rejection_reason' => 'nullable|string|max:500',
         ]);
 
         $booking = Booking::findOrFail($id);
@@ -101,6 +179,11 @@ class AdminController extends Controller
         $newStatus = $validated['status'];
 
         $booking->status = $newStatus;
+        if ($newStatus === 'rejected') {
+            $booking->rejection_reason = $validated['rejection_reason'] ?? 'Permohonan ditolak oleh Biro Sarana Kampus.';
+        } elseif ($newStatus === 'confirmed') {
+            $booking->rejection_reason = null;
+        }
         $booking->save();
 
         // If booking is rejected or cancelled, restore user quota

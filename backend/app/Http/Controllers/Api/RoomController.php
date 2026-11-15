@@ -24,7 +24,7 @@ class RoomController extends Controller
             $query->where('capacity', '>=', (int) $request->input('min_capacity'));
         }
 
-        $rooms = $query->orderBy('capacity', 'asc')->get();
+        $rooms = $query->with('inventories')->orderBy('capacity', 'asc')->get();
 
         return response()->json([
             'success' => true,
