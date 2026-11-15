@@ -413,4 +413,176 @@ class KumpulinApiTest extends TestCase
         $response->assertStatus(422)
             ->assertJsonPath('success', false);
     }
+
+    public function test_mahasiswa_can_reschedule_active_booking()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+
+        $booking = Booking::create([
+            'booking_code' => 'KMP-RESC-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(3)->format('Y-m-d'),
+            'start_time' => '09:00:00',
+            'end_time' => '10:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'confirmed',
+        ]);
+
+        $newDate = now()->addDays(4)->format('Y-m-d');
+        $response = $this->actingAs($mahasiswa, 'sanctum')->patchJson("/api/bookings/{$booking->id}/reschedule", [
+            'booking_date' => $newDate,
+            'duration_type' => 'hourly',
+            'start_time' => '14:00',
+            'end_time' => '15:00',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertEquals($newDate, $booking->fresh()->booking_date->format('Y-m-d'));
+        $this->assertNotNull($booking->fresh()->rescheduled_at);
+    }
+
+    public function test_user_can_checkin_via_token_and_auto_release_ghost_bookings()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $admin = User::where('role', 'admin')->first();
+        $room = Room::first();
+
+        // 1. Create a confirmed booking with checkin_token
+        $booking = Booking::create([
+            'booking_code' => 'KMP-CHK-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->format('Y-m-d'),
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'confirmed',
+            'checkin_token' => 'CHK-TEST-QR-999',
+        ]);
+
+        // Checkin by token
+        $response = $this->postJson('/api/bookings/checkin-by-token', [
+            'token' => 'CHK-TEST-QR-999',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+        $this->assertNotNull($booking->fresh()->checked_in_at);
+
+        // 2. Test auto release of ghost booking
+        $ghostBooking = Booking::create([
+            'booking_code' => 'KMP-GHOST-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->format('Y-m-d'),
+            'start_time' => now()->subHours(2)->format('H:i:s'),
+            'end_time' => now()->subHour()->format('H:i:s'),
+            'duration_type' => 'hourly',
+            'status' => 'confirmed',
+            'checked_in_at' => null,
+        ]);
+
+        $releaseResponse = $this->actingAs($admin, 'sanctum')->postJson('/api/admin/bookings/auto-release');
+        $releaseResponse->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertEquals('cancelled', $ghostBooking->fresh()->status);
+    }
+
+    public function test_admin_can_reject_booking_with_reason()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::first();
+
+        $booking = Booking::create([
+            'booking_code' => 'KMP-REJ-001',
+            'user_id' => $mahasiswa->id,
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(2)->format('Y-m-d'),
+            'start_time' => '08:00:00',
+            'end_time' => '09:00:00',
+            'duration_type' => 'hourly',
+            'status' => 'pending',
+        ]);
+
+        $response = $this->actingAs($admin, 'sanctum')->patchJson("/api/admin/bookings/{$booking->id}/status", [
+            'status' => 'rejected',
+            'rejection_reason' => 'Ruangan sedang dalam perbaikan AC dan sound system.',
+        ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('success', true);
+
+        $this->assertEquals('Ruangan sedang dalam perbaikan AC dan sound system.', $booking->fresh()->rejection_reason);
+    }
+
+    public function test_admin_can_export_bookings_csv()
+    {
+        $admin = User::where('role', 'admin')->first();
+
+        $response = $this->actingAs($admin, 'sanctum')->get('/api/admin/bookings/export-csv');
+        $response->assertStatus(200)
+            ->assertHeader('Content-Type', 'text/csv; charset=UTF-8');
+    }
+
+    public function test_admin_can_manage_room_inventories()
+    {
+        $admin = User::where('role', 'admin')->first();
+        $room = Room::first();
+
+        // Add inventory
+        $addRes = $this->actingAs($admin, 'sanctum')->postJson("/api/admin/rooms/{$room->id}/inventories", [
+            'item_name' => 'Kabel HDMI 4K Gold Plated',
+            'quantity' => 3,
+            'condition' => 'good',
+            'notes' => 'Panjang 5 meter',
+        ]);
+        $addRes->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.item_name', 'Kabel HDMI 4K Gold Plated');
+
+        $itemId = $addRes->json('data.id');
+
+        // Update inventory
+        $upRes = $this->actingAs($admin, 'sanctum')->patchJson("/api/admin/inventories/{$itemId}", [
+            'quantity' => 5,
+            'condition' => 'good',
+        ]);
+        $upRes->assertStatus(200)
+            ->assertJsonPath('data.quantity', 5);
+
+        // Delete inventory
+        $delRes = $this->actingAs($admin, 'sanctum')->deleteJson("/api/admin/inventories/{$itemId}");
+        $delRes->assertStatus(200)
+            ->assertJsonPath('success', true);
+    }
+
+    public function test_user_can_create_recurring_weekly_booking()
+    {
+        $mahasiswa = User::where('role', 'mahasiswa')->first();
+        $room = Room::where('category', 'Ruang Belajar')->first();
+        $mahasiswa->update(['booking_quota' => 5]);
+
+        $response = $this->actingAs($mahasiswa, 'sanctum')->postJson('/api/bookings', [
+            'room_id' => $room->id,
+            'booking_date' => now()->addDays(5)->format('Y-m-d'),
+            'duration_type' => 'hourly',
+            'start_time' => '15:00',
+            'end_time' => '16:00',
+            'is_recurring' => true,
+            'recurring_weeks' => 3,
+        ]);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('success', true)
+            ->assertJsonPath('data.is_recurring', true)
+            ->assertJsonPath('data.recurring_count', 3);
+
+        $this->assertEquals(2, $mahasiswa->fresh()->booking_quota); // 5 - 3 = 2
+    }
 }

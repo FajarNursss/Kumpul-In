@@ -1,7 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import ProposalUpload from './ProposalUpload';
-import { X, Calendar, Clock, Building, AlertCircle, Loader2, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
+import {
+  X, Calendar, Clock, Building, AlertCircle, Loader2,
+  CheckCircle2, ShieldCheck, Check, Repeat, Package
+} from 'lucide-react';
 import { bookingService } from '../../services/api';
 
 export default function BookingForm({
@@ -16,6 +19,8 @@ export default function BookingForm({
   const [proposalFile, setProposalFile] = useState(null);
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [isRecurring, setIsRecurring] = useState(false);
+  const [recurringWeeks, setRecurringWeeks] = useState(4);
 
   // Close on Escape key & prevent body scrolling
   useEffect(() => {
@@ -42,12 +47,12 @@ export default function BookingForm({
     e.preventDefault();
     setErrorMessage('');
 
-    if (currentUser?.booking_quota <= 0) {
+    if (currentUser?.booking_quota <= 0 && currentUser?.role !== 'admin') {
       setErrorMessage('Sisa kuota peminjaman Anda telah habis. Harap hubungi Biro Sarana Kampus.');
       return;
     }
 
-    if (isAula && !proposalFile) {
+    if (isAula && !proposalFile && currentUser?.role !== 'admin') {
       setErrorMessage('Peminjaman Aula kampus mewajibkan unggah dokumen proposal atau surat izin kegiatan (PDF).');
       return;
     }
@@ -71,6 +76,11 @@ export default function BookingForm({
 
     if (proposalFile) {
       formData.append('proposal_file', proposalFile);
+    }
+
+    if (isRecurring) {
+      formData.append('is_recurring', '1');
+      formData.append('recurring_weeks', recurringWeeks.toString());
     }
 
     try {
@@ -107,14 +117,14 @@ export default function BookingForm({
             type="button"
             onClick={onClose}
             aria-label="Tutup form peminjaman"
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none"
+            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors focus-visible:ring-2 focus-visible:ring-[#326273] focus-visible:outline-none cursor-pointer"
           >
             <X className="w-5 h-5" aria-hidden="true" />
           </button>
         </div>
 
         {/* Modal Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-5 overflow-y-auto">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4 overflow-y-auto">
           {/* Error Alert */}
           {errorMessage && (
             <div role="alert" className="p-3.5 rounded-xl border border-rose-200 bg-rose-50 text-rose-800 text-xs flex items-start gap-2.5 animate-shake">
@@ -138,7 +148,7 @@ export default function BookingForm({
           </div>
 
           {/* Room Details Card */}
-          <div className="p-4 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 space-y-3">
+          <div className="p-4 rounded-2xl bg-[#eef6f8] border border-[#5c9ead]/40 space-y-2.5">
             <div className="flex items-center justify-between">
               <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
                 <Building className="w-4 h-4 text-[#326273]" aria-hidden="true" />
@@ -159,6 +169,63 @@ export default function BookingForm({
                 <span>{isDaily ? '08:00 - 18:00 (Seharian)' : slot?.time}</span>
               </div>
             </div>
+          </div>
+
+          {/* Room Inventories List */}
+          {room.inventories && room.inventories.length > 0 && (
+            <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 space-y-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-slate-700">
+                <Package className="w-3.5 h-3.5 text-[#5c9ead]" />
+                <span>Inventaris Tersedia di Ruangan:</span>
+              </div>
+              <div className="flex flex-wrap gap-1.5">
+                {room.inventories.map((inv) => (
+                  <span
+                    key={inv.id}
+                    className="text-[11px] font-semibold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-slate-700"
+                  >
+                    {inv.quantity}x {inv.item_name}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Mode Reservasi Berulang (Recurring Booking) */}
+          <div className="p-3.5 rounded-2xl bg-indigo-50/70 border border-indigo-200/80 space-y-2.5">
+            <label className="flex items-start gap-2.5 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={isRecurring}
+                onChange={(e) => setIsRecurring(e.target.checked)}
+                className="w-4 h-4 rounded text-[#326273] focus:ring-[#326273] mt-0.5 cursor-pointer"
+              />
+              <div className="text-xs">
+                <span className="font-bold text-slate-800 flex items-center gap-1.5">
+                  <Repeat className="w-3.5 h-3.5 text-indigo-600" />
+                  Reservasi Berulang Mingguan (Semester-Long Booking)
+                </span>
+                <p className="text-[11px] text-slate-500 mt-0.5">
+                  Ulangi peminjaman ini setiap minggu pada hari dan jam yang sama (misal rapat ormawa, asistensi lab, mentoring).
+                </p>
+              </div>
+            </label>
+
+            {isRecurring && (
+              <div className="pt-2 border-t border-indigo-200/60 flex items-center justify-between text-xs">
+                <span className="font-semibold text-slate-700">Pilih Periode Pengulangan:</span>
+                <select
+                  value={recurringWeeks}
+                  onChange={(e) => setRecurringWeeks(parseInt(e.target.value, 10))}
+                  className="text-xs font-bold rounded-xl border border-indigo-200 bg-white py-1 px-3 text-slate-800 focus:outline-none focus:ring-2 focus:ring-[#326273]"
+                >
+                  <option value={2}>2 Minggu Berturut-turut</option>
+                  <option value={4}>4 Minggu (1 Bulan)</option>
+                  <option value={8}>8 Minggu (Setengah Semester)</option>
+                  <option value={12}>12 Minggu (Satu Semester)</option>
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Proposal Upload (Mandatory for Aula Kampus - exempted for Biro Sarana) */}
@@ -199,20 +266,7 @@ export default function BookingForm({
             </div>
           )}
 
-          {/* Campus Facility Policy Card (Non-Commercial / Free) */}
-          <div className="p-4 rounded-2xl bg-emerald-50/70 border border-emerald-200/80 flex items-start space-x-3">
-            <ShieldCheck className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" aria-hidden="true" />
-            <div className="text-xs space-y-1">
-              <div className="font-bold text-emerald-900">
-                Fasilitas Kampus Bebas Biaya (Gratis)
-              </div>
-              <p className="text-emerald-700 leading-relaxed text-[11px]">
-                Fasilitas ini disediakan untuk menunjang kegiatan akademik, riset, diskusi kelompok, dan kegiatan organisasi mahasiswa.
-              </p>
-            </div>
-          </div>
-
-          {/* Action Buttons - Perfectly Consistent Sizing */}
+          {/* Action Buttons */}
           <div className="grid grid-cols-2 gap-3 pt-2">
             <button
               type="button"

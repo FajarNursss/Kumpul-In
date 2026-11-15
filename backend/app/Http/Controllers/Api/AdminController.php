@@ -411,5 +411,129 @@ class AdminController extends Controller
             'message' => "Pengguna {$name} berhasil dihapus dari sistem.",
         ]);
     }
+
+    /**
+     * Auto-release policy:
+     * Cancel confirmed bookings that have passed 30 minutes since start_time on today's date
+     * without checking in (ghost booking), and penalize quota (do NOT refund quota).
+     */
+    public function autoReleaseGhostBookings(Request $request)
+    {
+        $this->authorizeAdmin($request);
+
+        $now = now();
+        $today = $now->format('Y-m-d');
+
+        // Threshold: 30 minutes past start_time
+        $thresholdTime = $now->copy()->subMinutes(30)->format('H:i:s');
+
+        $ghostBookings = Booking::with(['user', 'room'])
+            ->whereDate('booking_date', $today)
+            ->where('status', 'confirmed')
+            ->whereNull('checked_in_at')
+            ->where('start_time', '<=', $thresholdTime)
+            ->get();
+
+        $releasedCount = 0;
+        foreach ($ghostBookings as $b) {
+            $b->update([
+                'status' => 'cancelled',
+                'rejection_reason' => 'Auto-Release: Dibatalkan otomatis oleh sistem karena tidak melakukan check-in kehadiran di lokasi dalam 30 menit setelah jam mulai.',
+            ]);
+            $releasedCount++;
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => "Auto-release selesai. Berhasil membatalkan {$releasedCount} peminjaman tanpa check-in (ghost booking) dan membebaskan slot ruangan.",
+            'data' => [
+                'released_count' => $releasedCount,
+                'released_bookings' => $ghostBookings,
+            ],
+        ]);
+    }
+
+    /**
+     * List all inventories for a room.
+     */
+    public function inventories(Request $request, $roomId)
+    {
+        $this->authorizeAdmin($request);
+
+        $room = Room::findOrFail($roomId);
+        $items = $room->inventories()->orderBy('item_name', 'asc')->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $items,
+        ]);
+    }
+
+    /**
+     * Store new inventory item for a room.
+     */
+    public function storeInventory(Request $request, $roomId)
+    {
+        $this->authorizeAdmin($request);
+
+        $room = Room::findOrFail($roomId);
+
+        $validated = $request->validate([
+            'item_name' => 'required|string|max:100',
+            'quantity' => 'required|integer|min:1',
+            'condition' => 'required|in:good,fair,damaged,maintenance',
+            'notes' => 'nullable|string|max:255',
+        ]);
+
+        $item = $room->inventories()->create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Alat {$item->item_name} berhasil ditambahkan ke inventaris {$room->name}.",
+            'data' => $item,
+        ], 201);
+    }
+
+    /**
+     * Update existing inventory item.
+     */
+    public function updateInventory(Request $request, $id)
+    {
+        $this->authorizeAdmin($request);
+
+        $item = RoomInventory::findOrFail($id);
+
+        $validated = $request->validate([
+            'item_name' => 'sometimes|required|string|max:100',
+            'quantity' => 'sometimes|required|integer|min:1',
+            'condition' => 'sometimes|required|in:good,fair,damaged,maintenance',
+            'notes' => 'sometimes|nullable|string|max:255',
+        ]);
+
+        $item->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => "Inventaris {$item->item_name} berhasil diperbarui.",
+            'data' => $item,
+        ]);
+    }
+
+    /**
+     * Delete an inventory item.
+     */
+    public function deleteInventory(Request $request, $id)
+    {
+        $this->authorizeAdmin($request);
+
+        $item = RoomInventory::findOrFail($id);
+        $itemName = $item->item_name;
+        $item->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => "Alat {$itemName} berhasil dihapus dari inventaris.",
+        ]);
+    }
 }
 

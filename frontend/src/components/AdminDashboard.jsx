@@ -6,7 +6,8 @@ import {
   Shield, Users, Building2, CalendarCheck, Clock, CheckCircle2,
   XCircle, Plus, Trash2, ToggleLeft, ToggleRight, Loader2,
   FileText, Download, AlertCircle, RefreshCw, AlertTriangle,
-  Edit3, Search, Filter, History, UserPlus, Key, Mail, X
+  Edit3, Search, Filter, History, UserPlus, Key, Mail, X,
+  Package, Repeat, Share2, CalendarDays, Check
 } from 'lucide-react';
 
 export default function AdminDashboard({ currentUser, activeTab = 'admin', setActiveTab, onShowToast }) {
@@ -73,6 +74,28 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
   const [editUserRole, setEditUserRole] = useState('mahasiswa');
   const [editUserQuota, setEditUserQuota] = useState('5');
   const [savingEditUser, setSavingEditUser] = useState(false);
+
+  // Rejection Reason Modal State
+  const [rejectModalState, setRejectModalState] = useState({
+    isOpen: false,
+    booking: null,
+    reason: '',
+  });
+  const [savingReject, setSavingReject] = useState(false);
+
+  // Room Inventory Modal State
+  const [inventoryModalRoom, setInventoryModalRoom] = useState(null);
+  const [roomInventoriesList, setRoomInventoriesList] = useState([]);
+  const [loadingInventories, setLoadingInventories] = useState(false);
+  const [newInvName, setNewInvName] = useState('');
+  const [newInvQty, setNewInvQty] = useState('1');
+  const [newInvCondition, setNewInvCondition] = useState('good');
+  const [newInvNotes, setNewInvNotes] = useState('');
+  const [savingInv, setSavingInv] = useState(false);
+
+  // Export & Auto-Release Loading State
+  const [isExporting, setIsExporting] = useState(false);
+  const [isAutoReleasing, setIsAutoReleasing] = useState(false);
 
   const fetchAdminData = async () => {
     try {
@@ -242,6 +265,165 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
         }
       },
     });
+  };
+
+  // Open Rejection Modal
+  const handleOpenRejectModal = (booking) => {
+    setRejectModalState({
+      isOpen: true,
+      booking,
+      reason: '',
+    });
+  };
+
+  // Submit Rejection with Reason
+  const handleConfirmReject = async (e) => {
+    e.preventDefault();
+    const { booking, reason } = rejectModalState;
+    if (!booking) return;
+
+    try {
+      setSavingReject(true);
+      const res = await adminService.updateBookingStatus(booking.id, 'rejected', reason.trim());
+      if (res.success) {
+        if (onShowToast) {
+          onShowToast(`Permohonan ${booking.booking_code} ditolak dengan catatan alasan. Kuota peminjam otomatis dipulihkan.`, 'success');
+        }
+        setRejectModalState({ isOpen: false, booking: null, reason: '' });
+        fetchAdminData();
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal menolak permohonan.', 'error');
+    } finally {
+      setSavingReject(false);
+    }
+  };
+
+  // CSV Export
+  const handleExportCsv = async () => {
+    try {
+      setIsExporting(true);
+      await adminService.downloadCsv({ status: statusFilter || undefined });
+      if (onShowToast) {
+        onShowToast('Laporan peminjaman CSV berhasil diunduh (kompatibel Excel).', 'success');
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal mengunduh laporan CSV.', 'error');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
+  // Auto Release Ghost Bookings
+  const handleAutoReleaseGhostBookings = async () => {
+    try {
+      setIsAutoReleasing(true);
+      const res = await adminService.autoReleaseGhostBookings();
+      if (res.success) {
+        if (onShowToast) {
+          onShowToast(res.message || `Auto-Release berhasil: ${res.released_count} ghost booking dibatalkan & slot dibuka kembali.`, 'success');
+        }
+        fetchAdminData();
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal menjalankan auto-release.', 'error');
+    } finally {
+      setIsAutoReleasing(false);
+    }
+  };
+
+  // WhatsApp Notification Direct Link
+  const handleShareWhatsApp = (b) => {
+    const roomName = b.room?.name || 'Ruangan Kampus';
+    const dateFormatted = formatDateIndo(b.booking_date);
+    const sessionTime = `${formatTimeClean(b.start_time)} - ${formatTimeClean(b.end_time)} WIB`;
+    const statusText = b.status === 'confirmed' ? 'DISETUJUI' : b.status === 'rejected' ? 'DITOLAK' : b.status.toUpperCase();
+
+    let noteText = '';
+    if (b.status === 'rejected' && b.rejection_reason) {
+      noteText = `\n⚠️ *Alasan Penolakan:* ${b.rejection_reason}\n_Anda dapat mengajukan proposal baru dengan kuota yang telah dipulihkan._`;
+    } else if (b.status === 'confirmed') {
+      noteText = `\n🔑 *Token Check-in:* ${b.checkin_token || '-'}\n_Harap scan QR check-in di depan pintu ruangan maksimal 30 menit sejak jam mulai._`;
+    }
+
+    const msg = `*PEMBERITAHUAN RESMI BIRO SARANA & FASILITAS KAMPUS*
+--------------------------------------------------
+Halo Sdr/i *${b.user?.name || 'Civitas Kampus'}*,
+Status permohonan reservasi Anda adalah: *${statusText}*
+
+🏛️ Ruangan: ${roomName}
+📅 Tanggal: ${dateFormatted}
+⏰ Sesi Jam: ${sessionTime}
+🔢 Kode Booking: ${b.booking_code}${noteText}
+
+_Pesan otomatis dikirim melalui Sistem Kumpul-In Kampus._`;
+
+    window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank', 'noopener,noreferrer');
+  };
+
+  // Open Room Inventory Modal
+  const handleOpenInventoryModal = async (room) => {
+    setInventoryModalRoom(room);
+    setNewInvName('');
+    setNewInvQty('1');
+    setNewInvCondition('good');
+    setNewInvNotes('');
+    try {
+      setLoadingInventories(true);
+      const res = await adminService.getRoomInventories(room.id);
+      if (res.success) {
+        setRoomInventoriesList(res.data);
+      }
+    } catch (err) {
+      console.error('Failed to load inventories:', err);
+    } finally {
+      setLoadingInventories(false);
+    }
+  };
+
+  // Add Item to Room Inventory
+  const handleAddInventorySubmit = async (e) => {
+    e.preventDefault();
+    if (!inventoryModalRoom || !newInvName.trim()) return;
+
+    try {
+      setSavingInv(true);
+      const payload = {
+        item_name: newInvName.trim(),
+        quantity: parseInt(newInvQty, 10) || 1,
+        condition: newInvCondition,
+        notes: newInvNotes.trim() || null,
+      };
+
+      const res = await adminService.createRoomInventory(inventoryModalRoom.id, payload);
+      if (res.success) {
+        if (onShowToast) onShowToast(`Alat "${newInvName}" berhasil ditambahkan ke inventaris!`, 'success');
+        setNewInvName('');
+        setNewInvQty('1');
+        setNewInvNotes('');
+        const invRes = await adminService.getRoomInventories(inventoryModalRoom.id);
+        if (invRes.success) setRoomInventoriesList(invRes.data);
+        fetchAdminData();
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal menambahkan inventaris.', 'error');
+    } finally {
+      setSavingInv(false);
+    }
+  };
+
+  // Delete Inventory Item
+  const handleDeleteInventoryItem = async (itemId, itemName) => {
+    try {
+      const res = await adminService.deleteRoomInventory(itemId);
+      if (res.success) {
+        if (onShowToast) onShowToast(`Alat "${itemName}" dihapus dari inventaris.`, 'success');
+        setRoomInventoriesList((prev) => prev.filter((item) => item.id !== itemId));
+        fetchAdminData();
+      }
+    } catch (err) {
+      if (onShowToast) onShowToast(err.customMessage || 'Gagal menghapus alat.', 'error');
+    }
   };
 
   // Toggle Room Active Status
@@ -714,11 +896,19 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                             </button>
                             <button
                               type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'rejected')}
+                              onClick={() => handleOpenRejectModal(b)}
                               className="px-2 py-0.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 font-bold text-[10px] transition-colors cursor-pointer"
-                              title="Tolak permohonan ini"
+                              title="Tolak permohonan dengan input alasan"
                             >
                               Tolak
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleShareWhatsApp(b)}
+                              className="p-1 rounded-lg text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer"
+                              title="Kirim Notifikasi WhatsApp ke Mahasiswa"
+                            >
+                              <Share2 className="w-3 h-3" />
                             </button>
                           </div>
                         )}
@@ -915,25 +1105,56 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                       Kapasitas: <strong className="text-slate-800">{room.capacity} Orang</strong> •{' '}
                       <span className="text-emerald-700 font-semibold">Fasilitas Bebas Biaya</span>
                     </p>
+
+                    {/* Inventory Preview */}
+                    <div className="mt-2.5 flex items-center gap-1.5 flex-wrap">
+                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
+                        <Package className="w-3 h-3 text-[#5c9ead]" /> Inventaris:
+                      </span>
+                      {room.inventories && room.inventories.length > 0 ? (
+                        room.inventories.slice(0, 2).map((inv) => (
+                          <span
+                            key={inv.id}
+                            className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200"
+                          >
+                            {inv.quantity}x {inv.item_name}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[10px] text-slate-400 italic">Belum ada alat</span>
+                      )}
+                    </div>
                   </div>
 
-                  <div className="pt-3 border-t border-slate-100 flex items-center justify-end space-x-1">
+                  <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
                     <button
                       type="button"
-                      onClick={() => handleOpenEditRoom(room)}
-                      className="p-2 rounded-xl text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
-                      title="Ubah Data Fasilitas"
+                      onClick={() => handleOpenInventoryModal(room)}
+                      className="px-2.5 py-1.5 rounded-xl text-xs font-bold text-[#326273] bg-[#eef6f8] hover:bg-[#d8edf1] border border-[#5c9ead]/40 transition-colors cursor-pointer flex items-center gap-1.5"
+                      title="Kelola Inventaris & Alat Ruangan"
                     >
-                      <Edit3 className="w-4 h-4" />
+                      <Package className="w-3.5 h-3.5 text-[#5c9ead]" />
+                      <span>Inventaris ({room.inventories?.length || 0})</span>
                     </button>
-                    <button
-                      type="button"
-                      onClick={() => handleDeleteRoom(room)}
-                      className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
-                      title="Hapus Fasilitas Ruangan"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+
+                    <div className="flex items-center space-x-1">
+                      <button
+                        type="button"
+                        onClick={() => handleOpenEditRoom(room)}
+                        className="p-2 rounded-xl text-slate-500 hover:text-[#326273] hover:bg-slate-100 transition-colors cursor-pointer"
+                        title="Ubah Data Fasilitas"
+                      >
+                        <Edit3 className="w-4 h-4" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteRoom(room)}
+                        className="p-2 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Hapus Fasilitas Ruangan"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -1149,21 +1370,53 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-auto">
-              <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-                <Filter className="w-3.5 h-3.5 text-[#5c9ead]" /> Filter Status:
-              </span>
-              <select
-                value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
-                className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+            <div className="flex flex-wrap items-center gap-2 self-start sm:self-auto">
+              <button
+                type="button"
+                onClick={handleAutoReleaseGhostBookings}
+                disabled={isAutoReleasing}
+                className="px-3 py-1.5 rounded-xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-800 text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                title="Batalkan otomatis reservasi yang tidak check-in >30 menit setelah jam mulai"
               >
-                <option value="">Semua Status</option>
-                <option value="pending">Menunggu Verifikasi (Pending)</option>
-                <option value="confirmed">Disetujui (Terkonfirmasi)</option>
-                <option value="rejected">Ditolak</option>
-                <option value="cancelled">Dibatalkan</option>
-              </select>
+                {isAutoReleasing ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-amber-600" />
+                ) : (
+                  <Clock className="w-3.5 h-3.5 text-amber-600" />
+                )}
+                <span>Auto-Release Ghost Booking</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleExportCsv}
+                disabled={isExporting}
+                className="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-xs disabled:opacity-50"
+                title="Unduh laporan peminjaman format CSV (kompatibel Excel)"
+              >
+                {isExporting ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin text-white" />
+                ) : (
+                  <Download className="w-3.5 h-3.5 text-white" />
+                )}
+                <span>Ekspor CSV / Excel</span>
+              </button>
+
+              <div className="flex items-center gap-1.5 pl-1 sm:pl-2 sm:border-l border-slate-200">
+                <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
+                  <Filter className="w-3.5 h-3.5 text-[#5c9ead]" />
+                </span>
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="text-xs rounded-xl border border-slate-200 bg-slate-50 py-1.5 px-3 font-medium focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                >
+                  <option value="">Semua Status</option>
+                  <option value="pending">Menunggu Verifikasi (Pending)</option>
+                  <option value="confirmed">Disetujui (Terkonfirmasi)</option>
+                  <option value="rejected">Ditolak</option>
+                  <option value="cancelled">Dibatalkan</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -1197,7 +1450,19 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                   bookings.map((b) => (
                     <tr key={b.id} className="hover:bg-slate-50/70 transition-colors">
                       <td className="py-3.5 px-4 font-mono font-bold text-[#326273]">
-                        {b.booking_code}
+                        <div>{b.booking_code}</div>
+                        <div className="flex flex-wrap gap-1 mt-1 font-sans">
+                          {b.recurring_group_id && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-indigo-50 text-indigo-700 border border-indigo-200">
+                              🔄 Rutin
+                            </span>
+                          )}
+                          {b.rescheduled_at && (
+                            <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-50 text-blue-700 border border-blue-200">
+                              📅 Rescheduled
+                            </span>
+                          )}
+                        </div>
                       </td>
                       <td className="py-3.5 px-4">
                         <div className="font-bold text-slate-900">{b.user?.name}</div>
@@ -1253,46 +1518,80 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                             ? 'Ditolak'
                             : 'Dibatalkan'}
                         </span>
+
+                        {/* Check-In Kehadiran status */}
+                        {b.checked_in_at && (
+                          <div className="mt-1 text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200 inline-flex items-center gap-1">
+                            <Check className="w-3 h-3 text-emerald-600" />
+                            <span>Hadir {formatTimeClean(b.checked_in_at)}</span>
+                          </div>
+                        )}
+                        {b.status === 'confirmed' && !b.checked_in_at && (
+                          <div className="mt-1 text-[10px] font-medium text-amber-700 bg-amber-50 px-2 py-0.5 rounded-full border border-amber-200 inline-flex items-center gap-1">
+                            <Clock className="w-3 h-3 text-amber-600" />
+                            <span>Belum Check-In</span>
+                          </div>
+                        )}
+
+                        {/* Rejection reason alert */}
+                        {b.status === 'rejected' && b.rejection_reason && (
+                          <div className="mt-1.5 p-1.5 rounded-lg bg-rose-50 border border-rose-200 text-[10px] text-rose-700 leading-tight max-w-xs">
+                            <strong className="block font-bold">Catatan Penolakan:</strong>
+                            <span>{b.rejection_reason}</span>
+                          </div>
+                        )}
                       </td>
                       <td className="py-3.5 px-4 text-right">
-                        {b.status === 'pending' ? (
-                          <div className="flex items-center justify-end gap-1.5">
+                        <div className="flex items-center justify-end gap-1.5">
+                          {b.status === 'pending' ? (
+                            <>
+                              <button
+                                type="button"
+                                onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
+                                className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors cursor-pointer"
+                                title="Setujui permohonan peminjaman ini"
+                              >
+                                Setujui
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleOpenRejectModal(b)}
+                                className="px-2.5 py-1 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 font-bold text-[11px] transition-colors cursor-pointer"
+                                title="Tolak permohonan dengan input alasan"
+                              >
+                                Tolak
+                              </button>
+                            </>
+                          ) : b.status === 'confirmed' ? (
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateBookingStatus(b, 'cancelled')}
+                              className="px-2.5 py-1 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors font-bold text-[11px] cursor-pointer"
+                              title="Batalkan reservasi dan pulihkan kuota civitas"
+                            >
+                              Batalkan
+                            </button>
+                          ) : (
                             <button
                               type="button"
                               onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
-                              className="px-2.5 py-1 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-[11px] transition-colors cursor-pointer"
-                              title="Setujui permohonan peminjaman ini"
+                              className="px-2.5 py-1 rounded-xl text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-colors font-bold text-[11px] cursor-pointer"
+                              title="Setujui kembali peminjaman ini"
                             >
-                              Setujui
+                              Setujui Ulang
                             </button>
-                            <button
-                              type="button"
-                              onClick={() => handleUpdateBookingStatus(b, 'rejected')}
-                              className="px-2.5 py-1 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 font-bold text-[11px] transition-colors cursor-pointer"
-                              title="Tolak permohonan peminjaman ini"
-                            >
-                              Tolak
-                            </button>
-                          </div>
-                        ) : b.status === 'confirmed' ? (
+                          )}
+
+                          {/* WhatsApp Notification Button */}
                           <button
                             type="button"
-                            onClick={() => handleUpdateBookingStatus(b, 'cancelled')}
-                            className="px-2.5 py-1 rounded-xl text-rose-600 hover:bg-rose-50 border border-rose-200 transition-colors font-bold text-[11px] cursor-pointer"
-                            title="Batalkan reservasi dan pulihkan kuota civitas"
+                            onClick={() => handleShareWhatsApp(b)}
+                            className="p-1 rounded-xl text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer"
+                            title="Kirim Notifikasi WhatsApp ke Mahasiswa"
                           >
-                            Batalkan
+                            <Share2 className="w-3.5 h-3.5" />
                           </button>
-                        ) : (
-                          <button
-                            type="button"
-                            onClick={() => handleUpdateBookingStatus(b, 'confirmed')}
-                            className="px-2.5 py-1 rounded-xl text-emerald-600 hover:bg-emerald-50 border border-emerald-200 transition-colors font-bold text-[11px] cursor-pointer"
-                            title="Setujui kembali peminjaman ini"
-                          >
-                            Setujui Ulang
-                          </button>
-                        )}
+                        </div>
                       </td>
                     </tr>
                   ))
@@ -1671,6 +1970,272 @@ export default function AdminDashboard({ currentUser, activeTab = 'admin', setAc
                   {savingEditUser ? 'Memperbarui...' : 'Perbarui Pengguna'}
                 </button>
               </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 5: Input Alasan Penolakan Permohonan */}
+      {rejectModalState.isOpen && rejectModalState.booking && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        >
+          <div className="bg-white rounded-3xl max-w-md w-full shadow-2xl p-5 sm:p-6 space-y-4 border border-slate-100 max-h-[92vh] overflow-y-auto my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-rose-50 text-rose-600">
+                  <XCircle className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Tolak Permohonan Peminjaman</h3>
+                  <p className="text-[11px] text-slate-400 font-mono">{rejectModalState.booking.booking_code}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setRejectModalState({ isOpen: false, booking: null, reason: '' })}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-3 rounded-2xl bg-slate-50 border border-slate-200/80 text-xs text-slate-600 space-y-1">
+              <div>Pemohon: <strong className="text-slate-800">{rejectModalState.booking.user?.name}</strong></div>
+              <div>Ruangan: <strong className="text-slate-800">{rejectModalState.booking.room?.name}</strong></div>
+              <div>Tanggal: <strong className="text-slate-800">{formatDateIndo(rejectModalState.booking.booking_date)}</strong></div>
+            </div>
+
+            <form onSubmit={handleConfirmReject} className="space-y-3.5 text-xs">
+              <div>
+                <label className="block font-bold text-slate-700 mb-1">
+                  Alasan Penolakan Permohonan <span className="text-rose-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={3}
+                  value={rejectModalState.reason}
+                  onChange={(e) => setRejectModalState((prev) => ({ ...prev, reason: e.target.value }))}
+                  placeholder="Contoh: Proposal izin ormawa belum ditandatangani pembina, atau ruangan sedang dipakai gladi resik wisuda."
+                  className="w-full rounded-xl border border-slate-200 py-2 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none text-xs leading-relaxed"
+                />
+              </div>
+
+              {/* Quick Template Reasons */}
+              <div className="space-y-1">
+                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Pilihan Cepat Alasan:</span>
+                <div className="flex flex-wrap gap-1">
+                  {[
+                    'Proposal belum ada tanda tangan pembina ormawa',
+                    'Ruangan dipakai kegiatan resmi universitas',
+                    'Kapasitas peserta melebihi batas ruangan',
+                    'Waktu pengajuan kurang dari H-3',
+                  ].map((preset, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      onClick={() => setRejectModalState((prev) => ({ ...prev, reason: preset }))}
+                      className="text-[10px] px-2 py-0.5 rounded-md bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors cursor-pointer"
+                    >
+                      {preset}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-3 rounded-xl bg-amber-50 border border-amber-200 text-amber-900 text-[11px] leading-relaxed">
+                ℹ️ Menolak permohonan akan otomatis memulihkan kuota peminjaman mahasiswa (+1 slot) dan membuka slot ruangan kembali.
+              </div>
+
+              <div className="grid grid-cols-2 gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setRejectModalState({ isOpen: false, booking: null, reason: '' })}
+                  className="h-11 px-4 rounded-xl font-bold text-xs bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center justify-center transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={savingReject || !rejectModalState.reason.trim()}
+                  className="h-11 px-4 rounded-xl font-bold text-xs bg-rose-600 text-white hover:bg-rose-700 shadow-xs cursor-pointer flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+                >
+                  {savingReject ? (
+                    <>
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <span>Menolak...</span>
+                    </>
+                  ) : (
+                    <span>Tolak & Kirim Catatan</span>
+                  )}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL 6: Kelola Inventaris & Alat Ruangan */}
+      {inventoryModalRoom && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-900/60 backdrop-blur-xs animate-fade-in overflow-y-auto"
+        >
+          <div className="bg-white rounded-3xl max-w-lg w-full shadow-2xl p-5 sm:p-6 space-y-4 border border-slate-100 max-h-[92vh] overflow-y-auto my-auto">
+            <div className="flex items-center justify-between pb-3 border-b border-slate-100">
+              <div className="flex items-center gap-2">
+                <div className="p-2 rounded-xl bg-[#eef6f8] text-[#326273]">
+                  <Package className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="text-base font-bold text-slate-900">Inventaris Alat Ruangan</h3>
+                  <p className="text-xs text-slate-500">{inventoryModalRoom.name} ({inventoryModalRoom.category})</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setInventoryModalRoom(null)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* List Existing Inventories */}
+            <div className="space-y-2">
+              <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">
+                Daftar Inventaris Terdata ({roomInventoriesList.length})
+              </span>
+              {loadingInventories ? (
+                <div className="py-6 text-center text-slate-400 text-xs flex items-center justify-center gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-[#326273]" />
+                  <span>Memuat inventaris alat...</span>
+                </div>
+              ) : roomInventoriesList.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-slate-50 border border-dashed border-slate-200 text-center text-xs text-slate-500">
+                  Belum ada alat atau inventaris yang didaftarkan untuk ruangan ini.
+                </div>
+              ) : (
+                <div className="space-y-2 max-h-52 overflow-y-auto pr-1">
+                  {roomInventoriesList.map((item) => (
+                    <div
+                      key={item.id}
+                      className="p-3 rounded-2xl bg-slate-50 border border-slate-200 flex items-center justify-between gap-2 text-xs"
+                    >
+                      <div className="space-y-0.5">
+                        <div className="font-bold text-slate-800 flex items-center gap-2">
+                          <span>{item.item_name}</span>
+                          <span className="text-[10px] font-extrabold px-2 py-0.5 rounded-md bg-white border border-slate-200 text-[#326273]">
+                            {item.quantity} Unit
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2 text-[11px] text-slate-500">
+                          <span className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                            item.condition === 'good'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : item.condition === 'fair'
+                              ? 'bg-amber-100 text-amber-800'
+                              : item.condition === 'damaged'
+                              ? 'bg-rose-100 text-rose-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}>
+                            {item.condition === 'good' ? 'Baik' : item.condition === 'fair' ? 'Cukup' : item.condition === 'damaged' ? 'Rusak' : 'Pemeliharaan'}
+                          </span>
+                          {item.notes && <span className="italic text-slate-400">• {item.notes}</span>}
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteInventoryItem(item.id, item.item_name)}
+                        className="p-1.5 rounded-xl text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                        title="Hapus Alat"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Add New Inventory Form */}
+            <form onSubmit={handleAddInventorySubmit} className="pt-3 border-t border-slate-100 space-y-3 text-xs">
+              <span className="text-xs font-bold text-[#326273] uppercase tracking-wider block">
+                Tambah Alat Baru ke Ruangan
+              </span>
+
+              <div className="grid grid-cols-3 gap-2">
+                <div className="col-span-2">
+                  <label className="block font-semibold text-slate-700 mb-1">Nama Alat</label>
+                  <input
+                    type="text"
+                    required
+                    value={newInvName}
+                    onChange={(e) => setNewInvName(e.target.value)}
+                    placeholder="Cth: Mic Wireless Shure, Smart TV 65"
+                    className="w-full rounded-xl border border-slate-200 py-1.5 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Jumlah</label>
+                  <input
+                    type="number"
+                    min="1"
+                    required
+                    value={newInvQty}
+                    onChange={(e) => setNewInvQty(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 py-1.5 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Kondisi Alat</label>
+                  <select
+                    value={newInvCondition}
+                    onChange={(e) => setNewInvCondition(e.target.value)}
+                    className="w-full rounded-xl border border-slate-200 py-1.5 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                  >
+                    <option value="good">Baik (Siap Pakai)</option>
+                    <option value="fair">Cukup (Layak)</option>
+                    <option value="maintenance">Dalam Pemeliharaan</option>
+                    <option value="damaged">Rusak</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-semibold text-slate-700 mb-1">Catatan / Spesifikasi</label>
+                  <input
+                    type="text"
+                    value={newInvNotes}
+                    onChange={(e) => setNewInvNotes(e.target.value)}
+                    placeholder="Cth: Kabel HDMI 5m, Box audio"
+                    className="w-full rounded-xl border border-slate-200 py-1.5 px-3 bg-slate-50 focus:border-[#326273] focus:ring-1 focus:ring-[#326273] outline-none"
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={savingInv || !newInvName.trim()}
+                className="w-full py-2.5 rounded-xl font-bold bg-[#326273] text-white hover:bg-[#264c5a] shadow-xs cursor-pointer flex items-center justify-center gap-1.5 transition-colors disabled:opacity-50"
+              >
+                {savingInv ? (
+                  <>
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    <span>Menambahkan...</span>
+                  </>
+                ) : (
+                  <>
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Tambahkan Alat ke Ruangan</span>
+                  </>
+                )}
+              </button>
             </form>
           </div>
         </div>

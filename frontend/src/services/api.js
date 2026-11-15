@@ -125,6 +125,21 @@ export const bookingService = {
     const res = await api.patch(`/bookings/${id}/cancel`);
     return res.data;
   },
+
+  rescheduleBooking: async (id, data) => {
+    const res = await api.patch(`/bookings/${id}/reschedule`, data);
+    return res.data;
+  },
+
+  checkIn: async (id) => {
+    const res = await api.post(`/bookings/${id}/checkin`);
+    return res.data;
+  },
+
+  checkInByToken: async (token) => {
+    const res = await api.post('/bookings/checkin-by-token', { token });
+    return res.data;
+  },
 };
 
 export const adminService = {
@@ -138,9 +153,39 @@ export const adminService = {
     return res.data;
   },
 
-  updateBookingStatus: async (id, status) => {
-    const res = await api.patch(`/admin/bookings/${id}/status`, { status });
+  updateBookingStatus: async (id, status, rejectionReason = '') => {
+    const payload = { status };
+    if (rejectionReason) payload.rejection_reason = rejectionReason;
+    const res = await api.patch(`/admin/bookings/${id}/status`, payload);
     return res.data;
+  },
+
+  autoReleaseGhostBookings: async () => {
+    const res = await api.post('/admin/bookings/auto-release');
+    return res.data;
+  },
+
+  exportCsvUrl: (params = {}) => {
+    const query = new URLSearchParams(params).toString();
+    const token = localStorage.getItem('kumpulin_token') || '';
+    return `${API_BASE_URL}/admin/bookings/export-csv?${query}`;
+  },
+
+  downloadCsv: async (params = {}) => {
+    const res = await api.get('/admin/bookings/export-csv', {
+      params,
+      responseType: 'blob',
+    });
+    const blob = new Blob([res.data], { type: 'text/csv;charset=utf-8;' });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `laporan-peminjaman-kumpulin-${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+    return true;
   },
 
   createRoom: async (data) => {
@@ -155,6 +200,27 @@ export const adminService = {
 
   deleteRoom: async (id) => {
     const res = await api.delete(`/admin/rooms/${id}`);
+    return res.data;
+  },
+
+  // Room Inventories Management
+  getRoomInventories: async (roomId) => {
+    const res = await api.get(`/admin/rooms/${roomId}/inventories`);
+    return res.data;
+  },
+
+  createRoomInventory: async (roomId, data) => {
+    const res = await api.post(`/admin/rooms/${roomId}/inventories`, data);
+    return res.data;
+  },
+
+  updateRoomInventory: async (id, data) => {
+    const res = await api.patch(`/admin/inventories/${id}`, data);
+    return res.data;
+  },
+
+  deleteRoomInventory: async (id) => {
+    const res = await api.delete(`/admin/inventories/${id}`);
     return res.data;
   },
 

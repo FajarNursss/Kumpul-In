@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, ChevronRight, CheckCircle2, ShieldCheck, Check } from 'lucide-react';
+import { Users, ChevronRight, CheckCircle2, ShieldCheck, Check, Package } from 'lucide-react';
 
 const categoryColorMap = {
   'Aula': {
@@ -97,6 +97,29 @@ export default function RoomCard({ room, isSelected, onSelect }) {
               </span>
             ))}
           </div>
+
+          {/* Room Inventories Badges (if available) */}
+          {room.inventories && room.inventories.length > 0 && (
+            <div className="pt-2 mt-2 border-t border-slate-100 flex flex-wrap gap-1.5 items-center">
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1 mr-1">
+                <Package className="w-3 h-3 text-[#5c9ead]" /> Inventaris:
+              </span>
+              {room.inventories.slice(0, 3).map((item) => (
+                <span
+                  key={item.id}
+                  className="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-800 border border-emerald-200/70"
+                  title={`${item.item_name} (${item.quantity} unit, Kondisi: ${item.condition})`}
+                >
+                  {item.quantity}x {item.item_name}
+                </span>
+              ))}
+              {room.inventories.length > 3 && (
+                <span className="text-[10px] font-bold text-slate-400">
+                  +{room.inventories.length - 3} lainnya
+                </span>
+              )}
+            </div>
+          )}
         </div>
 
         {/* Campus Non-Commercial Booking Status & Action */}
